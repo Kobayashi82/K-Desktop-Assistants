@@ -25,6 +25,9 @@ public sealed partial class LanderAssistant
     private Vec2? _dragCursor;
     private bool _gameKeys;
 
+    /// <summary>Un extra que llegó antes de que el juego arrancara.</summary>
+    private string? _pendingExtra;
+
     public void OnPointer(PointerEvent e)
     {
         if (!_game.IsInitialized || _hidden || _exitStart is not null)
@@ -152,11 +155,26 @@ public sealed partial class LanderAssistant
 
     public Task OnExtraAsync(string extraId, CancellationToken ct)
     {
-        if (!_game.IsInitialized || _exitStart is not null)
+        if (_exitStart is not null)
         {
             return Task.CompletedTask;
         }
 
+        if (!_game.IsInitialized)
+        {
+            // Recién cargado (K-Desktop lo saca para esto, p. ej. con Ctrl+Alt+L) y aún sin mundo: lo hace al arrancar.
+            _host.Log.Info($"Extra en espera de arrancar: {extraId}");
+            _pendingExtra = extraId;
+            _host.RequestTick();
+            return Task.CompletedTask;
+        }
+
+        RunExtra(extraId);
+        return Task.CompletedTask;
+    }
+
+    private void RunExtra(string extraId)
+    {
         _host.Log.Info($"Extra: {extraId}");
         switch (extraId)
         {
@@ -187,7 +205,6 @@ public sealed partial class LanderAssistant
 
         DrainGameEvents();
         _host.RequestTick();
-        return Task.CompletedTask;
     }
 
     /// <summary>Empieza una carrera por un circuito nuevo o repite el último para batir el récord.</summary>

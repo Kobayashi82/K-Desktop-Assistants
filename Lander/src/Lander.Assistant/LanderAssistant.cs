@@ -220,6 +220,12 @@ public sealed partial class LanderAssistant : IAssistant
             _forceRender = true;
         }
 
+        if (_pendingExtra is { } extra)
+        {
+            _pendingExtra = null;
+            RunExtra(extra);
+        }
+
         return true;
     }
 

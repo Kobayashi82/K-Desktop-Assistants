@@ -25,6 +25,18 @@
           "title": { "es": "Modo manual", "en": "Manual mode", "fr": "Mode manuel", "de": "Manueller Modus", "it": "Modalità manuale", "pt": "Modo manual" },
           "items": [
             {
+              "type": "hotkey", "extra": "lander.manual",
+              "label": { "es": "Atajo para pilotarlo", "en": "Hotkey to fly it", "fr": "Raccourci pour le piloter", "de": "Tastenkürzel zum Steuern", "it": "Scorciatoia per pilotarlo", "pt": "Atalho para pilotá-lo" },
+              "description": {
+                "es": "Entra en el modo manual y, pulsándolo otra vez, sale.",
+                "en": "Enters manual mode and, pressed again, leaves it.",
+                "fr": "Passe en mode manuel et, pressé à nouveau, en sort.",
+                "de": "Wechselt in den manuellen Modus und, erneut gedrückt, wieder heraus.",
+                "it": "Entra nella modalità manuale e, premuta di nuovo, ne esce.",
+                "pt": "Entra no modo manual e, pressionado de novo, sai dele."
+              }
+            },
+            {
               "type": "slider", "key": "manualTimeoutSeconds", "min": 10, "max": 120, "step": 5, "default": 30, "format": "{0} s",
               "label": { "es": "Devolver el control automáticamente", "en": "Hand back control automatically", "fr": "Rendre la main automatiquement", "de": "Steuerung automatisch zurückgeben", "it": "Restituisci il controllo automaticamente", "pt": "Devolver o controle automaticamente" },
               "description": {

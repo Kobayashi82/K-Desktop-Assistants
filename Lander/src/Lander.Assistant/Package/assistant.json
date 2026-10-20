@@ -2,7 +2,7 @@
   "$schema": "../../../../../docs/assistant/esquemas/assistant.schema.json",
   "id": "lander",
   "name": "Lander",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "author": "Kobayashi82",
   "description": {
     "es": "Un pequeño módulo lunar que vuela por tus ventanas y aterriza en ellas. Incluye su juego.",
@@ -29,7 +29,8 @@
     {
       "id": "lander.manual",
       "name": { "es": "Modo manual", "en": "Manual mode", "fr": "Mode manuel", "de": "Manueller Modus", "it": "Modalità manuale", "pt": "Modo manual" },
-      "icon": "kd:XboxController"
+      "icon": "kd:XboxController",
+      "hotkey": "CTRL + ALT + L"
     },
     {
       "id": "lander.mission",
