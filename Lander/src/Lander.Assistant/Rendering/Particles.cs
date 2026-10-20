@@ -97,6 +97,35 @@ internal sealed class ParticleSystem
 
     public void Clear() => Count = 0;
 
+    /// <summary>
+    /// Caja de todo lo que se ve de las partículas, recortada a <paramref name="window"/> (fuera del fotograma no se
+    /// dibujan), o <see cref="Rect.Empty"/> si no hay ninguna.
+    /// </summary>
+    public Rect Bounds(Rect window)
+    {
+        var bounds = Rect.Empty;
+        for (var i = 0; i < Count; i++)
+        {
+            ref readonly var p = ref _items[i];
+            var reach = p.Kind switch
+            {
+                ParticleKind.Beam => new Rect(p.Position.X - p.Size * 1.6, p.Position.Y - p.Size * 6.1, p.Size * 3.2, p.Size * 7.4),
+                ParticleKind.Spark => new Rect(p.Position.X - p.Size - Math.Abs(p.Velocity.X) * 0.03, p.Position.Y - p.Size - Math.Abs(p.Velocity.Y) * 0.03,
+                    2 * (p.Size + Math.Abs(p.Velocity.X) * 0.03), 2 * (p.Size + Math.Abs(p.Velocity.Y) * 0.03)),
+                ParticleKind.Ring => new Rect(p.Position.X - p.Size - 1, p.Position.Y - p.Size * 0.2 - 1, p.Size * 2 + 2, p.Size * 0.4 + 2),
+                _ => new Rect(p.Position.X - p.Size * 2, p.Position.Y - p.Size * 2, p.Size * 4, p.Size * 4),
+            };
+            bounds.Union(reach);
+        }
+
+        if (!bounds.IsEmpty)
+        {
+            bounds.Intersect(window);
+        }
+
+        return bounds;
+    }
+
     public void Update(double dt)
     {
         for (var i = 0; i < Count; i++)

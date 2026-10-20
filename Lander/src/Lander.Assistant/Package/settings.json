@@ -1,0 +1,398 @@
+{
+  "$schema": "../../../../../docs/assistant/esquemas/settings.schema.json",
+  "pages": [
+    {
+      "title": { "es": "General", "en": "General", "fr": "Général", "de": "Allgemein", "it": "Generale", "pt": "Geral" },
+      "icon": "kd:Settings",
+      "sections": [
+        {
+          "items": [
+            {
+              "type": "toggle", "key": "paused", "default": false,
+              "label": { "es": "Pausar", "en": "Pause", "fr": "Mettre en pause", "de": "Pausieren", "it": "Metti in pausa", "pt": "Pausar" },
+              "description": {
+                "es": "Aterriza donde esté y se queda quieto.",
+                "en": "It lands wherever it is and stays still.",
+                "fr": "Il se pose là où il est et ne bouge plus.",
+                "de": "Er landet, wo er gerade ist, und bleibt still.",
+                "it": "Atterra dove si trova e resta fermo.",
+                "pt": "Ele pousa onde estiver e fica parado."
+              }
+            }
+          ]
+        },
+        {
+          "title": { "es": "Modo manual", "en": "Manual mode", "fr": "Mode manuel", "de": "Manueller Modus", "it": "Modalità manuale", "pt": "Modo manual" },
+          "items": [
+            {
+              "type": "slider", "key": "manualTimeoutSeconds", "min": 10, "max": 120, "step": 5, "default": 30, "format": "{0} s",
+              "label": { "es": "Devolver el control automáticamente", "en": "Hand back control automatically", "fr": "Rendre la main automatiquement", "de": "Steuerung automatisch zurückgeben", "it": "Restituisci il controllo automaticamente", "pt": "Devolver o controle automaticamente" },
+              "description": {
+                "es": "Si no tocas ninguna tecla durante este tiempo, el lander vuelve a volar solo.",
+                "en": "If you don't touch any key for this long, the lander flies on its own again.",
+                "fr": "Si tu ne touches aucune touche pendant ce temps, le lander revole tout seul.",
+                "de": "Wenn du so lange keine Taste drückst, fliegt der Lander wieder von selbst.",
+                "it": "Se non tocchi nessun tasto per questo tempo, il lander torna a volare da solo.",
+                "pt": "Se você não tocar em nenhuma tecla durante esse tempo, o lander volta a voar sozinho."
+              }
+            },
+            {
+              "type": "button", "extra": "lander.manual", "icon": "kd:XboxController",
+              "label": { "es": "Pilotar ahora", "en": "Fly it now", "fr": "Piloter maintenant", "de": "Jetzt steuern", "it": "Pilota ora", "pt": "Pilotar agora" },
+              "description": {
+                "es": "Toma o devuelve el control sin usar el teclado. También con doble clic sobre el lander.",
+                "en": "Take or hand back control without the keyboard. Also by double-clicking the lander.",
+                "fr": "Prends ou rends la main sans le clavier. Aussi en double-cliquant sur le lander.",
+                "de": "Übernimm oder gib die Steuerung ohne Tastatur ab. Auch per Doppelklick auf den Lander.",
+                "it": "Prendi o restituisci il controllo senza tastiera. Anche con un doppio clic sul lander.",
+                "pt": "Assuma ou devolva o controle sem usar o teclado. Também com um clique duplo no lander."
+              }
+            },
+            {
+              "type": "button", "extra": "lander.race", "icon": "kd:Flag",
+              "label": { "es": "Carrera contrarreloj", "en": "Time trial", "fr": "Course contre la montre", "de": "Zeitrennen", "it": "Gara a cronometro", "pt": "Corrida contra o relógio" },
+              "description": {
+                "es": "Se ponen balizas numeradas sobre tus ventanas: posa el lander en cada una, en orden, y vuelve a la base. El cronómetro arranca al despegar.",
+                "en": "Numbered beacons appear on your windows: land on each one, in order, and return to base. The clock starts at takeoff.",
+                "fr": "Des balises numérotées apparaissent sur tes fenêtres : pose le lander sur chacune, dans l’ordre, puis reviens à la base. Le chrono démarre au décollage.",
+                "de": "Auf deinen Fenstern erscheinen nummerierte Baken: Lande der Reihe nach auf jeder und kehre zur Basis zurück. Die Uhr startet beim Abheben.",
+                "it": "Sulle tue finestre compaiono boe numerate: atterra su ognuna, in ordine, e torna alla base. Il cronometro parte al decollo.",
+                "pt": "Balizas numeradas aparecem nas suas janelas: pouse o lander em cada uma, na ordem, e volte à base. O cronômetro começa na decolagem."
+              }
+            },
+            {
+              "type": "button", "extra": "lander.race.repeat", "icon": "kd:ArrowRepeatAll",
+              "label": { "es": "Repetir la carrera", "en": "Repeat the race", "fr": "Refaire la course", "de": "Rennen wiederholen", "it": "Ripeti la gara", "pt": "Repetir a corrida" },
+              "description": {
+                "es": "El mismo circuito otra vez, para batir tu récord.",
+                "en": "The same course again, to beat your record.",
+                "fr": "Le même circuit, pour battre ton record.",
+                "de": "Dieselbe Strecke noch einmal, um deinen Rekord zu schlagen.",
+                "it": "Lo stesso percorso di nuovo, per battere il tuo record.",
+                "pt": "O mesmo circuito de novo, para bater o seu recorde."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": { "es": "Aspecto", "en": "Look", "fr": "Apparence", "de": "Aussehen", "it": "Aspetto", "pt": "Aparência" },
+      "icon": "kd:Color",
+      "sections": [
+        {
+          "items": [
+            {
+              "type": "slider", "key": "landerSize", "min": 32, "max": 96, "step": 4, "default": 48, "format": "{0} px",
+              "label": { "es": "Tamaño", "en": "Size", "fr": "Taille", "de": "Größe", "it": "Dimensione", "pt": "Tamanho" },
+              "description": {
+                "es": "Altura del lander. Se ajusta además al escalado de cada monitor.",
+                "en": "Height of the lander. It also follows the scaling of each monitor.",
+                "fr": "Hauteur du lander. Elle suit aussi la mise à l’échelle de chaque écran.",
+                "de": "Höhe des Landers. Sie passt sich zusätzlich der Skalierung jedes Bildschirms an.",
+                "it": "Altezza del lander. Si adatta anche al ridimensionamento di ogni monitor.",
+                "pt": "Altura do lander. Ela também acompanha a escala de cada monitor."
+              }
+            },
+            {
+              "type": "gallery", "key": "skin", "source": "skins", "default": "classic",
+              "label": { "es": "Modelo", "en": "Model", "fr": "Modèle", "de": "Modell", "it": "Modello", "pt": "Modelo" },
+              "description": {
+                "es": "Se desbloquean más modelos al subir de nivel pilotando.",
+                "en": "More models unlock as you level up by flying.",
+                "fr": "D’autres modèles se débloquent en montant de niveau aux commandes.",
+                "de": "Weitere Modelle schaltest du frei, wenn du beim Fliegen aufsteigst.",
+                "it": "Altri modelli si sbloccano salendo di livello pilotando.",
+                "pt": "Mais modelos são desbloqueados ao subir de nível pilotando."
+              }
+            },
+            {
+              "type": "gallery", "key": "trail", "source": "trails", "default": "white",
+              "label": { "es": "Estela del motor", "en": "Engine trail", "fr": "Traînée du moteur", "de": "Triebwerksspur", "it": "Scia del motore", "pt": "Rastro do motor" },
+              "description": {
+                "es": "El color del humo.",
+                "en": "The colour of the smoke.",
+                "fr": "La couleur de la fumée.",
+                "de": "Die Farbe des Rauchs.",
+                "it": "Il colore del fumo.",
+                "pt": "A cor da fumaça."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": { "es": "Comportamiento", "en": "Behaviour", "fr": "Comportement", "de": "Verhalten", "it": "Comportamento", "pt": "Comportamento" },
+      "icon": "kd:Bot",
+      "sections": [
+        {
+          "items": [
+            {
+              "type": "slider", "key": "activity", "min": 0.25, "max": 3, "step": 0.05, "default": 1,
+              "label": { "es": "Actividad", "en": "Activity", "fr": "Activité", "de": "Aktivität", "it": "Attività", "pt": "Atividade" },
+              "description": {
+                "es": "Cada cuánto se anima a volar a otro sitio cuando está en automático.",
+                "en": "How often it decides to fly somewhere else on its own.",
+                "fr": "À quelle fréquence il décide de voler ailleurs tout seul.",
+                "de": "Wie oft er von selbst woanders hinfliegt.",
+                "it": "Ogni quanto decide di volare altrove da solo.",
+                "pt": "Com que frequência ele resolve voar para outro lugar sozinho."
+              },
+              "minLabel": { "es": "Tranquilo", "en": "Calm", "fr": "Calme", "de": "Ruhig", "it": "Tranquillo", "pt": "Tranquilo" },
+              "maxLabel": { "es": "Activo", "en": "Active", "fr": "Actif", "de": "Aktiv", "it": "Attivo", "pt": "Ativo" }
+            },
+            {
+              "type": "slider", "key": "shyness", "min": 0, "max": 1, "step": 0.05, "default": 0.5,
+              "label": { "es": "Timidez", "en": "Shyness", "fr": "Timidité", "de": "Schüchternheit", "it": "Timidezza", "pt": "Timidez" },
+              "description": {
+                "es": "Si huye del cursor cuando se le acerca o si, al contrario, lo sigue.",
+                "en": "Whether it runs away from the cursor when it gets close or, on the contrary, follows it.",
+                "fr": "S’il fuit le curseur quand il s’approche ou si, au contraire, il le suit.",
+                "de": "Ob er vor dem Mauszeiger flieht, wenn er näher kommt, oder ihm im Gegenteil folgt.",
+                "it": "Se fugge dal cursore quando si avvicina o se, al contrario, lo segue.",
+                "pt": "Se ele foge do cursor quando ele se aproxima ou se, ao contrário, o segue."
+              },
+              "minLabel": { "es": "Lo sigue", "en": "Follows it", "fr": "Le suit", "de": "Folgt ihm", "it": "Lo segue", "pt": "Segue" },
+              "maxLabel": { "es": "Huye", "en": "Runs away", "fr": "Fuit", "de": "Flieht", "it": "Fugge", "pt": "Foge" }
+            },
+            {
+              "type": "choice", "key": "pilotErrors", "default": 0.5,
+              "label": { "es": "Despistes del piloto", "en": "Pilot slip-ups", "fr": "Distractions du pilote", "de": "Patzer des Piloten", "it": "Distrazioni del pilota", "pt": "Descuidos do piloto" },
+              "description": {
+                "es": "Para que no parezca un robot: a veces calcula mal la frenada o llega torcido. Casi siempre acaba en un aterrizaje duro; muy de vez en cuando, en un accidente.",
+                "en": "So it doesn't feel like a robot: sometimes it misjudges the braking or arrives crooked. It nearly always ends in a hard landing; very rarely, in a crash.",
+                "fr": "Pour ne pas avoir l’air d’un robot : parfois il calcule mal son freinage ou arrive de travers. Presque toujours un atterrissage dur ; très rarement, un accident.",
+                "de": "Damit er nicht wie ein Roboter wirkt: Manchmal verschätzt er sich beim Bremsen oder kommt schief an. Fast immer eine harte Landung, ganz selten ein Absturz.",
+                "it": "Per non sembrare un robot: a volte calcola male la frenata o arriva storto. Quasi sempre finisce con un atterraggio duro; molto di rado, con un incidente.",
+                "pt": "Para não parecer um robô: às vezes ele calcula mal a frenagem ou chega torto. Quase sempre termina num pouso duro; muito raramente, num acidente."
+              },
+              "options": [
+                { "value": 0, "label": { "es": "Ninguno", "en": "None", "fr": "Aucune", "de": "Keine", "it": "Nessuna", "pt": "Nenhum" } },
+                { "value": 0.25, "label": { "es": "Pocos", "en": "Few", "fr": "Peu", "de": "Wenige", "it": "Poche", "pt": "Poucos" } },
+                { "value": 0.5, "label": { "es": "Normales", "en": "Normal", "fr": "Normales", "de": "Normal", "it": "Normali", "pt": "Normais" } },
+                { "value": 1, "label": { "es": "Muchos", "en": "Many", "fr": "Beaucoup", "de": "Viele", "it": "Molte", "pt": "Muitos" } }
+              ]
+            },
+            {
+              "type": "choice", "key": "acrobatics", "default": 0.5,
+              "label": { "es": "Acrobacias", "en": "Acrobatics", "fr": "Acrobaties", "de": "Kunstflug", "it": "Acrobazie", "pt": "Acrobacias" },
+              "description": {
+                "es": "Volteretas, caídas libres con frenada en el último instante, saltos balísticos, picados y vuelos ondulantes. Sin acrobacias vuela siempre con calma.",
+                "en": "Flips, free falls braked at the last moment, ballistic hops, dives and wavy flights. With none, it always flies calmly.",
+                "fr": "Saltos, chutes libres freinées au dernier moment, sauts balistiques, piqués et vols ondulés. Sans acrobaties, il vole toujours calmement.",
+                "de": "Überschläge, freie Fälle mit Bremsen im letzten Moment, ballistische Sprünge, Sturzflüge und Wellenflüge. Ohne Kunstflug fliegt er immer ruhig.",
+                "it": "Capriole, cadute libere frenate all’ultimo istante, salti balistici, picchiate e voli ondulati. Senza acrobazie vola sempre con calma.",
+                "pt": "Cambalhotas, quedas livres com frenagem no último instante, saltos balísticos, mergulhos e voos ondulantes. Sem acrobacias, ele sempre voa com calma."
+              },
+              "options": [
+                { "value": 0, "label": { "es": "Ninguna", "en": "None", "fr": "Aucune", "de": "Keine", "it": "Nessuna", "pt": "Nenhuma" } },
+                { "value": 0.25, "label": { "es": "Pocas", "en": "Few", "fr": "Peu", "de": "Wenige", "it": "Poche", "pt": "Poucas" } },
+                { "value": 0.5, "label": { "es": "Normales", "en": "Normal", "fr": "Normales", "de": "Normal", "it": "Normali", "pt": "Normais" } },
+                { "value": 1, "label": { "es": "Muchas", "en": "Many", "fr": "Beaucoup", "de": "Viele", "it": "Molte", "pt": "Muitas" } }
+              ]
+            },
+            {
+              "type": "toggle", "key": "visitClock", "default": true,
+              "label": { "es": "Visitar el reloj a las horas en punto", "en": "Visit the clock on the hour", "fr": "Rendre visite à l’horloge à chaque heure pile", "de": "Zur vollen Stunde die Uhr besuchen", "it": "Visitare l’orologio allo scoccare dell’ora", "pt": "Visitar o relógio nas horas cheias" },
+              "description": {
+                "es": "Vuela hasta el reloj de la barra de tareas y lo celebra (solo si estás delante del PC).",
+                "en": "It flies to the taskbar clock and celebrates (only if you are at the PC).",
+                "fr": "Il vole jusqu’à l’horloge de la barre des tâches et fête l’heure (seulement si tu es devant le PC).",
+                "de": "Er fliegt zur Uhr der Taskleiste und feiert (nur wenn du am PC bist).",
+                "it": "Vola fino all’orologio della barra delle applicazioni e festeggia (solo se sei davanti al PC).",
+                "pt": "Ele voa até o relógio da barra de tarefas e comemora (só se você estiver diante do PC)."
+              }
+            },
+            {
+              "type": "toggle", "key": "reactToNotifications", "default": true,
+              "label": { "es": "Reaccionar a las notificaciones", "en": "React to notifications", "fr": "Réagir aux notifications", "de": "Auf Benachrichtigungen reagieren", "it": "Reagire alle notifiche", "pt": "Reagir às notificações" },
+              "description": {
+                "es": "Da un saltito de sorpresa cuando llega una notificación.",
+                "en": "It jumps in surprise when a notification arrives.",
+                "fr": "Il fait un petit bond de surprise quand une notification arrive.",
+                "de": "Er macht einen überraschten Hüpfer, wenn eine Benachrichtigung kommt.",
+                "it": "Fa un saltello di sorpresa quando arriva una notifica.",
+                "pt": "Ele dá um pulinho de surpresa quando chega uma notificação."
+              }
+            },
+            {
+              "type": "toggle", "key": "allowDragging", "default": true,
+              "label": { "es": "Cogerlo con el ratón", "en": "Pick it up with the mouse", "fr": "L’attraper avec la souris", "de": "Mit der Maus greifen", "it": "Prenderlo con il mouse", "pt": "Pegar com o mouse" },
+              "description": {
+                "es": "Arrástralo y suéltalo para lanzarlo; un clic es una caricia y el doble clic, pilotarlo. Si lo desactivas, el ratón lo atraviesa siempre.",
+                "en": "Drag and drop it to throw it; a click pets it and a double click flies it. If you turn this off, the mouse always goes through it.",
+                "fr": "Glisse-le et lâche-le pour le lancer ; un clic le caresse et un double-clic le pilote. Si tu le désactives, la souris le traverse toujours.",
+                "de": "Zieh ihn und lass los, um ihn zu werfen; ein Klick streichelt ihn, ein Doppelklick steuert ihn. Ausgeschaltet geht die Maus immer durch ihn hindurch.",
+                "it": "Trascinalo e rilascialo per lanciarlo; un clic è una carezza e il doppio clic lo pilota. Se lo disattivi, il mouse lo attraversa sempre.",
+                "pt": "Arraste e solte para lançá-lo; um clique é um carinho e o clique duplo o pilota. Se desativar, o mouse sempre passa através dele."
+              }
+            }
+          ]
+        },
+        {
+          "title": { "es": "Contenido de las ventanas", "en": "Window content", "fr": "Contenu des fenêtres", "de": "Fensterinhalt", "it": "Contenuto delle finestre", "pt": "Conteúdo das janelas" },
+          "items": [
+            {
+              "type": "toggle", "key": "landOnContent", "default": false,
+              "label": { "es": "Posarse en el contenido (experimental)", "en": "Land on the content (experimental)", "fr": "Se poser sur le contenu (expérimental)", "de": "Auf dem Inhalt landen (experimentell)", "it": "Atterrare sul contenuto (sperimentale)", "pt": "Pousar no conteúdo (experimental)" },
+              "description": {
+                "es": "Mira la pantalla de vez en cuando para encontrar bordes claros dentro de las ventanas (separadores, cabeceras, tablas) y posarse en ellos; si haces scroll, se mueve con la página. Las imágenes se analizan en memoria y nunca se guardan ni se envían.",
+                "en": "It looks at the screen now and then for clear edges inside windows (separators, headers, tables) to land on; if you scroll, it moves with the page. Images are analysed in memory and never saved or sent.",
+                "fr": "Il regarde l’écran de temps en temps pour trouver des bords nets dans les fenêtres (séparateurs, en-têtes, tableaux) et s’y poser ; si tu fais défiler, il suit la page. Les images sont analysées en mémoire, jamais enregistrées ni envoyées.",
+                "de": "Er schaut ab und zu auf den Bildschirm, um klare Kanten in Fenstern (Trennlinien, Überschriften, Tabellen) zum Landen zu finden; beim Scrollen bewegt er sich mit der Seite. Bilder werden nur im Speicher analysiert, nie gespeichert oder gesendet.",
+                "it": "Guarda lo schermo ogni tanto per trovare bordi netti dentro le finestre (separatori, intestazioni, tabelle) e posarsi lì; se scorri, si muove con la pagina. Le immagini vengono analizzate in memoria e mai salvate né inviate.",
+                "pt": "Ele olha a tela de vez em quando para encontrar bordas nítidas dentro das janelas (separadores, cabeçalhos, tabelas) e pousar nelas; se você rolar, ele se move com a página. As imagens são analisadas na memória e nunca são salvas nem enviadas."
+              }
+            },
+            {
+              "type": "apps", "key": "contentExcludedApps", "default": [], "enabledWhen": "landOnContent",
+              "label": { "es": "Aplicaciones excluidas", "en": "Excluded apps", "fr": "Applications exclues", "de": "Ausgeschlossene Apps", "it": "App escluse", "pt": "Aplicativos excluídos" },
+              "description": {
+                "es": "Nunca se mira su contenido. Siempre se excluyen los gestores de contraseñas, la banca, la navegación privada y las ventanas de inicio de sesión.",
+                "en": "Their content is never looked at. Password managers, banking, private browsing and sign-in windows are always excluded.",
+                "fr": "Leur contenu n’est jamais regardé. Les gestionnaires de mots de passe, la banque, la navigation privée et les fenêtres de connexion sont toujours exclus.",
+                "de": "Ihr Inhalt wird nie angesehen. Passwortmanager, Banking, privates Surfen und Anmeldefenster sind immer ausgeschlossen.",
+                "it": "Il loro contenuto non viene mai guardato. Gestori di password, banca, navigazione privata e finestre di accesso sono sempre esclusi.",
+                "pt": "O conteúdo deles nunca é olhado. Gerenciadores de senhas, bancos, navegação privada e janelas de login são sempre excluídos."
+              }
+            }
+          ]
+        },
+        {
+          "title": { "es": "Misiones", "en": "Missions", "fr": "Missions", "de": "Missionen", "it": "Missioni", "pt": "Missões" },
+          "items": [
+            {
+              "type": "choice", "key": "missionFrequency", "default": "normal",
+              "label": { "es": "Frecuencia de misiones", "en": "Mission frequency", "fr": "Fréquence des missions", "de": "Häufigkeit der Missionen", "it": "Frequenza delle missioni", "pt": "Frequência das missões" },
+              "description": {
+                "es": "De vez en cuando aparece un aviso junto al lander. Toma el control para aceptarla.",
+                "en": "Now and then a prompt appears next to the lander. Take control to accept it.",
+                "fr": "De temps en temps, une proposition apparaît près du lander. Prends les commandes pour l’accepter.",
+                "de": "Ab und zu erscheint ein Hinweis neben dem Lander. Übernimm die Steuerung, um sie anzunehmen.",
+                "it": "Ogni tanto compare un avviso accanto al lander. Prendi il controllo per accettarla.",
+                "pt": "De vez em quando aparece um aviso ao lado do lander. Assuma o controle para aceitá-la."
+              },
+              "options": [
+                { "value": "off", "label": { "es": "Nunca", "en": "Never", "fr": "Jamais", "de": "Nie", "it": "Mai", "pt": "Nunca" } },
+                { "value": "low", "label": { "es": "Pocas", "en": "Few", "fr": "Peu", "de": "Wenige", "it": "Poche", "pt": "Poucas" } },
+                { "value": "normal", "label": { "es": "Normal", "en": "Normal", "fr": "Normal", "de": "Normal", "it": "Normale", "pt": "Normal" } },
+                { "value": "high", "label": { "es": "Muchas", "en": "Many", "fr": "Beaucoup", "de": "Viele", "it": "Molte", "pt": "Muitas" } }
+              ]
+            },
+            {
+              "type": "button", "extra": "lander.mission", "icon": "kd:Target",
+              "label": { "es": "Proponer una misión ahora", "en": "Offer a mission now", "fr": "Proposer une mission maintenant", "de": "Jetzt eine Mission anbieten", "it": "Proponi una missione ora", "pt": "Propor uma missão agora" }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": { "es": "Pilotaje", "en": "Flying", "fr": "Pilotage", "de": "Steuerung", "it": "Pilotaggio", "pt": "Pilotagem" },
+      "icon": "kd:Games",
+      "sections": [
+        {
+          "title": { "es": "Controles", "en": "Controls", "fr": "Commandes", "de": "Steuerung", "it": "Comandi", "pt": "Controles" },
+          "items": [
+            {
+              "type": "keys",
+              "items": [
+                { "keys": ["↑"], "text": { "es": "Motor principal: empuja hacia donde apunta la nave", "en": "Main engine: pushes where the ship points", "fr": "Moteur principal : pousse là où pointe le vaisseau", "de": "Haupttriebwerk: schiebt dorthin, wohin das Schiff zeigt", "it": "Motore principale: spinge dove punta la navicella", "pt": "Motor principal: empurra para onde a nave aponta" } },
+                { "keys": ["←", "→"], "text": { "es": "Girar con los propulsores de giro. Al soltar, mantienen la inclinación", "en": "Turn with the rotation thrusters. When released, the tilt stays", "fr": "Tourner avec les propulseurs de rotation. En relâchant, l’inclinaison reste", "de": "Mit den Drehdüsen drehen. Beim Loslassen bleibt die Neigung", "it": "Ruotare con i propulsori di rotazione. Al rilascio, l’inclinazione resta", "pt": "Girar com os propulsores de giro. Ao soltar, a inclinação se mantém" } },
+                { "keys": ["A", "D"], "text": { "es": "Desplazarse a un lado con los propulsores de traslación, sin girar", "en": "Slide sideways with the translation thrusters, without turning", "fr": "Se déplacer sur le côté avec les propulseurs de translation, sans tourner", "de": "Mit den Seitendüsen seitlich gleiten, ohne zu drehen", "it": "Spostarsi di lato con i propulsori di traslazione, senza ruotare", "pt": "Deslizar para o lado com os propulsores de translação, sem girar" } },
+                { "keys": ["↓"], "text": { "es": "Enderezar la nave", "en": "Straighten the ship", "fr": "Redresser le vaisseau", "de": "Das Schiff aufrichten", "it": "Raddrizzare la navicella", "pt": "Endireitar a nave" } },
+                { "keys": ["G"], "text": { "es": "Sacar o recoger las patas (sin patas, aterrizar es mucho más delicado)", "en": "Lower or raise the legs (without legs, landing is much trickier)", "fr": "Sortir ou rentrer les pieds (sans pieds, se poser est bien plus délicat)", "de": "Landebeine aus- oder einfahren (ohne Beine ist Landen viel heikler)", "it": "Estrarre o ritrarre le zampe (senza zampe atterrare è molto più delicato)", "pt": "Baixar ou recolher as pernas (sem pernas, pousar é bem mais delicado)" } },
+                { "keys": ["Espacio"], "text": { "es": "Impulso de emergencia (gasta mucho combustible)", "en": "Emergency boost (uses a lot of fuel)", "fr": "Poussée d’urgence (consomme beaucoup de carburant)", "de": "Notschub (verbraucht viel Treibstoff)", "it": "Spinta d’emergenza (consuma molto carburante)", "pt": "Impulso de emergência (gasta muito combustível)" } },
+                { "keys": ["Esc"], "text": { "es": "Soltar el control", "en": "Let go of the controls", "fr": "Lâcher les commandes", "de": "Steuerung abgeben", "it": "Lasciare il controllo", "pt": "Soltar o controle" } }
+              ]
+            }
+          ]
+        },
+        {
+          "title": { "es": "Aterrizajes", "en": "Landings", "fr": "Atterrissages", "de": "Landungen", "it": "Atterraggi", "pt": "Pousos" },
+          "items": [
+            {
+              "type": "info",
+              "text": {
+                "es": "Perfecto: despacio, recto y con las dos patas sobre la plataforma; puntos extra y las rachas multiplican. Duro: algo rápido o inclinado; menos puntos y un poco de daño. Accidente: demasiado rápido o de lado; vuelta a la base. La barra de tareas es la base: aterriza ahí para repostar y reparar daños. Una ventana estrecha vale más que la barra de tareas, y sin combustible no hay motor.",
+                "en": "Perfect: slow, straight and with both legs on the platform; bonus points, and streaks multiply. Hard: a bit fast or tilted; fewer points and some damage. Crash: too fast or sideways; back to base. The taskbar is the base: land there to refuel and repair. A narrow window is worth more than the taskbar, and with no fuel there is no engine.",
+                "fr": "Parfait : lentement, droit et les deux pieds sur la plateforme ; points bonus, et les séries multiplient. Dur : un peu rapide ou penché ; moins de points et quelques dégâts. Accident : trop rapide ou de côté ; retour à la base. La barre des tâches est la base : pose-toi là pour refaire le plein et réparer. Une fenêtre étroite vaut plus que la barre des tâches, et sans carburant, pas de moteur.",
+                "de": "Perfekt: langsam, gerade und mit beiden Beinen auf der Plattform; Bonuspunkte, und Serien multiplizieren. Hart: etwas schnell oder schief; weniger Punkte und etwas Schaden. Absturz: zu schnell oder seitlich; zurück zur Basis. Die Taskleiste ist die Basis: Lande dort zum Tanken und Reparieren. Ein schmales Fenster ist mehr wert als die Taskleiste, und ohne Treibstoff gibt es keinen Antrieb.",
+                "it": "Perfetto: piano, dritto e con entrambe le zampe sulla piattaforma; punti extra, e le serie moltiplicano. Duro: un po’ veloce o inclinato; meno punti e qualche danno. Incidente: troppo veloce o di lato; ritorno alla base. La barra delle applicazioni è la base: atterra lì per fare rifornimento e riparare. Una finestra stretta vale più della barra delle applicazioni, e senza carburante niente motore.",
+                "pt": "Perfeito: devagar, reto e com as duas pernas na plataforma; pontos extras, e as sequências multiplicam. Duro: um pouco rápido ou inclinado; menos pontos e algum dano. Acidente: rápido demais ou de lado; volta à base. A barra de tarefas é a base: pouse lá para reabastecer e reparar. Uma janela estreita vale mais que a barra de tarefas, e sem combustível não há motor."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": { "es": "Sonido", "en": "Sound", "fr": "Son", "de": "Ton", "it": "Suono", "pt": "Som" },
+      "icon": "kd:Speaker2",
+      "sections": [
+        {
+          "items": [
+            {
+              "type": "toggle", "key": "soundEnabled", "default": true,
+              "label": { "es": "Sonido", "en": "Sound", "fr": "Son", "de": "Ton", "it": "Suono", "pt": "Som" },
+              "description": {
+                "es": "Zumbido del motor, clic de las patas y pitido de aterrizaje. Siempre en silencio con «No molestar». Los sonidos de todos los asistentes se apagan también en Opciones → Módulo Asistente.",
+                "en": "Engine hum, leg clicks and landing chime. Always silent with Do not disturb. Sounds of all assistants can also be turned off in Settings → Assistant module.",
+                "fr": "Ronronnement du moteur, clic des pieds et bip d’atterrissage. Toujours silencieux avec « Ne pas déranger ». Les sons de tous les assistants se coupent aussi dans Paramètres → Module Assistant.",
+                "de": "Triebwerksbrummen, Klicken der Beine und Landeton. Bei „Nicht stören“ immer still. Die Töne aller Assistenten lassen sich auch unter Einstellungen → Assistent-Modul ausschalten.",
+                "it": "Ronzio del motore, clic delle zampe e segnale di atterraggio. Sempre in silenzio con «Non disturbare». I suoni di tutti gli assistenti si spengono anche in Impostazioni → Modulo Assistente.",
+                "pt": "Zumbido do motor, clique das pernas e bipe de pouso. Sempre em silêncio com «Não incomodar». Os sons de todos os assistentes também podem ser desligados em Configurações → Módulo Assistente."
+              }
+            },
+            {
+              "type": "slider", "key": "volume", "min": 0, "max": 1, "step": 0.05, "default": 0.5, "format": "{0:P0}", "enabledWhen": "soundEnabled",
+              "label": { "es": "Volumen", "en": "Volume", "fr": "Volume", "de": "Lautstärke", "it": "Volume", "pt": "Volume" }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": { "es": "Piloto", "en": "Pilot", "fr": "Pilote", "de": "Pilot", "it": "Pilota", "pt": "Piloto" },
+      "icon": "kd:PersonStar",
+      "sections": [
+        {
+          "items": [
+            {
+              "type": "info",
+              "text": {
+                "es": "El nivel, las estadísticas, los récords y los logros están en Panel → Asistente → Lander.",
+                "en": "Level, statistics, records and achievements are in Panel → Assistant → Lander.",
+                "fr": "Le niveau, les statistiques, les records et les succès sont dans Panneau → Assistant → Lander.",
+                "de": "Stufe, Statistiken, Rekorde und Erfolge findest du unter Panel → Assistent → Lander.",
+                "it": "Livello, statistiche, record e obiettivi sono in Pannello → Assistente → Lander.",
+                "pt": "O nível, as estatísticas, os recordes e as conquistas estão em Painel → Assistente → Lander."
+              }
+            },
+            {
+              "type": "button", "resetData": true,
+              "label": { "es": "Empezar de cero", "en": "Start from scratch", "fr": "Repartir de zéro", "de": "Von vorn beginnen", "it": "Ricomincia da zero", "pt": "Começar do zero" },
+              "description": {
+                "es": "Borra el nivel, los puntos, las estadísticas y los logros.",
+                "en": "Erases the level, points, statistics and achievements.",
+                "fr": "Efface le niveau, les points, les statistiques et les succès.",
+                "de": "Löscht Stufe, Punkte, Statistiken und Erfolge.",
+                "it": "Cancella livello, punti, statistiche e obiettivi.",
+                "pt": "Apaga o nível, os pontos, as estatísticas e as conquistas."
+              },
+              "confirm": {
+                "es": "¿Seguro? Se perderá todo el progreso del piloto.",
+                "en": "Are you sure? All the pilot's progress will be lost.",
+                "fr": "Tu es sûr ? Toute la progression du pilote sera perdue.",
+                "de": "Bist du sicher? Der gesamte Fortschritt des Piloten geht verloren.",
+                "it": "Sei sicuro? Tutti i progressi del pilota andranno persi.",
+                "pt": "Tem certeza? Todo o progresso do piloto será perdido."
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

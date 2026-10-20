@@ -20,8 +20,10 @@ public sealed partial class LanderAssistant
     private int _pushedVersion = -1;
     private int _pushedFlightBucket;
     private double _nextProgressSave;
+    private int _panelVersion = -1;
+    private int _panelFlightBucket;
 
-    private static LanderSettings ReadSettings(JsonElement json)
+    internal static LanderSettings ReadSettings(JsonElement json)
     {
         LanderSettings? settings = null;
         if (json.ValueKind == JsonValueKind.Object)
@@ -53,6 +55,7 @@ public sealed partial class LanderAssistant
         var previous = _settings;
         _settings = settings;
         _game.ApplyOptions(settings.ToGameOptions());
+        ApplyContentSettings(previous, settings);
         if (Math.Abs(previous.LanderSize - settings.LanderSize) > 0.01)
         {
             _terrainDirty = true;
@@ -89,6 +92,15 @@ public sealed partial class LanderAssistant
     private void SaveProgress(double now, bool force = false)
     {
         var flightBucket = (int)(_progress.FlightSeconds / 30);
+
+        // El panel, en cuanto cambia (al aterrizar, al terminar una carrera, con un logro); el disco, como mucho cada pocos segundos.
+        if (_game.ProgressVersion != _panelVersion || flightBucket != _panelFlightBucket)
+        {
+            _panelVersion = _game.ProgressVersion;
+            _panelFlightBucket = flightBucket;
+            PublishPanel();
+        }
+
         var changed = _game.ProgressVersion != _pushedVersion || flightBucket != _pushedFlightBucket;
         if (!force && (!changed || now < _nextProgressSave))
         {

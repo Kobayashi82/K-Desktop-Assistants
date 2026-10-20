@@ -157,6 +157,7 @@ public sealed partial class LanderAssistant
             return Task.CompletedTask;
         }
 
+        _host.Log.Info($"Extra: {extraId}");
         switch (extraId)
         {
             case "lander.manual":
@@ -166,7 +167,7 @@ public sealed partial class LanderAssistant
             case "lander.mission":
                 if (!_game.OfferMission())
                 {
-                    _host.Notify("Sin misiones ahora", "Ya hay una misión o una carrera en curso, o no hay sitio para una.");
+                    _host.Notify(Texts.Get("noMission.title"), Texts.Get("noMission.text"));
                 }
 
                 break;
@@ -194,7 +195,7 @@ public sealed partial class LanderAssistant
     {
         if (_hidden)
         {
-            _host.Notify("Ahora no", "Hay algo a pantalla completa. Prueba otra vez cuando termine.");
+            _host.Notify(Texts.Get("notNow.title"), Texts.Get("notNow.fullscreen"));
             return;
         }
 
@@ -208,13 +209,13 @@ public sealed partial class LanderAssistant
         switch (result)
         {
             case RaceStartResult.NoCircuit:
-                _host.Notify("No hay circuito", "Hacen falta al menos dos ventanas abiertas y a la vista para poner las balizas.");
+                _host.Notify(Texts.Get("noCircuit.title"), Texts.Get("noCircuit.text"));
                 break;
             case RaceStartResult.CircuitGone:
-                _host.Notify("El circuito ya no está", "Alguna de sus ventanas se ha cerrado o está tapada. Empieza una carrera nueva.");
+                _host.Notify(Texts.Get("circuitGone.title"), Texts.Get("circuitGone.text"));
                 break;
             case RaceStartResult.NotReady:
-                _host.Notify("Ahora no", "El lander no puede salir en este momento.");
+                _host.Notify(Texts.Get("notNow.title"), Texts.Get("notNow.busy"));
                 break;
         }
     }

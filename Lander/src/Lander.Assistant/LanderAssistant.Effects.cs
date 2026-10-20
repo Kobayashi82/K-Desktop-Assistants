@@ -73,12 +73,23 @@ public sealed partial class LanderAssistant
         switch (gameEvent.Kind)
         {
             case GameEventKind.TookOff:
+                if (_game.Mode == ControlMode.Auto)
+                {
+                    var autopilot = _game.Autopilot;
+                    Log.Stats($"Despega: {autopilot.Purpose}, estilo {autopilot.Style}, destino {autopilot.Destination?.Kind.ToString() ?? "ninguno"}.");
+                }
+
                 _particles.DustBurst(feet, 0.25, scale);
                 break;
 
             case GameEventKind.Touchdown:
             {
                 var landing = gameEvent.Landing!;
+                if (_game.Body.Support?.Platform is { Kind: Core.Terrain.PlatformKind.Content } content)
+                {
+                    Log.Stats($"Posado en el contenido de {content.WindowHandle:X} ({content.AppId}) en ({_game.Body.Position.X:0}, {content.Y:0}), {landing.Quality}.");
+                }
+
                 var intensity = Math.Clamp(landing.VerticalSpeed / (170 * scale), 0, 1);
                 _particles.DustBurst(feet, 0.25 + intensity, scale);
                 _particles.Ring(feet, scale, 0.2 + intensity);
@@ -161,9 +172,10 @@ public sealed partial class LanderAssistant
                 _particles.Confetti(position - new Vec2(0, 20 * scale), scale, 40);
                 Play(Sound.Fanfare);
                 var unlocked = gameEvent.Unlocks.Count > 0
-                    ? "Desbloqueado: " + string.Join(", ", gameEvent.Unlocks.Select(u => u.Name)) + "."
-                    : "Sigue aterrizando para desbloquear más cosas.";
-                _host.Notify($"¡Nivel {gameEvent.Level}!", unlocked);
+                    ? Texts.Format("level.unlocked", string.Join(", ", gameEvent.Unlocks.Select(u => Texts.Get("unlock." + u.Id, u.Name))))
+                    : Texts.Get("level.keepGoing");
+                _host.Notify(Texts.Format("level.title", gameEvent.Level), unlocked);
+                PublishPanel();
                 break;
 
             case GameEventKind.MissionOffered:
@@ -196,6 +208,8 @@ public sealed partial class LanderAssistant
                 var race = gameEvent.Race!;
                 _particles.Confetti(position - new Vec2(0, 20 * scale), scale, 44);
                 Play(Sound.Fanfare);
+                RecordRace(race);
+                PublishPanel();
                 _host.Log.Info($"Carrera terminada en {Race.FormatTime(race.Elapsed)} s (referencia {Race.FormatTime(race.ParSeconds)} s, penalización {race.Penalties:0} s): {race.Medal}{(race.IsNewRecord ? ", récord" : string.Empty)}.");
                 break;
             }
@@ -247,7 +261,7 @@ public sealed partial class LanderAssistant
                 var achievement = gameEvent.Achievement!;
                 Play(Sound.PerfectChime, 0.8);
                 _host.Log.Info($"Logro: {achievement.Name}.");
-                _host.Notify($"Logro: {achievement.Name}", achievement.Description);
+                _host.Notify(Texts.Format("achievement.title", Texts.Get("ach." + achievement.Id, achievement.Name)), Texts.Get("ach." + achievement.Id + ".d", achievement.Description));
                 break;
         }
     }

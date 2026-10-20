@@ -1,0 +1,74 @@
+{
+  "$schema": "../../../../../docs/assistant/esquemas/panel.schema.json",
+  "cards": [
+    {
+      "type": "stat", "bind": "pilot.level", "icon": "kd:PersonStar",
+      "label": { "es": "Nivel de piloto", "en": "Pilot level", "fr": "Niveau de pilote", "de": "Pilotenstufe", "it": "Livello del pilota", "pt": "Nível de piloto" }
+    },
+    {
+      "type": "progress", "bind": "pilot.points", "max": "pilot.nextLevel", "format": "{0} / {1}",
+      "label": { "es": "Puntos hasta el siguiente nivel", "en": "Points to the next level", "fr": "Points jusqu’au niveau suivant", "de": "Punkte bis zur nächsten Stufe", "it": "Punti al livello successivo", "pt": "Pontos até o próximo nível" }
+    },
+    {
+      "type": "stat", "bind": "stats.perfect", "icon": "kd:Star",
+      "label": { "es": "Aterrizajes perfectos", "en": "Perfect landings", "fr": "Atterrissages parfaits", "de": "Perfekte Landungen", "it": "Atterraggi perfetti", "pt": "Pousos perfeitos" }
+    },
+    {
+      "type": "stat", "bind": "stats.bestStreak", "icon": "kd:Fire",
+      "label": { "es": "Mejor racha", "en": "Best streak", "fr": "Meilleure série", "de": "Beste Serie", "it": "Serie migliore", "pt": "Melhor sequência" }
+    },
+    {
+      "type": "stat", "bind": "stats.missions", "icon": "kd:Target",
+      "label": { "es": "Misiones completadas", "en": "Missions completed", "fr": "Missions accomplies", "de": "Abgeschlossene Missionen", "it": "Missioni completate", "pt": "Missões concluídas" }
+    },
+    {
+      "type": "stat", "bind": "stats.crystals", "icon": "kd:Diamond",
+      "label": { "es": "Cristales", "en": "Crystals", "fr": "Cristaux", "de": "Kristalle", "it": "Cristalli", "pt": "Cristais" }
+    },
+    {
+      "type": "stat", "bind": "stats.races", "icon": "kd:Flag",
+      "label": { "es": "Carreras terminadas", "en": "Races finished", "fr": "Courses terminées", "de": "Beendete Rennen", "it": "Gare finite", "pt": "Corridas concluídas" }
+    },
+    {
+      "type": "stat", "bind": "stats.gold", "icon": "kd:Trophy",
+      "label": { "es": "Medallas de oro", "en": "Gold medals", "fr": "Médailles d’or", "de": "Goldmedaillen", "it": "Medaglie d’oro", "pt": "Medalhas de ouro" }
+    },
+    {
+      "type": "stat", "bind": "stats.autoLandings", "icon": "kd:Bot",
+      "label": { "es": "Aterrizajes en automático", "en": "Autopilot landings", "fr": "Atterrissages en automatique", "de": "Landungen im Autopilot", "it": "Atterraggi in automatico", "pt": "Pousos no automático" }
+    },
+    {
+      "type": "stat", "bind": "stats.crashes", "icon": "kd:Warning",
+      "label": { "es": "Accidentes", "en": "Crashes", "fr": "Accidents", "de": "Abstürze", "it": "Incidenti", "pt": "Acidentes" }
+    },
+    {
+      "type": "text", "bind": "stats.flightTime",
+      "label": { "es": "Tiempo de vuelo", "en": "Flight time", "fr": "Temps de vol", "de": "Flugzeit", "it": "Tempo di volo", "pt": "Tempo de voo" }
+    },
+    {
+      "type": "list", "bind": "races.session",
+      "label": { "es": "Carreras de esta sesión", "en": "Races this session", "fr": "Courses de cette session", "de": "Rennen dieser Sitzung", "it": "Gare di questa sessione", "pt": "Corridas desta sessão" },
+      "empty": {
+        "es": "Aún no has terminado ninguna carrera. Los circuitos se hacen con tus ventanas, así que los récords duran hasta que se reinicia el asistente.",
+        "en": "You haven't finished a race yet. Courses are made of your windows, so records last until the assistant restarts.",
+        "fr": "Tu n’as encore terminé aucune course. Les circuits sont faits de tes fenêtres, donc les records durent jusqu’au redémarrage de l’assistant.",
+        "de": "Du hast noch kein Rennen beendet. Die Strecken bestehen aus deinen Fenstern, daher gelten Rekorde bis zum Neustart des Assistenten.",
+        "it": "Non hai ancora finito nessuna gara. I percorsi sono fatti con le tue finestre, quindi i record durano fino al riavvio dell’assistente.",
+        "pt": "Você ainda não terminou nenhuma corrida. Os circuitos são feitos com as suas janelas, então os recordes duram até o assistente reiniciar."
+      }
+    },
+    {
+      "type": "achievements", "bind": "achievements",
+      "label": { "es": "Logros", "en": "Achievements", "fr": "Succès", "de": "Erfolge", "it": "Obiettivi", "pt": "Conquistas" }
+    },
+    {
+      "type": "buttons",
+      "items": [
+        { "extra": "lander.manual", "icon": "kd:XboxController", "label": { "es": "Pilotar", "en": "Fly it", "fr": "Piloter", "de": "Steuern", "it": "Pilota", "pt": "Pilotar" } },
+        { "extra": "lander.race", "icon": "kd:Flag", "label": { "es": "Carrera", "en": "Race", "fr": "Course", "de": "Rennen", "it": "Gara", "pt": "Corrida" } },
+        { "extra": "lander.race.repeat", "icon": "kd:ArrowRepeatAll", "label": { "es": "Repetir carrera", "en": "Repeat race", "fr": "Refaire la course", "de": "Rennen wiederholen", "it": "Ripeti gara", "pt": "Repetir corrida" } },
+        { "extra": "lander.mission", "icon": "kd:Target", "label": { "es": "Misión", "en": "Mission", "fr": "Mission", "de": "Mission", "it": "Missione", "pt": "Missão" } }
+      ]
+    }
+  ]
+}

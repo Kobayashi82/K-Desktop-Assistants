@@ -175,6 +175,41 @@ public class ContentEdgeTrackerTests
         Assert.Equal(0, ContentEdgeTracker.BandDifference(edge, scrolled, 0, 0, -40));
     }
 
+    [Fact]
+    public void Confirmed_edge_hidden_by_the_lander_is_kept_until_it_shows_again()
+    {
+        // El lander posándose encima tapa casi todo el borde: el detector ya no lo ve entero, pero no ha desaparecido.
+        var tracker = new ContentEdgeTracker();
+        var image = Page();
+        Scan(tracker, image);
+        Scan(tracker, image);
+        var edge = Assert.Single(tracker.Confirmed);
+        var lander = new Geometry.PixelRect(90, 240, 760, 320);
+        Assert.Empty(new ContentEdgeDetector().Detect(image, Options, [lander]));
+
+        ScanHidden(tracker, image, lander);
+        Assert.Equal(edge.Id, Assert.Single(tracker.Confirmed).Id);
+
+        Scan(tracker, image);
+        Assert.Equal(edge.Id, Assert.Single(tracker.Confirmed).Id);
+    }
+
+    [Fact]
+    public void Hidden_zone_keeps_neither_unconfirmed_edges_nor_edges_it_does_not_cover()
+    {
+        var unconfirmed = new ContentEdgeTracker();
+        Scan(unconfirmed, Page());
+        ScanHidden(unconfirmed, Page(), new Geometry.PixelRect(90, 240, 760, 320));
+        Assert.Empty(unconfirmed.Edges);
+
+        // Confirmado, pero la zona tapa otra parte de la página y el borde se ha ido de verdad.
+        var gone = new ContentEdgeTracker();
+        Scan(gone, Page());
+        Scan(gone, Page());
+        ScanHidden(gone, Canvas(900, 600, 250), new Geometry.PixelRect(90, 400, 760, 480));
+        Assert.Empty(gone.Edges);
+    }
+
     /// <summary>Página clara con un separador en <paramref name="lineY"/> y un párrafo debajo.</summary>
     private static GrayImage Page(int lineY = 300)
     {
@@ -206,4 +241,7 @@ public class ContentEdgeTrackerTests
 
     private static void Scan(ContentEdgeTracker tracker, GrayImage image) =>
         tracker.Update(image, 0, 0, new ContentEdgeDetector().Detect(image, Options));
+
+    private static void ScanHidden(ContentEdgeTracker tracker, GrayImage image, Geometry.PixelRect unknown) =>
+        tracker.Update(image, 0, 0, new ContentEdgeDetector().Detect(image, Options, [unknown]), [unknown]);
 }

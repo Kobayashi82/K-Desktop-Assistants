@@ -46,21 +46,28 @@ public sealed partial class LanderAssistant
         {
             _monitors = snapshot.Monitors.Select(m => new CoreMonitor(m.Index, ToCore(m.Bounds), ToCore(m.WorkArea), m.DpiScale, m.IsPrimary)).ToList();
             _span = _monitors.Count == 0 ? default : new Interval(_monitors.Min(m => m.Bounds.Left), _monitors.Max(m => m.Bounds.Right));
+            _content.OnMonitorsChanged();
             _forceRender = true;
         }
 
         _snapshot = snapshot;
         _windowHandles.Clear();
+        _titles.Clear();
         _windows = new List<CoreWindow>(snapshot.Windows.Count);
         foreach (var window in snapshot.Windows)
         {
             _windowHandles.Add(window.Handle);
+            _titles[window.Handle] = window.Title;
             _windows.Add(new CoreWindow(window.Handle, ToCore(window.Bounds), window.IsMaximized, window.AppId));
         }
 
-        _world = TerrainBuilder.Build(_monitors, _windows, new TerrainOptions { LanderHeightDip = _settings.LanderSize }, snapshot.Timestamp);
+        RebuildTerrain();
         _terrainDirty = false;
     }
+
+    /// <summary>El terreno con las ventanas ya conocidas y los bordes de contenido confirmados.</summary>
+    private void RebuildTerrain() =>
+        _world = TerrainBuilder.Build(_monitors, _windows, new TerrainOptions { LanderHeightDip = _settings.LanderSize }, _now, _content.Surfaces);
 
     private void UpdateSensors(double elapsed)
     {
@@ -157,6 +164,12 @@ public sealed partial class LanderAssistant
     {
         if (!_game.IsInitialized)
         {
+            return;
+        }
+
+        if (e is Sdk.SystemEvent.WheelTurned wheel)
+        {
+            OnWheel(wheel);
             return;
         }
 

@@ -35,6 +35,9 @@ public sealed partial class LanderAssistant
     private double _lastMarkerRender;
     private double _lightClock;
 
+    /// <summary>Rectángulo del último fotograma (las partículas fuera de él no se ven).</summary>
+    private Rect _frame = Rect.Empty;
+
     /// <summary>El faro aún se está encendiendo o apagando.</summary>
     private bool LightFading => _scene.LandingLight > 0;
 
@@ -56,7 +59,7 @@ public sealed partial class LanderAssistant
 
         // En reposo, el tiempo de las animaciones avanza a saltos para no redibujar sin necesidad.
         var lively = IsActive(now);
-        var away = IsUserAway() && body.IsLanded;
+        var away = !lively && IsUserAway() && body.IsLanded;
         var animationTime = away ? Math.Floor(now) : lively ? now : Math.Floor(now * 4) / 4;
         var bubbleAge = away ? Math.Floor(visual.BubbleAge * 2) / 2 : lively || visual.IsAnimating ? visual.BubbleAge : Math.Floor(visual.BubbleAge * 4) / 4;
         var blink = BlinkAt(now);
@@ -125,6 +128,7 @@ public sealed partial class LanderAssistant
         _forceRender = false;
         _lastSignature = signature;
         var window = new Rect(x, y, size, size);
+        _frame = window;
         var reaction = ReactionGlow(now);
         _surface.Present(SdkRect.FromSize(x, y, size, size), dc =>
         {

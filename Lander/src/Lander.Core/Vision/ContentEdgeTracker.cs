@@ -216,7 +216,36 @@ public sealed class ContentEdgeTracker
             next.Add(edge);
         }
 
+        // Un borde confirmado que no aparece porque lo tapa una zona desconocida (el lander posándose encima: el
+        // detector no cuenta lo tapado para la longitud mínima) no ha desaparecido; de él no se sabe nada nuevo y se
+        // conserva tal cual. Sin esto, el lander perdía su destino justo al bajar a posarse.
+        if (unknown is { Count: > 0 })
+        {
+            for (var i = 0; i < _edges.Count; i++)
+            {
+                var old = _edges[i];
+                if (!used[i] && old.Hits >= ConfirmScans && IsHidden(old, unknown))
+                {
+                    next.Add(old);
+                }
+            }
+        }
+
         _edges = next;
+    }
+
+    /// <summary>Una zona desconocida tapa la línea del borde o llega justo encima de ella.</summary>
+    private static bool IsHidden(TrackedEdge edge, IReadOnlyList<PixelRect> unknown)
+    {
+        foreach (var zone in unknown)
+        {
+            if (zone.Left < edge.Right && edge.Left < zone.Right && zone.Top <= edge.Y + 1 && zone.Bottom >= edge.Y - BandAbove)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /// <summary>Desplaza todos los bordes <paramref name="dy"/> píxeles (scroll medido).</summary>

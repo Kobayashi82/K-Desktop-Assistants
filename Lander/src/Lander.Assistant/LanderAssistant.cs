@@ -4,6 +4,7 @@ using Lander.Assistant.Audio;
 using Lander.Assistant.Rendering;
 using Lander.Assistant.Rendering.Skins;
 using Lander.Core;
+using Lander.Core.Autopilot;
 using Lander.Core.Game;
 using Lander.Core.Geometry;
 using Lander.Core.Physics;
@@ -52,6 +53,7 @@ public sealed partial class LanderAssistant : IAssistant
     private bool _hidden;
     private EntranceKind? _pendingEntrance;
     private double? _exitStart;
+    private (AutopilotState, BodyState, Core.Terrain.PlatformKind?) _pilotState;
 
     public System.Windows.Point? BubbleAnchor =>
         _game is { IsInitialized: true } game && !_hidden && game.Body.State != BodyState.Destroyed
@@ -63,10 +65,13 @@ public sealed partial class LanderAssistant : IAssistant
     public void Attach(IAssistantHost host)
     {
         _host = host;
+        Log.Target = host.Log;
+        Texts.Language = host.Language;
         _settings = ReadSettings(host.Settings);
         _progress = LoadProgress();
         _audio = new LanderAudio(host.Audio);
         _markers = new MarkerLayer(host.Rendering);
+        CreateContentVision();
         _surface = host.Rendering.CreateSurface();
         _hit = host.Pointer.CreateHitArea();
         _hit.Cursor = PointerCursor.Hand;
@@ -81,6 +86,7 @@ public sealed partial class LanderAssistant : IAssistant
     public void Enter(EntranceKind how)
     {
         _pendingEntrance = how;
+        PublishPanel();
         TryStart();
         _host.RequestTick();
     }
@@ -131,12 +137,19 @@ public sealed partial class LanderAssistant : IAssistant
         if (UpdateFullscreen())
         {
             _audio.SetEngine(0, 0, _span, elapsed);
+            UpdateWheelWatch();
             return IdleInterval;
+        }
+
+        if (UpdateContent(now))
+        {
+            RebuildTerrain();
         }
 
         StepSimulation(elapsed);
         UpdateEffects(now, elapsed);
         UpdateInteraction();
+        UpdateWheelWatch();
         Render(now);
         UpdateMarkers(now);
         SaveProgress(now);
@@ -146,9 +159,19 @@ public sealed partial class LanderAssistant : IAssistant
             return FrameInterval;
         }
 
-        var interval = IsUserAway() && _game.Body.IsLanded && !_game.Autopilot.IsFlightActive
-            ? AwayInterval
-            : IsActive(now) ? FrameInterval : IsAttentive() ? AttentiveInterval : IdleInterval;
+        // Lo que se mueve manda: recién posado aún rebota la suspensión, se asienta el polvo y se apaga la llama, también
+        // con el usuario ausente (es cuando más vuela solo, de vuelta a la base a dormir). Antes, el ritmo de «ausente»
+        // iba primero y ese final se veía a 2 fotogramas por segundo.
+        var interval = IsActive(now) ? FrameInterval
+            : IsUserAway() && _game.Body.IsLanded ? AwayInterval
+            : IsAttentive() ? AttentiveInterval : IdleInterval;
+
+        // Mirando el contenido de las ventanas: recoger la lectura de la GPU o hacer el siguiente escaneo.
+        var contentWake = _content.NextWake(now) - now;
+        if (contentWake < interval)
+        {
+            interval = Math.Max(contentWake, 0.005);
+        }
 
         // En reposo se despierta justo cuando parpadea, ni antes ni después.
         if (interval > FrameInterval && _game.Visual.Expression != Expression.Asleep && _game.Body.State != BodyState.Destroyed)
@@ -243,6 +266,19 @@ public sealed partial class LanderAssistant : IAssistant
         }
 
         DrainGameEvents();
+        LogPilotState();
+    }
+
+    /// <summary>Cada cambio de estado del piloto automático, con su destino (registro de depuración).</summary>
+    private void LogPilotState()
+    {
+        var autopilot = _game.Autopilot;
+        var state = (autopilot.State, _game.Body.State, autopilot.Destination?.Kind);
+        if (state != _pilotState)
+        {
+            _pilotState = state;
+            Log.Stats($"Piloto: {autopilot.State}, cuerpo {_game.Body.State}, destino {autopilot.Destination?.Kind.ToString() ?? "ninguno"} ({autopilot.Purpose}).");
+        }
     }
 
     private void DrainGameEvents()
@@ -262,7 +298,9 @@ public sealed partial class LanderAssistant : IAssistant
         _host.Keyboard.KeyChanged -= OnKeyChanged;
         _host.World.Changed -= OnWorldChanged;
         ReleaseGameKeys();
+        _host.Pointer.WatchWheel = false;
         FlushProgress();
+        _content.Dispose();
         _audio.Dispose();
         _markers.Dispose();
         _hit.Dispose();

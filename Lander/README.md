@@ -15,6 +15,8 @@ K-Desktop; aquí queda el personaje.
 | `src/Lander.Core` | Todo el juego en C# sin Windows (física, piloto automático, terreno, misiones, carreras, progresión), igual que en el Lander independiente. |
 | `src/Lander.Assistant` | El asistente (`LanderAssistant`, implementa `IAssistant` del SDK): mundo y sensores del host, efectos, dibujo, sonido, ratón, teclado y extras. Su `Package/` es el contenido del `.kai`. |
 | `tests/Lander.Core.Tests` | Las pruebas de `Lander.Core` (xUnit v3), incluidas las simulaciones largas de vida autónoma. |
+| `tests/Lander.Assistant.Tests` | El paquete: claves y valores por defecto de `settings.json` contra el modelo de ajustes, imágenes de la galería y textos en los seis idiomas. |
+| `tools/LanderArt` | Dibuja con el arte del lander las imágenes del paquete (icono, modelos y estelas de la galería): `dotnet run` en su carpeta. |
 
 `dotnet build` deja `bin\…\lander-<versión>.kai`.
 
@@ -35,12 +37,20 @@ K-Desktop; aquí queda el personaje.
 - **Sonido:** los sonidos sintetizados de siempre en el mezclador del host, con panorama según dónde esté.
 - **Extras:** modo manual, proponer una misión, empezar una carrera y repetirla (menú del clic derecho, y más adelante
   comandos de K-Desktop).
-- **Datos:** el progreso en su carpeta de datos (`progress.json`); los ajustes llegan de K-Desktop con los mismos
-  nombres que el `settings.json` del Lander independiente.
+- **Ajustes:** `Package/settings.json` (General, Aspecto, Comportamiento, Pilotaje, Sonido y Piloto), que K-Desktop dibuja
+  en Opciones → Asistentes → Lander → Ajustes. Las claves son las del `settings.json` del Lander independiente, así que
+  se leen con su mismo modelo. Las galerías de modelos y estelas las publica el asistente, con lo bloqueado según el nivel.
+- **Panel:** `Package/panel.json` en Panel → Asistente → Lander: nivel, estadísticas, tiempo de vuelo, carreras de la
+  sesión, los 14 logros con su progreso y botones del juego.
+- **Contenido de las ventanas (experimental):** la duplicación del escritorio de DXGI con su propio Vortice dentro del
+  paquete. La capa de dibujo es del host y no se excluye de la captura, así que se ignora la zona donde está el lander;
+  posado en un borde, pide al host cada giro de la rueda para seguir el scroll.
+- **Textos:** avisos, logros, desbloqueos, ajustes y panel en los seis idiomas de K-Desktop (`Texts.cs` y los JSON del
+  paquete).
+- **Datos:** el progreso en su carpeta de datos (`progress.json`).
 
 ## Estado
 
-Fase 2 del módulo Asistente de K-Desktop (ver su plan): etapa 2.1 hecha. Pendiente: repasar el comportamiento libre y
-el juego con sus listas de comprobación, los ajustes y el panel en K-Desktop, los extras como comandos, importar el
-Lander independiente, posarse en el contenido de las ventanas (experimental), textos en los seis idiomas y la
-publicación.
+Fase 2 del módulo Asistente de K-Desktop (ver su plan): etapas 2.1 (el asistente), 2.2 (comportamiento libre, con el
+contenido de las ventanas), 2.4 (ajustes) y 2.5 (panel) hechas. Pendiente: repasar el juego con su lista de comprobación,
+los extras como comandos de K-Desktop con su atajo, importar el Lander independiente, paridad y consumo, y la publicación.
