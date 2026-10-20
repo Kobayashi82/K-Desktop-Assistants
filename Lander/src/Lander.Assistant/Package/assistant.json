@@ -2,7 +2,7 @@
   "$schema": "../../../../../docs/assistant/esquemas/assistant.schema.json",
   "id": "lander",
   "name": "Lander",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "author": "Kobayashi82",
   "description": {
     "es": "Un pequeño módulo lunar que vuela por tus ventanas y aterriza en ellas. Incluye su juego.",
@@ -51,6 +51,11 @@
       "id": "lander.race.repeat",
       "name": { "es": "Repetir la carrera", "en": "Repeat the race", "fr": "Refaire la course", "de": "Rennen wiederholen", "it": "Ripeti la gara", "pt": "Repetir a corrida" },
       "icon": "kd:ArrowRepeatAll"
+    },
+    {
+      "id": "lander.race.abandon",
+      "name": { "es": "Abandonar la carrera", "en": "Abandon the race", "fr": "Abandonner la course", "de": "Rennen abbrechen", "it": "Abbandona la gara", "pt": "Abandonar a corrida" },
+      "icon": "kd:DismissCircle"
     }
   ]
 }

@@ -19,20 +19,27 @@ public sealed partial class LanderAssistant
     private const string AcceptExtra = "lander.mission.accept";
     private const string RaceExtra = "lander.race";
     private const string RepeatExtra = "lander.race.repeat";
+    private const string AbandonExtra = "lander.race.abandon";
 
     private readonly Dictionary<string, ExtraState> _extraStates = [];
     private FloorLayer _floors = null!;
     private double _lastFloorRender;
 
-    /// <summary>Enseña, atenúa o esconde los extras según lo que se pueda hacer ahora (solo manda los cambios).</summary>
+    /// <summary>
+    /// Enseña, atenúa o esconde los extras según lo que se pueda hacer ahora (solo manda los cambios). Durante una
+    /// carrera, «Abandonar» ocupa el sitio de empezar y repetir, como en el menú del Lander independiente.
+    /// </summary>
     private void UpdateExtraStates()
     {
         var mission = _game.Missions.Current;
         var offered = mission is { Status: MissionStatus.Offered };
+        var racing = _game.Races.IsActive;
         SetExtra(AcceptExtra, offered ? ExtraState.Shown : ExtraState.Hidden);
         SetExtra(MissionExtra, offered ? ExtraState.Hidden
-            : mission is not null || _game.Races.IsActive ? ExtraState.Disabled : ExtraState.Shown);
-        SetExtra(RepeatExtra, _game.Races.CanRepeat ? ExtraState.Shown : ExtraState.Hidden);
+            : mission is not null || racing ? ExtraState.Disabled : ExtraState.Shown);
+        SetExtra(RaceExtra, racing ? ExtraState.Hidden : ExtraState.Shown);
+        SetExtra(RepeatExtra, !racing && _game.Races.CanRepeat ? ExtraState.Shown : ExtraState.Hidden);
+        SetExtra(AbandonExtra, racing ? ExtraState.Shown : ExtraState.Hidden);
     }
 
     private void SetExtra(string id, ExtraState state)

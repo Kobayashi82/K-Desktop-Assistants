@@ -8,6 +8,13 @@ Está hecho de cero a partir del Lander independiente, que sigue existiendo apar
 ventana de ajustes, atajo global, arranque con Windows, ventana y GPU propias, ganchos de Windows) ahora lo pone
 K-Desktop; aquí queda el personaje.
 
+## Instalar
+
+Con el módulo Asistente de K-Desktop encendido, doble clic en `lander-<versión>.kai` (lo deja el CI de este
+repositorio como artefacto, o `dotnet build`) e **Instalar**. Los pasos completos están en el
+[README del repositorio](../README.md#instalar-un-asistente). La ficha de instalación ofrece crear el comando
+**Ctrl+Alt+L** para pilotarlo; sus ajustes están en **Opciones → Módulo Asistente → Asistentes → Lander → Ajustes**.
+
 ## Proyectos
 
 | Proyecto | Contenido |
@@ -35,8 +42,11 @@ K-Desktop; aquí queda el personaje.
 - **Teclado:** en modo manual pide a K-Desktop las flechas, Espacio, Esc, A, D y G (solo sin Ctrl, Alt ni Win, así que
   los atajos siguen funcionando).
 - **Sonido:** los sonidos sintetizados de siempre en el mezclador del host, con panorama según dónde esté.
-- **Extras:** modo manual, proponer una misión, empezar una carrera y repetirla (menú del clic derecho, y más adelante
-  comandos de K-Desktop).
+- **Extras:** modo manual, proponer y aceptar una misión, empezar, repetir y abandonar una carrera, en el menú del clic
+  derecho, en los botones del panel y como acción «Asistente: acción» de cualquier comando de K-Desktop. Cada uno sale,
+  se atenúa o se esconde según el momento (durante una carrera, «Abandonar» en lugar de empezar y repetir).
+- **Pilotando a mano:** con «Posarse en el contenido» encendido, una línea discontinua marca los suelos de contenido
+  cercanos.
 - **Ajustes:** `Package/settings.json` (General, Aspecto, Comportamiento, Pilotaje, Sonido y Piloto), que K-Desktop dibuja
   en Opciones → Asistentes → Lander → Ajustes. Las claves son las del `settings.json` del Lander independiente, así que
   se leen con su mismo modelo. Las galerías de modelos y estelas las publica el asistente, con lo bloqueado según el nivel.
@@ -51,6 +61,15 @@ K-Desktop; aquí queda el personaje.
 
 ## Estado
 
-Fase 2 del módulo Asistente de K-Desktop (ver su plan): etapas 2.1 (el asistente), 2.2 (comportamiento libre, con el
-contenido de las ventanas), 2.4 (ajustes) y 2.5 (panel) hechas. Pendiente: repasar el juego con su lista de comprobación,
-los extras como comandos de K-Desktop con su atajo, importar el Lander independiente, paridad y consumo, y la publicación.
+Fase 2 del módulo Asistente de K-Desktop terminada (0.5.0): el asistente, el comportamiento libre con el contenido de
+las ventanas, el juego entero, ajustes, panel, los extras como comandos y un repaso de paridad con el Lander
+independiente. No importa el progreso del Lander independiente (empieza de cero) ni se publica en *releases* todavía.
+
+Lo que hace distinto del Lander independiente, a propósito:
+
+- Sale y se va con un haz de luz, y su sonido empieza encendido (el interruptor general está en K-Desktop).
+- Sale en las capturas de pantalla de siempre (la capa es de K-Desktop y la comparten todos los asistentes); al mirar
+  el contenido de las ventanas se ignora justo lo que tiene dibujado.
+- La bandeja, el atajo global, el arranque con Windows y la pausa con un clic son de K-Desktop; sus opciones rápidas
+  (aspecto, estela, despistes, acrobacias, contenido, sonido) están en sus ajustes, no en el menú del clic derecho.
+- Sin las opciones de línea de órdenes de demostración y de diagnóstico (`--demo*`, `--stats`, `--preview*`…).

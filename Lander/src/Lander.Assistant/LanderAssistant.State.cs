@@ -61,7 +61,9 @@ public sealed partial class LanderAssistant
             _terrainDirty = true;
         }
 
-        if (_game.IsInitialized && settings.Paused != _game.IsPaused)
+        // Solo cuando cambia el ajuste: tomar el control lo saca de la pausa (el Lander independiente apagaba entonces su
+        // ajuste; aquí lo guarda K-Desktop), y cambiar otro ajuste no debe volver a pausarlo.
+        if (_game.IsInitialized && settings.Paused != previous.Paused && settings.Paused != _game.IsPaused)
         {
             _game.SetPaused(settings.Paused);
             DrainGameEvents();

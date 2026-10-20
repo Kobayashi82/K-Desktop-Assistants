@@ -1,0 +1,72 @@
+name: CI
+
+# Compila y prueba los asistentes y deja sus .kai como artefacto de la ejecución (no en las releases).
+#
+# Los asistentes se compilan contra el SDK del código de K-Desktop, así que el CI clona K-Desktop y este repositorio
+# dentro, en assistants/, como en local. K-Desktop es privado: hace falta el secreto KDESKTOP_TOKEN con un token de
+# GitHub que pueda leer su contenido (ver el README).
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Compilar, probar y empaquetar
+    runs-on: windows-latest
+    env:
+      KDESKTOP_TOKEN: ${{ secrets.KDESKTOP_TOKEN }}
+
+    steps:
+      - name: Comprobar el acceso a K-Desktop
+        if: env.KDESKTOP_TOKEN == ''
+        shell: pwsh
+        run: |
+          Write-Output "::error::Falta el secreto KDESKTOP_TOKEN (un token que pueda leer Kobayashi82/K-Desktop). Ver el README."
+          exit 1
+
+      - name: K-Desktop (el SDK de los asistentes)
+        uses: actions/checkout@v4
+        with:
+          repository: Kobayashi82/K-Desktop
+          ref: main
+          token: ${{ env.KDESKTOP_TOKEN }}
+          path: k-desktop
+
+      - name: Este repositorio, dentro de K-Desktop
+        uses: actions/checkout@v4
+        with:
+          path: k-desktop/assistants
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: k-desktop/assistants/global.json
+
+      - name: Compilar (avisos como errores)
+        working-directory: k-desktop/assistants
+        run: dotnet build K-Desktop-Assistants.slnx --configuration Release -p:ContinuousIntegrationBuild=true
+
+      - name: Pruebas
+        working-directory: k-desktop/assistants
+        run: dotnet test --solution K-Desktop-Assistants.slnx --configuration Release --no-build
+
+      - name: Nombre del artefacto
+        id: kai
+        shell: pwsh
+        working-directory: k-desktop/assistants
+        run: |
+          $names = Get-ChildItem -Recurse -Filter *.kai -Path */src/*/bin/Release | ForEach-Object BaseName
+          "name=asistentes-$($names -join '_')" >> $env:GITHUB_OUTPUT
+
+      - name: Subir los .kai
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.kai.outputs.name }}
+          path: k-desktop/assistants/*/src/*/bin/Release/**/*.kai
+          if-no-files-found: error
+          retention-days: 30

@@ -202,6 +202,10 @@ public sealed partial class LanderAssistant
                 BeginRace(repeat: _game.Races.CanRepeat);
                 break;
 
+            case AbandonExtra:
+                _game.AbandonRace();
+                break;
+
             default:
                 _host.Log.Warn($"Extra desconocido: {extraId}");
                 break;
