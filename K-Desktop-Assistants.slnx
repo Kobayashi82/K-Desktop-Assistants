@@ -1,0 +1,7 @@
+<Solution>
+  <Folder Name="/Lander/">
+    <Project Path="Lander/src/Lander.Assistant/Lander.Assistant.csproj" />
+    <Project Path="Lander/src/Lander.Core/Lander.Core.csproj" />
+    <Project Path="Lander/tests/Lander.Core.Tests/Lander.Core.Tests.csproj" />
+  </Folder>
+</Solution>

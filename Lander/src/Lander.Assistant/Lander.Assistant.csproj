@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    El Lander como asistente de K-Desktop. `dotnet build` deja en bin\…\ el paquete lander-<versión>.kai, listo para
+    «Añadir asistente» (lo hace el .targets del SDK con lo que hay en Package\).
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <RootNamespace>Lander.Assistant</RootNamespace>
+    <AssemblyName>Lander.Assistant</AssemblyName>
+    <Platforms>x64</Platforms>
+    <PlatformTarget>x64</PlatformTarget>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Lander.Core\Lander.Core.csproj" />
+    <!-- El SDK lo pone el host: se compila contra él, nunca se incluye en el paquete. -->
+    <ProjectReference Include="$(AssistantSdkProject)" Private="false" ExcludeAssets="runtime" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Package\**" />
+  </ItemGroup>
+
+  <Import Project="$(AssistantSdkTargets)" />
+
+</Project>

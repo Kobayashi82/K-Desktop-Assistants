@@ -1,0 +1,29 @@
+<Project>
+
+  <!--
+    Común a todos los asistentes de este repositorio. No importa el Directory.Build.props de K-Desktop a propósito
+    (esta carpeta está dentro de la de K-Desktop, pero es un repositorio aparte); el SDK, referenciado por ruta
+    relativa, se sigue compilando con el de K-Desktop.
+  -->
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AnalysisLevel>latest-recommended</AnalysisLevel>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <TreatWarningsAsErrors Condition="'$(ContinuousIntegrationBuild)' == 'true'">true</TreatWarningsAsErrors>
+    <DebugType Condition="'$(Configuration)' == 'Release'">embedded</DebugType>
+    <Authors>Kobayashi82</Authors>
+    <Company>Kobayashi82</Company>
+    <Copyright>© 2026 Kobayashi82</Copyright>
+    <RepositoryUrl>https://github.com/Kobayashi82/K-Desktop-Assistants</RepositoryUrl>
+    <NeutralLanguage>es</NeutralLanguage>
+    <SatelliteResourceLanguages>es</SatelliteResourceLanguages>
+    <!-- Dónde está el SDK: en el código de K-Desktop, un nivel más arriba (hasta que esté en NuGet). -->
+    <KDesktopRoot>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..'))\</KDesktopRoot>
+    <AssistantSdkProject>$(KDesktopRoot)src\KDesktop.Assistant.Sdk\KDesktop.Assistant.Sdk.csproj</AssistantSdkProject>
+    <AssistantSdkTargets>$(KDesktopRoot)src\KDesktop.Assistant.Sdk\build\KDesktop.Assistant.Sdk.targets</AssistantSdkTargets>
+  </PropertyGroup>
+
+</Project>

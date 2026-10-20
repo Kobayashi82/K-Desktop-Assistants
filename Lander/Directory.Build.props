@@ -1,0 +1,12 @@
+<Project>
+
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)..'))" />
+
+  <PropertyGroup>
+    <!-- La versión del asistente es la de Package\assistant.json; esta solo marca los ensamblados. -->
+    <Version>0.1.0</Version>
+    <Product>Lander</Product>
+    <Description>El Lander como asistente de K-Desktop: un pequeño módulo lunar que aterriza sobre tus ventanas.</Description>
+  </PropertyGroup>
+
+</Project>
