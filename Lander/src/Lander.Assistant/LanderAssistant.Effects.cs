@@ -179,8 +179,21 @@ public sealed partial class LanderAssistant
                 break;
 
             case GameEventKind.MissionOffered:
+                Play(Sound.Pop, 0.8);
+                if (gameEvent.Mission is { Status: Core.Missions.MissionStatus.Offered } offered)
+                {
+                    NotifyMissionOffer(offered);
+                }
+
+                break;
+
             case GameEventKind.MissionStarted:
                 Play(Sound.Pop, 0.8);
+                break;
+
+            case GameEventKind.ChangedMind:
+                Play(Sound.Pop, 0.35);
+                Log.Stats($"Cambia de idea: ahora va a {_game.Autopilot.Destination?.Kind.ToString() ?? "ninguna parte"}.");
                 break;
 
             case GameEventKind.MissionCompleted:
@@ -195,7 +208,7 @@ public sealed partial class LanderAssistant
 
             case GameEventKind.RaceStarted:
                 Play(Sound.Pop, 0.8);
-                _host.Log.Info($"Carrera: {gameEvent.Race!.Checkpoints.Count} balizas, tiempo de referencia {Race.FormatTime(gameEvent.Race.ParSeconds)} s.");
+                _host.Log.Info($"Carrera: {gameEvent.Race!.Checkpoints.Count} balizas ({gameEvent.Race.CircuitKey}), tiempo de referencia {Race.FormatTime(gameEvent.Race.ParSeconds)} s.");
                 break;
 
             case GameEventKind.RaceCheckpoint when gameEvent.Magnitude > 0:

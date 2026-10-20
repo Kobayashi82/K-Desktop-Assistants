@@ -39,6 +39,9 @@ public enum GameEventKind
     RaceFailed,
     AchievementUnlocked,
 
+    /// <summary>A medio vuelo ha cambiado de idea y va a otro sitio.</summary>
+    ChangedMind,
+
     /// <summary>Ha terminado una voltereta en el aire.</summary>
     Flipped,
 

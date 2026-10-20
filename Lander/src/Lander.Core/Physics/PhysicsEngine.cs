@@ -269,6 +269,16 @@ public sealed class PhysicsEngine(PhysicsConfig config)
             body.Fuel = Math.Min(body.FuelCapacity, body.Fuel + config.TrickleRefuelRate * dt);
         }
 
+        // Dejarse caer: atraviesa la ventana o el borde de contenido en el que está (la base, no).
+        if (input.DropThrough && !segment.IsBase)
+        {
+            body.PassThrough = segment.OwnerId;
+            body.Fly(new Vec2(body.Velocity.X, Math.Max(0, platformVelocity.Y) + 70 * scale));
+            body.Position = body.Position.WithY(body.Position.Y + 2 * scale);
+            events.Add(new PhysicsEvent(PhysicsEventKind.TookOff, Platform: segment));
+            return;
+        }
+
         // Despegue
         var hasFuel = body.Fuel > 0;
         var thrustFactor = 1 - config.MaxDamageThrustPenalty * Math.Clamp(body.Damage, 0, 1);
@@ -398,20 +408,28 @@ public sealed class PhysicsEngine(PhysicsConfig config)
     /// <summary>Detecta el cruce de las patas con una plataforma (solo desde arriba) y resuelve el aterrizaje.</summary>
     private bool ResolvePlatforms(LanderBody body, Vec2 previous, World world, long landOn, List<PhysicsEvent> events)
     {
-        if (body.Velocity.Y < 0)
-        {
-            return false;
-        }
-
         var halfHeight = body.HalfHeight;
         var previousFeet = previous.Y + halfHeight;
         var feet = body.Position.Y + halfHeight;
         var x = body.Position.X;
 
+        // La que atraviesa vuelve a contar en cuanto queda por encima de las patas, se aleja a un lado o se vuelve a subir.
+        if (body.PassThrough != 0 && !world.SegmentsOf(body.PassThrough)
+                .Any(p => p.ContainsX(x, -body.HalfWidth) && feet > p.Y - ContactEpsilon && feet < p.Y + body.Height))
+        {
+            body.PassThrough = 0;
+        }
+
+        if (body.Velocity.Y < 0)
+        {
+            return false;
+        }
+
         Platform? hit = null;
         foreach (var platform in world.Platforms)
         {
-            if (landOn != ThrustInput.AnyPlatform && platform.OwnerId != landOn && platform.Kind != PlatformKind.Ground)
+            if ((landOn != ThrustInput.AnyPlatform && platform.OwnerId != landOn && platform.Kind != PlatformKind.Ground)
+                || platform.OwnerId == body.PassThrough)
             {
                 continue;
             }

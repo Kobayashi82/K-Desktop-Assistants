@@ -77,6 +77,12 @@ public sealed class LanderBody
 
     public Support? Support { get; private set; }
 
+    /// <summary>
+    /// Dueño de la plataforma que está atravesando hacia abajo (se ha dejado caer desde ella): no se posa en ella hasta
+    /// haberla pasado. 0 si ninguna.
+    /// </summary>
+    public long PassThrough { get; set; }
+
     /// <summary>Velocidad suavizada mientras se arrastra con el ratón.</summary>
     internal Vec2 HeldVelocity { get; set; }
 
@@ -111,6 +117,7 @@ public sealed class LanderBody
     /// <summary>Posa el lander en <paramref name="platform"/> a la altura de su superficie.</summary>
     public void Land(Platform platform, double sampleTime)
     {
+        PassThrough = 0;
         State = BodyState.Landed;
         Position = new Vec2(Position.X, platform.Y - HalfHeight);
         Support = new Support(platform, Position.X - platform.OwnerOrigin.X, sampleTime);
@@ -122,6 +129,7 @@ public sealed class LanderBody
     /// <summary>Coloca el lander directamente sobre una plataforma (aparición o recolocación).</summary>
     public void PlaceOn(Platform platform, double x, double sampleTime)
     {
+        PassThrough = 0;
         Position = new Vec2(Math.Clamp(x, platform.Left, platform.Right), platform.Y - HalfHeight);
         Angle = 0;
         LegsDeploy = 1;

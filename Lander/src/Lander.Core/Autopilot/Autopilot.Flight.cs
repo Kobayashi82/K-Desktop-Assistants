@@ -56,6 +56,17 @@ public sealed partial class Autopilot
     private PilotMistake _mistake;
     private double _mistakeSeverity;
 
+    /// <summary>Segundos de vuelo a los que se replanteará el destino en este vuelo (NaN: en este, no).</summary>
+    private double _rethinkAt = double.NaN;
+
+    /// <summary>Hasta que pase este tiempo no vuelve a cambiar de idea (para que sea algo raro).</summary>
+    private double _rethinkCooldown = 90;
+
+    /// <summary>El destino nuevo mientras duda un instante, frenando y mirándolo.</summary>
+    private Destination? _rethinkTo;
+
+    private double _hesitation;
+
     /// <summary>Forma de volar del vuelo actual.</summary>
     public FlightStyle Style => _style;
 
@@ -99,6 +110,7 @@ public sealed partial class Autopilot
         };
         ResetManeuvers();
         _nextFuelCheck = 0;
+        PlanRethink(purpose);
         if (purpose != FlightPurpose.Celebrate)
         {
             _waypoint = null;
@@ -425,6 +437,11 @@ public sealed partial class Autopilot
             return FlyToWaypoint(ctx, waypoint);
         }
 
+        if (Rethink(ctx, target) is { } hesitating)
+        {
+            return hesitating;
+        }
+
         if (_phase == FlightPhase.Flip || TryStartFlip(ctx))
         {
             return UpdateFlip(ctx);
@@ -449,6 +466,93 @@ public sealed partial class Autopilot
             FlightStyle.Swoop => UpdateSwoop(ctx, target),
             _ => UpdateTransit(ctx, target),
         };
+    }
+
+    // Cambiar de idea --------------------------------------------------------------------------------------------
+
+    /// <summary>
+    /// Al despegar decide si, a medio camino, se lo va a pensar mejor: solo cuando va a explorar, de tarde en tarde (como
+    /// mucho una vez cada pocos minutos) y más si está curioso.
+    /// </summary>
+    private void PlanRethink(FlightPurpose purpose)
+    {
+        _rethinkTo = null;
+        _hesitation = 0;
+        _rethinkAt = purpose is FlightPurpose.Explore or FlightPurpose.Investigate && _rethinkCooldown <= 0
+            && random.Chance(0.12 + 0.25 * Personality.Curiosity)
+            ? random.Range(0.9, 2.6)
+            : double.NaN;
+    }
+
+    /// <summary>
+    /// Cambia de idea sobre la marcha: frena un instante, mira el sitio nuevo (con su icono en el bocadillo) y va hacia
+    /// allí. Devuelve los mandos mientras duda; null si sigue con lo suyo.
+    /// </summary>
+    private ThrustInput? Rethink(AutopilotContext ctx, Vec2 target)
+    {
+        var body = ctx.Body;
+        if (_rethinkTo is { } next)
+        {
+            _hesitation -= ctx.Dt;
+            if (!next.TryResolve(ctx.World, body, out var center, out _))
+            {
+                _rethinkTo = null;
+                return null;
+            }
+
+            ctx.Visual.LookTarget = center;
+            if (_hesitation > 0)
+            {
+                return Steer(ctx, new Vec2(body.Velocity.X * 0.25, Math.Min(0, body.Velocity.Y) * 0.25));
+            }
+
+            _rethinkTo = null;
+            Retarget(ctx, next, FlightPurpose.Explore);
+            if (random.Chance(0.4) && Math.Abs(center.X - body.Position.X) > body.Height * 5)
+            {
+                _style = FlightStyle.Brisk;
+            }
+
+            return null;
+        }
+
+        if (double.IsNaN(_rethinkAt) || _airTime < _rethinkAt)
+        {
+            return null;
+        }
+
+        _rethinkAt = double.NaN;
+        if (State != AutopilotState.Flying || _phase != FlightPhase.Transit || _tour.Count > 0 || _destination is null
+            || _purpose is not (FlightPurpose.Explore or FlightPurpose.Investigate)
+            || _style is FlightStyle.Ballistic or FlightStyle.Swoop or FlightStyle.Hopper or FlightStyle.HoverSlam
+            || Vec2.Distance(body.Position, target) < body.Height * 5 || !CanExplore(ctx))
+        {
+            return null;
+        }
+
+        // Otro sitio de verdad: ni la ventana a la que iba ni uno pegado a ella.
+        var query = BuildQuery(ctx, _destination.OwnerId);
+        for (var attempt = 0; attempt < 3; attempt++)
+        {
+            if (DestinationPicker.PickExploration(ctx.World, body, query, random) is not { } other
+                || !other.TryResolve(ctx.World, body, out var center, out _)
+                || Vec2.Distance(center, target) < body.Height * 4 || !IsReachable(ctx, other))
+            {
+                continue;
+            }
+
+            _rethinkTo = other;
+            _hesitation = random.Range(0.55, 0.9);
+            _rethinkCooldown = random.Range(150, 320);
+            var direction = Math.Atan2(center.Y - body.Position.Y, center.X - body.Position.X);
+            ctx.Visual.ShowBubble(DestinationBubble(other, _hesitation + 1.2, direction));
+            ctx.Visual.Flash(Expression.Curious, _hesitation + 0.8);
+            ctx.Visual.LookTarget = center;
+            ctx.Signals.Add(GameEventKind.ChangedMind);
+            return Steer(ctx, new Vec2(body.Velocity.X * 0.25, Math.Min(0, body.Velocity.Y) * 0.25));
+        }
+
+        return null;
     }
 
     private bool TryResolveTarget(AutopilotContext ctx, out Vec2 target)

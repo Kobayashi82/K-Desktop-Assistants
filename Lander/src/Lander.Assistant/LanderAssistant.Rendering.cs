@@ -97,6 +97,7 @@ public sealed partial class LanderAssistant
         _scene.Bubble = visual.Bubble;
         _scene.BubbleAge = bubbleAge;
         _scene.BubbleIcon = visual.Bubble is { Icon: BubbleIcon.App } bubble ? AppIcon(bubble.AppHandle) : null;
+        _scene.BubbleHint = MissionHint();
         _scene.ShowHud = visual.ShowHud;
         _scene.Fuel = body.FuelFraction;
         _scene.Damage = body.Damage;
@@ -118,7 +119,7 @@ public sealed partial class LanderAssistant
             animation,
             HashCode.Combine(x, y, size, (int)(angle * 300), (int)(body.LegsDeploy * 40), visual.Expression, (int)(visual.Look.X * 20), (int)(visual.Look.Y * 20)),
             HashCode.Combine(blink > 0.5, (int)(visual.MainFlame * 50), (int)(visual.Opacity * 40), visual.Bubble, (int)(bubbleAge * 30), visual.Popups.Count, (int)(body.FuelFraction * 60)),
-            HashCode.Combine(_sensors.DarkMode ? (int)(animationTime * 4) : 0, visual.ShowHud, _skin, body.State, (int)(body.Damage * 20), _scene.Mission?.Status, (int)((_scene.Mission?.TimeLeft ?? 0) * 2)));
+            HashCode.Combine(_sensors.DarkMode ? (int)(animationTime * 4) : 0, visual.ShowHud, _skin, body.State, (int)(body.Damage * 20), _scene.Mission?.Status, (int)((_scene.Mission?.TimeLeft ?? 0) * 2), _scene.BubbleHint));
 
         if (!_forceRender && signature == _lastSignature && _particles.Count == 0 && (away || !visual.IsAnimating) && _reaction is null)
         {

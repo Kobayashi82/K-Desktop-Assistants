@@ -159,6 +159,9 @@ public sealed partial class Autopilot(IRandom random)
     public const double IdleSleepSeconds = 300;
     public const double ChoosingDuration = 1.2;
 
+    /// <summary>Lo que espera en el aire tras el último giro de la rueda sobre la página en la que estaba posado.</summary>
+    public const double ScrollHoverSeconds = 0.8;
+
     private const double MaxFlightSeconds = 40;
     private const double NoveltySeconds = 90;
 
@@ -203,6 +206,7 @@ public sealed partial class Autopilot(IRandom random)
         _stateTime += dt;
         _dodgeCooldown -= dt;
         _followCooldown -= dt;
+        _rethinkCooldown -= dt;
         _lookOverrideTime -= dt;
         UpdatePersonality(dt);
         UpdateCooldowns(dt);
@@ -333,6 +337,38 @@ public sealed partial class Autopilot(IRandom random)
         {
             EnterResting(ctx, NewRestDuration(ctx));
         }
+    }
+
+    /// <summary>
+    /// La página sobre la que está posado se desplaza (la rueda del ratón): en vez de ir pegado al contenido, que llega
+    /// con algo de retraso, se eleva un poco, espera en el aire a que pare y vuelve a posarse en el mismo borde (la vista
+    /// lo sigue mientras tanto) o, si se ha ido de la vista, en lo que haya debajo. Más rueda mientras espera, más espera.
+    /// </summary>
+    public void OnContentScrolling(AutopilotContext ctx)
+    {
+        var body = ctx.Body;
+        if (State == AutopilotState.Flying && _purpose == FlightPurpose.Hop && _waypoint is not null && _destination?.Kind == PlatformKind.Content)
+        {
+            _waypointHold = Math.Max(_waypointHold, ScrollHoverSeconds);
+            return;
+        }
+
+        if (!body.IsLanded || body.Support is not { Kind: PlatformKind.Content } support
+            || ctx.World.FindSegment(support.OwnerId, body.Position.X) is not { } here)
+        {
+            return;
+        }
+
+        WakeFromNap(ctx);
+        _pendingDrop = null;
+        _sleepAfterLanding = false;
+        StartFlight(ctx, Destination.On(here, body.Position.X), FlightPurpose.Hop, AutopilotState.Flying);
+        _waypoint = ClampToScreen(ctx, body.Position + new Vec2(0, -body.Height * 0.9), body.Height);
+        _waypointHold = ScrollHoverSeconds;
+
+        // Es una espera, no una celebración (el punto en el aire de FlyToWaypoint, si no, la celebra).
+        _celebrated = true;
+        ctx.Visual.Flash(Expression.Curious, 1.2);
     }
 
     /// <summary>Aterriza en la plataforma más cercana por debajo (pausa, pantalla completa).</summary>
@@ -657,8 +693,27 @@ public sealed partial class Autopilot(IRandom random)
         var target = lookAt ?? (destination.TryResolve(ctx.World, body, out var center, out _) ? center : body.Position);
         var direction = Math.Atan2(target.Y - body.Position.Y, target.X - body.Position.X);
         ctx.Visual.LookTarget = target;
-        ctx.Visual.ShowBubble(new Bubble(icon, ChoosingDuration + 0.8, direction));
+        ctx.Visual.ShowBubble(icon == BubbleIcon.Arrow
+            ? DestinationBubble(destination, ChoosingDuration + 0.8, direction)
+            : new Bubble(icon, ChoosingDuration + 0.8, direction));
         ctx.Visual.Flash(purpose == FlightPurpose.Investigate ? Expression.Curious : Expression.Focused, ChoosingDuration + 0.5);
+    }
+
+    /// <summary>
+    /// Bocadillo de «voy allí»: el icono del programa si el destino es una ventana (o su contenido), si no, la flecha que
+    /// apunta hacia él.
+    /// </summary>
+    internal static Bubble DestinationBubble(Destination destination, double duration, double direction)
+    {
+        var window = destination.Kind switch
+        {
+            PlatformKind.Window => destination.OwnerId,
+            PlatformKind.Content => Platform.ContentWindow(destination.OwnerId),
+            _ => 0,
+        };
+        return window != 0
+            ? new Bubble(BubbleIcon.App, duration, direction, window)
+            : new Bubble(BubbleIcon.Arrow, duration, direction);
     }
 
     private void StartRecovery(AutopilotContext ctx, bool startled)
@@ -768,7 +823,7 @@ public sealed partial class Autopilot(IRandom random)
         && FlightEnvelope.HasHeadroom(ctx.World, ctx.Body, center)
         && FuelPlanner.CanReach(ctx.World, ctx.Body, ctx.Physics, segment, center);
 
-    private DestinationQuery BuildQuery(AutopilotContext ctx)
+    private DestinationQuery BuildQuery(AutopilotContext ctx, long? exclude = null)
     {
         var body = ctx.Body;
         var needsBase = body.FuelFraction < 0.5 || body.Damage > 0.3;
@@ -777,7 +832,7 @@ public sealed partial class Autopilot(IRandom random)
             Energy = Personality.Energy,
             Curiosity = Personality.Curiosity,
             BaseBias = needsBase ? 2.5 : body.IsOnBase ? 0.3 : 0.7,
-            ExcludeOwner = body.Support?.OwnerId,
+            ExcludeOwner = exclude ?? body.Support?.OwnerId,
             NewWindows = _newWindows.Keys.ToHashSet(),
             AvoidMonitors = ctx.Sensors.FullscreenMonitors,
             ActiveWindow = ctx.Sensors.ActiveWindow,

@@ -178,11 +178,15 @@ public sealed partial class LanderAssistant
         _host.Log.Info($"Extra: {extraId}");
         switch (extraId)
         {
-            case "lander.manual":
+            case ManualExtra:
                 ToggleMode();
                 break;
 
-            case "lander.mission":
+            case AcceptExtra:
+                AcceptMission();
+                break;
+
+            case MissionExtra:
                 if (!_game.OfferMission())
                 {
                     _host.Notify(Texts.Get("noMission.title"), Texts.Get("noMission.text"));
@@ -190,11 +194,11 @@ public sealed partial class LanderAssistant
 
                 break;
 
-            case "lander.race":
+            case RaceExtra:
                 BeginRace(repeat: false);
                 break;
 
-            case "lander.race.repeat":
+            case RepeatExtra:
                 BeginRace(repeat: _game.Races.CanRepeat);
                 break;
 

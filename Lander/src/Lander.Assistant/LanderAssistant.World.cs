@@ -126,6 +126,7 @@ public sealed partial class LanderAssistant
                 DrainGameEvents();
                 HideLander();
                 _markers.HideAll();
+                _floors.HideAll();
                 _particles.Clear();
                 ReleaseGameKeys();
                 _host.Log.Info("Pantalla completa: el lander se esconde.");

@@ -378,6 +378,35 @@ public sealed class LanderGame
         }
     }
 
+    /// <summary>
+    /// La rueda ha girado sobre la ventana en cuyo contenido está posado (o sobre la que espera para volver a posarse):
+    /// la página va a moverse. En automático se eleva y espera a que pare (<see cref="Autopilot.OnContentScrolling"/>);
+    /// pilotando a mano, un saltito, y el resto es cosa del piloto. En pausa, nada (si el borde se va, se cae).
+    /// </summary>
+    public void OnContentScrolling()
+    {
+        if (!_initialized || IsPaused || Body.State is BodyState.Destroyed or BodyState.Held)
+        {
+            return;
+        }
+
+        if (Mode == ControlMode.Auto)
+        {
+            PrepareContext(Sensors, TimeStep);
+            Autopilot.OnContentScrolling(_context);
+            ProcessSignals();
+            return;
+        }
+
+        if (Body.IsLanded && Body.Support is { Kind: PlatformKind.Content } support)
+        {
+            Body.Position = Body.Position.WithY(Body.Position.Y - 1);
+            Body.Fly(new Vec2(Body.Velocity.X, -110 * Body.Scale));
+            StartFlight(support.OwnerId);
+            _events.Add(new GameEvent(GameEventKind.SupportLost, Body.Position));
+        }
+    }
+
     /// <summary>Un clic sobre el lander: le hace gracia.</summary>
     public void Poke()
     {
@@ -508,7 +537,8 @@ public sealed class LanderGame
             Rotate: rotate,
             Lateral: (controls.SlideRight ? 1 : 0) - (controls.SlideLeft ? 1 : 0),
             Boost: boostPressed,
-            RetractLegs: !_manualLegsDown);
+            RetractLegs: !_manualLegsDown,
+            DropThrough: controls.Down && !_previousControls.Down && Body.IsLanded);
     }
 
     /// <summary>Patas pedidas en modo manual (G las saca o las recoge).</summary>

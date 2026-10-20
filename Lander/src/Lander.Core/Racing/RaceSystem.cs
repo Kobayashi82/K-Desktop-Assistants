@@ -27,6 +27,12 @@ public sealed class RaceSystem(IRandom random)
 {
     public const int MaxWindows = 4;
 
+    /// <summary>Circuitos recientes que no se repiten al pedir uno nuevo (el último, nunca).</summary>
+    private const int RecentCircuits = 3;
+
+    /// <summary>Intentos de trazar un circuito distinto de los recientes antes de conformarse.</summary>
+    private const int CircuitAttempts = 24;
+
     /// <summary>Segundos que el resultado se queda a la vista al terminar.</summary>
     public const double ResultDuration = 6;
 
@@ -34,6 +40,7 @@ public sealed class RaceSystem(IRandom random)
     public const double LostCheckpointGrace = 4;
 
     private readonly Dictionary<string, double> _records = [];
+    private readonly List<string> _recent = [];
     private IReadOnlyList<RaceCheckpoint>? _lastCircuit;
     private double _missingTime;
 
@@ -103,6 +110,13 @@ public sealed class RaceSystem(IRandom random)
         }
 
         _lastCircuit = circuit;
+        _recent.Remove(key);
+        _recent.Add(key);
+        if (_recent.Count > RecentCircuits)
+        {
+            _recent.RemoveAt(0);
+        }
+
         _missingTime = 0;
         Current = race;
         events.Add(new GameEvent(GameEventKind.RaceStarted, body.Position) { Race = race });
@@ -279,24 +293,63 @@ public sealed class RaceSystem(IRandom random)
         return circuit.All(c => c.IsBase || owners.Contains(c.OwnerId));
     }
 
+    /// <summary>
+    /// Traza un circuito nuevo y, si puede, distinto de los últimos: aunque solo haya dos o tres ventanas, cambian el
+    /// orden, cuántas balizas hay (una ventana puede volver a salir, nunca dos veces seguidas) y dónde se acaba (en la
+    /// base o, si salía de una ventana, de vuelta en ella). Null si no hay al menos dos ventanas donde poner balizas.
+    /// </summary>
     private List<RaceCheckpoint>? BuildCircuit(World world, LanderBody body)
     {
         var current = body.Support?.OwnerId;
-        var candidates = Candidates(world, body).Where(p => p.OwnerId != current).ToList();
-        if (candidates.Count < 2)
+        var windows = Candidates(world, body);
+        var start = windows.Find(p => p.OwnerId == current);
+        if (windows.Count < 2)
         {
             return null;
         }
 
-        // Cada baliza se elige al azar, con más probabilidad cuanto más lejos esté de la anterior.
+        List<RaceCheckpoint>? fallback = null;
+        for (var attempt = 0; attempt < CircuitAttempts; attempt++)
+        {
+            var circuit = RandomCircuit(windows, start, body);
+            var key = Race.KeyOf(circuit);
+            if (!_recent.Contains(key))
+            {
+                return circuit;
+            }
+
+            // Si todo se ha corrido hace poco, al menos que no sea el mismo que el último.
+            if (fallback is null && _recent[^1] != key)
+            {
+                fallback = circuit;
+            }
+        }
+
+        return fallback ?? RandomCircuit(windows, start, body);
+    }
+
+    /// <summary>Un circuito al azar: cada baliza, con más probabilidad cuanto más lejos esté de la anterior.</summary>
+    private List<RaceCheckpoint> RandomCircuit(List<Platform> windows, Platform? start, LanderBody body)
+    {
+        // Con pocas ventanas también hay carreras cortas; con muchas, casi siempre las cuatro balizas.
+        var distinct = windows.Count;
+        var length = distinct >= MaxWindows && random.Chance(0.6) ? MaxWindows : 2 + random.Next(MaxWindows - 1);
+        var uses = new Dictionary<long, int>();
         var circuit = new List<RaceCheckpoint>();
         var from = body.Position;
-        var count = Math.Min(MaxWindows, candidates.Count);
-        while (circuit.Count < count)
+        var previous = start?.OwnerId ?? 0;
+        while (circuit.Count < length)
         {
-            var weights = candidates
+            var weights = windows
                 .Select(p =>
                 {
+                    // Nunca la misma dos veces seguidas; repetir una ya visitada, solo si no quedan otras por visitar.
+                    var used = uses.GetValueOrDefault(p.OwnerId);
+                    if (p.OwnerId == previous || used >= 2 || (used > 0 && windows.Any(w => w.OwnerId != previous && !uses.ContainsKey(w.OwnerId))))
+                    {
+                        return 0;
+                    }
+
                     var distance = Vec2.Distance(from, new Vec2(p.CenterX, p.Y));
                     return distance < body.Height * 4 ? distance * 0.1 : distance;
                 })
@@ -304,16 +357,20 @@ public sealed class RaceSystem(IRandom random)
             var index = random.PickWeighted(weights);
             if (index < 0)
             {
-                index = random.Next(candidates.Count);
+                break;
             }
 
-            var chosen = candidates[index];
-            candidates.RemoveAt(index);
+            var chosen = windows[index];
+            uses[chosen.OwnerId] = uses.GetValueOrDefault(chosen.OwnerId) + 1;
             circuit.Add(new RaceCheckpoint(chosen.OwnerId, chosen.AppId));
             from = new Vec2(chosen.CenterX, chosen.Y);
+            previous = chosen.OwnerId;
         }
 
-        circuit.Add(new RaceCheckpoint(0, null));
+        // Saliendo de una ventana, a veces la meta es volver a ella; si no, la base.
+        circuit.Add(start is not null && previous != start.OwnerId && random.Chance(0.35)
+            ? new RaceCheckpoint(start.OwnerId, start.AppId)
+            : new RaceCheckpoint(0, null));
         return circuit;
     }
 

@@ -31,6 +31,9 @@ internal sealed class LanderScene
 
     public ImageSource? BubbleIcon { get; set; }
 
+    /// <summary>Una tecla junto al bocadillo («CTRL+ALT+L» para aceptar una misión), o null.</summary>
+    public string? BubbleHint { get; set; }
+
     public bool ShowHud { get; set; }
 
     public double Fuel { get; set; }
@@ -123,7 +126,7 @@ internal static class SceneRenderer
         if (scene.Visible && scene.Bubble is { } bubble)
         {
             var top = new Point(center.X, center.Y - 24 * scene.Scale);
-            BubbleRenderer.Draw(dc, bubble, scene.BubbleAge, top, scene.Scale, scene.Dark, scene.BubbleIcon, scene.Time, scene.TopLimit);
+            BubbleRenderer.Draw(dc, bubble, scene.BubbleAge, top, scene.Scale, scene.Dark, scene.BubbleIcon, scene.Time, scene.TopLimit, scene.BubbleHint);
         }
 
         foreach (var popup in scene.Popups)

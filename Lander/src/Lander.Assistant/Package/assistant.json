@@ -2,7 +2,7 @@
   "$schema": "../../../../../docs/assistant/esquemas/assistant.schema.json",
   "id": "lander",
   "name": "Lander",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "author": "Kobayashi82",
   "description": {
     "es": "Un pequeño módulo lunar que vuela por tus ventanas y aterriza en ellas. Incluye su juego.",
@@ -14,7 +14,7 @@
   },
   "homepage": "https://github.com/Kobayashi82/K-Desktop-Assistants",
   "license": "MIT",
-  "sdk": "1.0",
+  "sdk": "1.1",
   "entry": "lib/Lander.Assistant.dll!Lander.Assistant.LanderAssistant",
   "icon": "icon.png",
   "wakeWord": "Lander",
@@ -31,6 +31,11 @@
       "name": { "es": "Modo manual", "en": "Manual mode", "fr": "Mode manuel", "de": "Manueller Modus", "it": "Modalità manuale", "pt": "Modo manual" },
       "icon": "kd:XboxController",
       "hotkey": "CTRL + ALT + L"
+    },
+    {
+      "id": "lander.mission.accept",
+      "name": { "es": "Aceptar la misión", "en": "Accept the mission", "fr": "Accepter la mission", "de": "Mission annehmen", "it": "Accetta la missione", "pt": "Aceitar a missão" },
+      "icon": "kd:CheckmarkCircle"
     },
     {
       "id": "lander.mission",

@@ -50,6 +50,13 @@ internal sealed class ContentVision : IDisposable
     /// <summary>Un salto mayor que esto no se suaviza (es otro sitio, no un desplazamiento).</summary>
     private const int MaxSmoothedJump = 400;
 
+    /// <summary>
+    /// Tras moverse o cambiar de tamaño una ventana, lo que se espera antes de volver a mirarla. La captura del escritorio
+    /// llega un poco después que la posición de la ventana: medida mientras se mueve, el contenido parecería desplazarse
+    /// (el lander daba saltos y se quedaba atrás). Mientras tanto, los bordes van con la ventana, como su barra de título.
+    /// </summary>
+    private const double MoveSettle = 0.3;
+
     private readonly Dictionary<long, WindowState> _states = [];
     private readonly ContentEdgeDetector _detector = new();
     private readonly GrayImage _image = new(0, 0);
@@ -103,6 +110,12 @@ internal sealed class ContentVision : IDisposable
     /// <summary>Anota en el registro cada scroll medido (<c>--stats</c>).</summary>
     public bool Verbose { get; init; }
 
+    /// <summary>
+    /// Más zonas de la pantalla con algo dibujado por el lander (las líneas de los suelos del modo manual): no se
+    /// analizan, como la del propio lander. Sus bordes confirmados se conservan aunque queden tapados.
+    /// </summary>
+    public IReadOnlyList<PixelRect> Masks { get; set; } = [];
+
     /// <summary>Altura del lander en DIP (de los ajustes).</summary>
     public double LanderSizeDip { get; set; } = 48;
 
@@ -152,6 +165,11 @@ internal sealed class ContentVision : IDisposable
                     return now + 1.0 / 60;
                 }
 
+                if (now - state.MovedAt < MoveSettle)
+                {
+                    next = Math.Min(next, state.MovedAt + MoveSettle);
+                }
+
                 next = Math.Min(next, Math.Max(state.LastScan + ScanInterval, state.FollowUntil));
                 if (window.Handle == _followWindow)
                 {
@@ -193,7 +211,8 @@ internal sealed class ContentVision : IDisposable
             return false;
         }
 
-        _followWindow = interest.Need == ContentNeed.Landed ? interest.Window : 0;
+        // Posado en un borde o volviendo a él (esperando en el aire a que pare la página): hay que seguirlo.
+        _followWindow = interest.Need is ContentNeed.Landed or ContentNeed.Destination ? interest.Window : 0;
         var monitor = MonitorOf(monitors, lander);
         SelectTargets(interest, windows, monitors, monitor, lander, foreground);
 
@@ -206,6 +225,16 @@ internal sealed class ContentVision : IDisposable
             }
 
             state.LastWanted = now;
+            if (state.SeenBounds != window.Bounds)
+            {
+                if (state.HasBounds)
+                {
+                    state.MovedAt = now;
+                }
+
+                state.SeenBounds = window.Bounds;
+                state.HasBounds = true;
+            }
         }
 
         var changed = Forget(now, windows);
@@ -267,8 +296,8 @@ internal sealed class ContentVision : IDisposable
             return Publish(now) || changed;
         }
 
-        // Posado sobre un borde: lo primero es seguirlo si se mueve.
-        if (interest.Need == ContentNeed.Landed && BeginFollow(interest, duplicator, monitor, now))
+        // Posado sobre un borde (o volviendo a él): lo primero es seguirlo si se mueve.
+        if (interest.Need is ContentNeed.Landed or ContentNeed.Destination && BeginFollow(interest, duplicator, monitor, now))
         {
             return Publish(now) || changed;
         }
@@ -276,7 +305,8 @@ internal sealed class ContentVision : IDisposable
         foreach (var window in _targets)
         {
             var state = _states[window.Handle];
-            if (now - state.LastScan >= ScanInterval && now >= state.FollowUntil && BeginScan(window, state, duplicator, monitor, now))
+            if (now - state.LastScan >= ScanInterval && now >= state.FollowUntil && now - state.MovedAt >= MoveSettle
+                && BeginScan(window, state, duplicator, monitor, now))
             {
                 break;
             }
@@ -307,7 +337,7 @@ internal sealed class ContentVision : IDisposable
     private bool BeginFollow(ContentInterest interest, DesktopDuplicator duplicator, MonitorInfo monitor, double now)
     {
         var window = _targets.Find(w => w.Handle == interest.Window);
-        if (window is null || !_states.TryGetValue(window.Handle, out var state) || now < state.NextFollow)
+        if (window is null || !_states.TryGetValue(window.Handle, out var state) || now < state.NextFollow || now - state.MovedAt < MoveSettle)
         {
             return false;
         }
@@ -363,6 +393,14 @@ internal sealed class ContentVision : IDisposable
         if (landerRect.Intersects(region))
         {
             _unknownLocal.Add(Offset(landerRect, -bounds.Left, -bounds.Top));
+        }
+
+        foreach (var mask in Masks)
+        {
+            if (mask.Intersects(region))
+            {
+                _unknownLocal.Add(Offset(mask, -bounds.Left, -bounds.Top));
+            }
         }
 
         var maxShift = (int)Math.Ceiling(MaxScrollStepDip * scale);
@@ -443,6 +481,15 @@ internal sealed class ContentVision : IDisposable
         {
             _unknown.Add(Offset(landerRect, -region.Left, -region.Top));
             _unknownLocal.Add(Offset(landerRect, -bounds.Left, -bounds.Top));
+        }
+
+        foreach (var mask in Masks)
+        {
+            if (mask.Intersects(region))
+            {
+                _unknown.Add(Offset(mask, -region.Left, -region.Top));
+                _unknownLocal.Add(Offset(mask, -bounds.Left, -bounds.Top));
+            }
         }
 
         // Lo que cambia entre escaneos (vídeos, animaciones) no se confirma: el seguimiento compara la franja
@@ -677,5 +724,13 @@ internal sealed class ContentVision : IDisposable
         public double LastWanted { get; set; }
 
         public PixelRect ScannedBounds { get; set; }
+
+        /// <summary>Dónde estaba la ventana la última vez que se miró (para saber si se está moviendo).</summary>
+        public PixelRect SeenBounds { get; set; }
+
+        public bool HasBounds { get; set; }
+
+        /// <summary>Cuándo se movió o cambió de tamaño por última vez.</summary>
+        public double MovedAt { get; set; } = double.NegativeInfinity;
     }
 }

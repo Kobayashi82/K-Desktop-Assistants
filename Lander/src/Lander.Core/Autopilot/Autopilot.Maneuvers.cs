@@ -56,7 +56,15 @@ public sealed partial class Autopilot
         var height = body.Height;
         var dx = target.X - body.Position.X;
         var above = target.Y - body.Position.Y;
-        if (!_hopApex && (body.Position.Y <= _cruiseY + height * 0.15 || _airTime > 1.1))
+
+        // El destino ha quedado por encima (la página se ha desplazado mientras esperaba en el aire): primero, subir.
+        if (above < -height * 0.15)
+        {
+            _hopApex = false;
+            _cruiseY = Math.Min(_cruiseY, target.Y - height * 0.6);
+        }
+
+        if (!_hopApex && (body.Position.Y <= _cruiseY + height * 0.15 || (_airTime > 1.1 && body.Position.Y <= target.Y - height * 0.15)))
         {
             _hopApex = true;
         }

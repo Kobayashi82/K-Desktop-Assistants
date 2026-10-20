@@ -71,6 +71,7 @@ public sealed partial class LanderAssistant : IAssistant
         _progress = LoadProgress();
         _audio = new LanderAudio(host.Audio);
         _markers = new MarkerLayer(host.Rendering);
+        _floors = new FloorLayer(host.Rendering);
         CreateContentVision();
         _surface = host.Rendering.CreateSurface();
         _hit = host.Pointer.CreateHitArea();
@@ -80,6 +81,7 @@ public sealed partial class LanderAssistant : IAssistant
         _game = new LanderGame(_settings.ToGameOptions(), _progress, new GameRandom());
         _skin = ResolveSkin(_settings.Skin);
         ApplyAudio();
+        UpdateExtraStates();
         _host.Log.Info($"Lander {typeof(LanderAssistant).Assembly.GetName().Version?.ToString(3)}: nivel {_progress.Level}, {_progress.TotalPoints} puntos.");
     }
 
@@ -152,6 +154,8 @@ public sealed partial class LanderAssistant : IAssistant
         UpdateWheelWatch();
         Render(now);
         UpdateMarkers(now);
+        UpdateFloors(now);
+        UpdateExtraStates();
         SaveProgress(now);
 
         if (_exitStart is not null)
@@ -309,6 +313,7 @@ public sealed partial class LanderAssistant : IAssistant
         _content.Dispose();
         _audio.Dispose();
         _markers.Dispose();
+        _floors.Dispose();
         _hit.Dispose();
         _surface.Dispose();
     }

@@ -67,7 +67,8 @@
         { "extra": "lander.manual", "icon": "kd:XboxController", "label": { "es": "Pilotar", "en": "Fly it", "fr": "Piloter", "de": "Steuern", "it": "Pilota", "pt": "Pilotar" } },
         { "extra": "lander.race", "icon": "kd:Flag", "label": { "es": "Carrera", "en": "Race", "fr": "Course", "de": "Rennen", "it": "Gara", "pt": "Corrida" } },
         { "extra": "lander.race.repeat", "icon": "kd:ArrowRepeatAll", "label": { "es": "Repetir carrera", "en": "Repeat race", "fr": "Refaire la course", "de": "Rennen wiederholen", "it": "Ripeti gara", "pt": "Repetir corrida" } },
-        { "extra": "lander.mission", "icon": "kd:Target", "label": { "es": "Misión", "en": "Mission", "fr": "Mission", "de": "Mission", "it": "Missione", "pt": "Missão" } }
+        { "extra": "lander.mission", "icon": "kd:Target", "label": { "es": "Misión", "en": "Mission", "fr": "Mission", "de": "Mission", "it": "Missione", "pt": "Missão" } },
+        { "extra": "lander.mission.accept", "icon": "kd:CheckmarkCircle", "label": { "es": "Aceptar la misión", "en": "Accept the mission", "fr": "Accepter la mission", "de": "Mission annehmen", "it": "Accetta la missione", "pt": "Aceitar a missão" } }
       ]
     }
   ]

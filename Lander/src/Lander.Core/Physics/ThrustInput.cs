@@ -15,6 +15,9 @@ namespace Lander.Core.Physics;
 /// el piloto automático pasa por delante de las demás ventanas camino de su destino.
 /// <see cref="GroundOnly"/> no aterriza en ninguna ventana.
 /// </param>
+/// <param name="DropThrough">
+/// Posado en una ventana o en un borde de contenido: dejarse caer a través de él (el suelo no se atraviesa).
+/// </param>
 public readonly record struct ThrustInput(
     double Throttle = 0,
     double Rotate = 0,
@@ -22,7 +25,8 @@ public readonly record struct ThrustInput(
     bool Stabilize = false,
     bool Boost = false,
     bool RetractLegs = false,
-    long LandOn = 0)
+    long LandOn = 0,
+    bool DropThrough = false)
 {
     public const long AnyPlatform = 0;
     public const long GroundOnly = long.MinValue;

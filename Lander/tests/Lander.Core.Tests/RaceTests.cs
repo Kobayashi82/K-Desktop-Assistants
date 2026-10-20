@@ -37,7 +37,7 @@ public class RaceTests
     }
 
     [Fact]
-    public void Circuit_visits_distinct_windows_and_ends_at_the_base()
+    public void Circuit_never_repeats_a_window_in_a_row_and_ends_at_the_base()
     {
         var world = ThreeWindows();
 
@@ -45,11 +45,56 @@ public class RaceTests
 
         var race = _races.Current!;
         Assert.Equal(RaceStatus.Ready, race.Status);
-        Assert.Equal(4, race.Checkpoints.Count);
+        Assert.InRange(race.WindowCount, 2, RaceSystem.MaxWindows);
         Assert.True(race.Checkpoints[^1].IsBase);
-        Assert.Equal(3, race.Checkpoints.Take(3).Select(c => c.OwnerId).Distinct().Count());
+        Assert.True(race.Checkpoints.Zip(race.Checkpoints.Skip(1)).All(pair => pair.First.OwnerId != pair.Second.OwnerId));
+        Assert.Equal(Math.Min(race.WindowCount, 3), race.Checkpoints.Where(c => !c.IsBase).Select(c => c.OwnerId).Distinct().Count());
         Assert.True(race.ParSeconds > 5);
         Assert.Contains(_events, e => e.Kind == GameEventKind.RaceStarted);
+    }
+
+    /// <summary>Con solo dos ventanas, una carrera nueva nunca es la misma que la anterior, y hay variedad.</summary>
+    [Theory]
+    [InlineData(1)]
+    [InlineData(2)]
+    [InlineData(3)]
+    public void A_new_race_is_never_the_previous_circuit(int seed)
+    {
+        var races = new RaceSystem(new GameRandom(seed));
+        var world = Desktop(Window(1, 150, 500, 420, 300), Window(2, 1100, 400, 420, 300));
+        var body = BodyOnGround(world);
+        string? previous = null;
+        var seen = new HashSet<string>();
+        for (var i = 0; i < 12; i++)
+        {
+            Assert.Equal(RaceStartResult.Started, races.Start(world, body, false, _events));
+            var key = races.Current!.CircuitKey;
+            Assert.NotEqual(previous, key);
+            seen.Add(key);
+            previous = key;
+        }
+
+        Assert.True(seen.Count >= 4, $"Solo {seen.Count} circuitos distintos");
+    }
+
+    [Fact]
+    public void From_a_window_the_circuit_can_end_back_on_it()
+    {
+        var world = ThreeWindows();
+        var body = new LanderBody();
+        var start = world.SegmentsOf(2).MaxBy(p => p.Width)!;
+        body.PlaceOn(start, start.CenterX, 0);
+        var endings = new HashSet<long>();
+        for (var i = 0; i < 20; i++)
+        {
+            Assert.Equal(RaceStartResult.Started, _races.Start(world, body, false, _events));
+            var race = _races.Current!;
+            Assert.NotEqual(2, race.Checkpoints[0].OwnerId);
+            endings.Add(race.Checkpoints[^1].OwnerId);
+        }
+
+        Assert.Contains(0L, endings);
+        Assert.Contains(2L, endings);
     }
 
     [Fact]
@@ -267,7 +312,7 @@ public class RaceTests
         Assert.True(race.Status == RaceStatus.Finished, $"{race.Status} {race.Failure} en {race.Elapsed:0.0} s, baliza {race.Next}");
         Assert.Contains(events, e => e.Kind == GameEventKind.RaceFinished);
         Assert.Equal(1, game.Progress.RacesCompleted);
-        Assert.True(game.Progress.TotalPoints >= RaceSystem.Points(RaceMedal.Bronze, 3));
+        Assert.True(game.Progress.TotalPoints >= RaceSystem.Points(RaceMedal.Bronze, race.WindowCount));
 
         // El piloto simulado es prudente: no llega al oro, pero tampoco se queda muy lejos de la referencia.
         Assert.True(race.Elapsed < race.ParSeconds * Race.SilverFactor, $"{race.Elapsed:0.0} s con referencia {race.ParSeconds:0.0} s");

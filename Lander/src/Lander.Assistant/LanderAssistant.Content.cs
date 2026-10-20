@@ -83,7 +83,7 @@ public sealed partial class LanderAssistant
 
         if (visual.Bubble is not null)
         {
-            area.Union(new Rect(at.X - h * 1.2, at.Y - h * 2.6, h * 2.4, h * 2));
+            area.Union(new Rect(at.X - h * 1.2, at.Y - h * 2.6, h * (_scene.BubbleHint is null ? 2.4 : 3.6), h * 2));
         }
 
         // La sombra y el resplandor del motor sobre la superficie de debajo, y de noche el faro: caen justo sobre el borde
@@ -115,19 +115,33 @@ public sealed partial class LanderAssistant
         return new CoreRect((int)Math.Floor(area.Left), (int)Math.Floor(area.Top), (int)Math.Ceiling(area.Right), (int)Math.Ceiling(area.Bottom));
     }
 
-    /// <summary>La rueda solo interesa posado sobre el contenido de una ventana (el viento llega con el scroll fuerte).</summary>
+    /// <summary>
+    /// La rueda solo interesa posado sobre el contenido de una ventana o volviendo a él (el viento llega con el scroll
+    /// fuerte).
+    /// </summary>
     private void UpdateWheelWatch()
     {
-        var wanted = _content.Enabled && !_hidden && _exitStart is null && _game.ContentInterest.Need == ContentNeed.Landed;
+        var wanted = _content.Enabled && !_hidden && _exitStart is null && _game.ContentInterest.Need is ContentNeed.Landed or ContentNeed.Destination;
         if (_host.Pointer.WatchWheel != wanted)
         {
             _host.Pointer.WatchWheel = wanted;
         }
     }
 
-    /// <summary>Scroll en la ventana sobre cuyo contenido está posado: hay que seguirlo ya, no al siguiente ciclo.</summary>
+    /// <summary>
+    /// Scroll en la ventana sobre cuyo contenido está posado: la página va a moverse. Ir pegado a ella se veía con retraso
+    /// (la imagen de la pantalla llega después que la rueda), así que se eleva un poco y espera en el aire a que pare,
+    /// mientras la vista sigue el borde a cada fotograma; luego vuelve a posarse.
+    /// </summary>
     private void OnWheel(Sdk.SystemEvent.WheelTurned wheel)
     {
+        var interest = _game.ContentInterest;
+        if (interest.Need is ContentNeed.Landed or ContentNeed.Destination && interest.Window == wheel.Window)
+        {
+            _game.OnContentScrolling();
+            DrainGameEvents();
+        }
+
         if (_content.NotifyWheel(_now, wheel.Window))
         {
             _host.RequestTick();

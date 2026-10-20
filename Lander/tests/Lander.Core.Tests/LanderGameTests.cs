@@ -202,4 +202,53 @@ public class LanderGameTests
         Assert.Equal(64 / 48.0 * 1.5, game.Body.Scale, 6);
         Assert.Equal(64 * 1.5, game.Body.Height, 6);
     }
+
+    /// <summary>Posado en una ventana, ↓ lo deja caer a través de ella; sin volver a pulsarla, se posa en lo de debajo.</summary>
+    [Fact]
+    public void Down_while_landed_drops_through_the_window()
+    {
+        var world = Desktop(Window(1, 700, 400, 500, 300));
+        var game = NewGame(world);
+        var window = world.SegmentsOf(1).MaxBy(p => p.Width)!;
+        game.Body.PlaceOn(window, window.CenterX, world.Timestamp);
+        game.SetMode(ControlMode.Manual, ModeChangeReason.User);
+
+        // Sin soltarla: una sola pulsación atraviesa una sola plataforma.
+        Sim.RunGame(game, world, new Sensors(), 20, g => g.Body.IsLanded && g.Time > 0.5, g => new ManualControls(Up: g.Body.Velocity.Y > 60, Down: true, Left: false, Right: false, Boost: false));
+
+        Assert.True(game.Body.IsOnBase, $"Posado en {game.Body.Support?.Kind}, {game.Body.State} en {game.Body.Position}, t={game.Time:0.00}, ventana y={window.Y}");
+        Assert.Equal(0, game.Body.PassThrough);
+    }
+
+    [Fact]
+    public void Down_on_the_base_does_nothing()
+    {
+        var world = Desktop();
+        var game = NewGame(world);
+        game.SetMode(ControlMode.Manual, ModeChangeReason.User);
+        var y = game.Body.Position.Y;
+
+        Sim.RunGame(game, world, new Sensors(), 1, controls: g => new ManualControls(false, g.Time % 0.2 < 0.1, false, false, false));
+
+        Assert.True(game.Body.IsOnBase);
+        Assert.Equal(y, game.Body.Position.Y, 3);
+    }
+
+    /// <summary>Si sube otra vez por encima de la ventana que atravesaba, vuelve a poder posarse en ella.</summary>
+    [Fact]
+    public void Climbing_back_above_the_window_makes_it_solid_again()
+    {
+        var world = Desktop(Window(1, 700, 400, 500, 300));
+        var game = NewGame(world);
+        var window = world.SegmentsOf(1).MaxBy(p => p.Width)!;
+        game.Body.PlaceOn(window, window.CenterX, world.Timestamp);
+        game.SetMode(ControlMode.Manual, ModeChangeReason.User);
+
+        Sim.RunGame(game, world, new Sensors(), 0.1, controls: _ => new ManualControls(false, true, false, false, false));
+        Assert.Equal(1, game.Body.PassThrough);
+        Sim.RunGame(game, world, new Sensors(), 3, g => g.Body.FeetY < window.Y - 30, _ => new ManualControls(true, false, false, false, false));
+        Sim.RunGame(game, world, new Sensors(), 6, g => g.Body.IsLanded, g => new ManualControls(Up: g.Body.Velocity.Y > 35, Down: false, Left: false, Right: false, Boost: false));
+
+        Assert.Equal(1, game.Body.Support?.OwnerId);
+    }
 }

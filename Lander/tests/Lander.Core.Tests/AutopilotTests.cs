@@ -197,4 +197,33 @@ public class AutopilotTests
         Assert.InRange(body.Velocity.Y, -20, 20);
         Assert.InRange(body.Angle, 0.05, FlightGuidance.DefaultMaxTilt + 0.05);
     }
+
+    /// <summary>
+    /// A veces cambia de idea a medio vuelo y va a otro sitio, pero de tarde en tarde (no a cada rato), sin accidentes y
+    /// posándose donde ha decidido al final.
+    /// </summary>
+    [Theory]
+    [InlineData(1)]
+    [InlineData(2)]
+    [InlineData(3)]
+    public void Sometimes_changes_its_mind_in_flight_but_rarely(int seed)
+    {
+        var world = Desktop(
+            Window(1, 100, 250, 450, 350, app: "a"),
+            Window(2, 700, 500, 450, 300, app: "b"),
+            Window(3, 1300, 200, 450, 400, app: "c"),
+            Window(4, 450, 650, 400, 250, app: "d"));
+        var game = NewGame(world, seed, new GameOptions { Acrobatics = 0 });
+        game.Autopilot.Personality.Curiosity = 1;
+        var sensors = new Sensors { UserIdleSeconds = 1 };
+        var minutes = 40.0;
+
+        var events = Sim.RunGame(game, world, sensors, minutes * 60);
+
+        var changes = events.Count(e => e.Kind == GameEventKind.ChangedMind);
+        var flights = events.Count(e => e.Kind == GameEventKind.TookOff);
+        Assert.InRange(changes, 1, minutes * 60 / 150 + 1);
+        Assert.True(changes * 3 < flights, $"{changes} cambios en {flights} vuelos");
+        Assert.DoesNotContain(events, e => e.Kind == GameEventKind.Crashed);
+    }
 }

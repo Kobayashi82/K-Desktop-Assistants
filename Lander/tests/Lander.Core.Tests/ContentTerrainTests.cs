@@ -228,4 +228,35 @@ public class ContentTerrainTests
         Assert.InRange(content, 3000 * 0.1, 3000 * 0.5);
         Assert.True(active > (content - active) * 1.4, $"activa {active}, otra {content - active}");
     }
+
+    /// <summary>
+    /// La rueda sobre la página en la que está posado: se eleva, espera en el aire a que pare y vuelve a posarse en el
+    /// mismo borde, que entretanto se ha movido con el scroll.
+    /// </summary>
+    [Fact]
+    public void Scrolling_the_page_it_stands_on_lifts_it_and_it_lands_back_on_the_same_edge()
+    {
+        var windows = new[] { Window(1, 200, 100, 1200, 800, app: "msedge") };
+        var world = Build(windows, new ContentSurface(1, 7, 100, 900, 400));
+        var game = new LanderGame(new GameOptions(), new PilotProgress(), new GameRandom(3));
+        game.Initialize(world);
+        var edge = world.SegmentsOf(Platform.ContentOwnerId(1, 7)).Single();
+        game.Body.PlaceOn(edge, edge.CenterX, world.Timestamp);
+        Sim.RunGame(game, world, new Sensors(), 0.2);
+
+        game.OnContentScrolling();
+        Sim.RunGame(game, world, new Sensors(), 0.4);
+        Assert.True(game.Body.IsFlying);
+        Assert.True(game.Body.FeetY < edge.Y - 5);
+
+        // La página baja 60 px mientras espera (el borde sube en la ventana); más rueda alarga la espera.
+        world = Build(windows, new ContentSurface(1, 7, 100, 900, 340));
+        game.OnContentScrolling();
+        var events = Sim.RunGame(game, world, new Sensors(), 8, g => g.Body.IsLanded);
+
+        Assert.True(game.Body.IsLanded, $"{game.Body.State} en {game.Body.Position}, piloto {game.Autopilot.State} {game.Autopilot.Purpose} {game.Autopilot.Style}, destino {game.Autopilot.Destination}");
+        Assert.Equal(Platform.ContentOwnerId(1, 7), game.Body.Support?.OwnerId);
+        Assert.Equal(440, game.Body.FeetY, 1);
+        Assert.DoesNotContain(events, e => e.Kind == GameEventKind.Celebrated);
+    }
 }
