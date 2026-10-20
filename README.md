@@ -10,9 +10,8 @@ sobre tus ventanas. Cada uno es un paquete `.kai`.
 ## Instalar un asistente
 
 1. En K-Desktop: **Opciones → Módulo Asistente → General → «Activar el módulo Asistente»**.
-2. Descarga el `.kai` de la última compilación: **Actions → CI →** la ejecución más reciente en verde **→ Artifacts**
-   (`asistentes-lander-<versión>`). GitHub lo da dentro de un `.zip`: descomprímelo. Los artefactos duran 30 días; no
-   hay *releases* todavía. También puedes compilarlo tú (abajo).
+2. Compílalo (abajo): cada compilación deja el `.kai` del asistente en su carpeta `bin`, por ejemplo
+   `Lander\src\Lander.Assistant\bin\Release\net10.0-windows\win-x64\lander-<versión>.kai`. No hay *releases* todavía.
 3. Doble clic en el `.kai` (o **Opciones → Módulo Asistente → Asistentes → «Añadir asistente»**) y **Instalar** en la
    ficha que se abre.
 
@@ -29,27 +28,12 @@ git clone https://github.com/Kobayashi82/K-Desktop
 cd K-Desktop
 git clone https://github.com/Kobayashi82/K-Desktop-Assistants assistants
 cd assistants
-dotnet build K-Desktop-Assistants.slnx      # cada asistente deja su .kai en bin\…\ (p. ej. lander-0.5.0.kai)
+dotnet build K-Desktop-Assistants.slnx -c Release   # cada asistente deja su .kai en bin\Release\…\ (p. ej. lander-0.5.1.kai)
 dotnet test --solution K-Desktop-Assistants.slnx
 ```
 
-Hace falta el SDK de .NET 10.
-
-### CI
-
-[`.github/workflows/ci.yml`](.github/workflows/ci.yml) hace lo mismo en cada *push* a `main` (y a mano desde
-**Actions → CI → Run workflow**): clona K-Desktop, pone este repositorio dentro, compila en Release con los avisos como
-errores, pasa las pruebas y sube los `.kai` como artefacto. Nunca publica nada en las *releases*.
-
-Como K-Desktop es privado, el CI necesita el secreto **`KDESKTOP_TOKEN`** (sin él, falla en el primer paso diciéndolo):
-
-1. GitHub → **Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token**.
-   *Repository access*: **Only select repositories** → `Kobayashi82/K-Desktop`. *Permissions*: **Contents: Read-only**
-   (nada más).
-2. En este repositorio: **Settings → Secrets and variables → Actions → New repository secret**, nombre
-   `KDESKTOP_TOKEN`, valor el token.
-
-Cuando caduque el token, el CI falla al clonar K-Desktop: se genera otro y se cambia el secreto.
+Hace falta el SDK de .NET 10. El `.kai` lo genera el propio SDK al terminar cada compilación (Debug o Release), con la
+versión de `Package\assistant.json` en el nombre; los de versiones anteriores del mismo asistente se borran.
 
 ## Probar sin instalar
 

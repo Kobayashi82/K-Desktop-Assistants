@@ -10,8 +10,8 @@ K-Desktop; aquí queda el personaje.
 
 ## Instalar
 
-Con el módulo Asistente de K-Desktop encendido, doble clic en `lander-<versión>.kai` (lo deja el CI de este
-repositorio como artefacto, o `dotnet build`) e **Instalar**. Los pasos completos están en el
+Con el módulo Asistente de K-Desktop encendido, doble clic en `lander-<versión>.kai` (lo deja `dotnet build`
+en `src\Lander.Assistant\bin\…\`) e **Instalar**. Los pasos completos están en el
 [README del repositorio](../README.md#instalar-un-asistente). La ficha de instalación ofrece crear el comando
 **Ctrl+Alt+L** para pilotarlo; sus ajustes están en **Opciones → Módulo Asistente → Asistentes → Lander → Ajustes**.
 
