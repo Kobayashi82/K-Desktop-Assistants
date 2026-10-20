@@ -212,9 +212,12 @@ public sealed partial class LanderAssistant : IAssistant
             _pushedVersion = _game.ProgressVersion;
             DrainGameEvents();
             _host.Log.Info($"Lander en marcha: {_world.Monitors.Count} monitor(es), {_world.Platforms.Count} plataformas.");
+
+            // Con una película a pantalla completa en el monitor de su base, sale ya en otro (o no sale), no encima de ella.
+            UpdateFullscreen();
         }
 
-        if (_pendingEntrance is not null)
+        if (_pendingEntrance is not null && !_hidden)
         {
             _pendingEntrance = null;
             var body = _game.Body;
