@@ -43,7 +43,7 @@ en `src\Lander.Assistant\bin\…\`) e **Instalar**. Los pasos completos están e
 - **Luz de la antena:** lo que hace el módulo (`SetState`): cian latiendo mientras K-Desktop te escucha para él, ámbar
   parpadeando mientras piensa, verde al hablar, amarilla esperando un sí o un no. En cada aspecto, en la punta de su
   antena (en el platillo, las dos antenas del piloto; en píxeles, la celda de arriba); al hablar, sigue la voz.
-- **Voz y personalidad:** `Package/voice/lander.json` (Pocket TTS algo más agudo, por radio de control de misión, con su
+- **Voz y personalidad:** `Package/voice/lander.json` (la voz natural, Kokoro, algo más aguda, por radio de control de misión, con su
   pitido de «cambio»; tras estrellarse habla con fallos un rato, al celebrar más agudo, y desde otro monitor por una radio
   peor) y `Package/persona/{lang}.json` en los seis idiomas (piloto de la NASA, frases cortas, jerga de misión). Usa el
   SDK 1.2 (`SetVoiceMood`).
@@ -87,7 +87,7 @@ Fase 2 del módulo Asistente de K-Desktop terminada (0.5.0): el asistente, el co
 las ventanas, el juego entero, ajustes, panel, los extras como comandos y un repaso de paridad con el Lander
 independiente. No importa el progreso del Lander independiente (empieza de cero) ni se publica en *releases* todavía.
 Fase 5 (voz) en marcha: 0.6.0 trae la luz de la antena; 0.7.0, su voz y su personalidad; 0.8.0, la voz por radio «desde la Luna» siempre, esté en el monitor que esté; 0.8.1, con sus pitidos y sin el gruñido fuerte.
-Fase 6 (coreografía): 0.9.0 trae las maniobras de las órdenes. Fase 7: 0.10.0, el gancho, el remolque y el empujón.
+Fase 6 (coreografía): 0.9.0 trae las maniobras de las órdenes. Fase 7: 0.10.0, el gancho, el remolque y el empujón. 0.10.1: la voz es Kokoro (K-Desktop 5.0.94).
 
 Lo que hace distinto del Lander independiente, a propósito:
 

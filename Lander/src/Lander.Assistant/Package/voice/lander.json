@@ -2,7 +2,7 @@
   "$schema": "../../../../../../docs/assistant/esquemas/voice.schema.json",
   "name": "Lander",
   "engine": {
-    "type": "pocket",
+    "type": "kokoro",
     "voice": "default"
   },
   "chain": [
