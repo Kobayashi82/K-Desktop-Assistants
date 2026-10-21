@@ -122,6 +122,7 @@ public sealed partial class LanderAssistant : IAssistant
         var now = tick.Now;
         var elapsed = tick.Elapsed;
         _now = now;
+        ExpireVoiceMood(now);
         if (!_game.IsInitialized && !TryStart())
         {
             return 0.5;

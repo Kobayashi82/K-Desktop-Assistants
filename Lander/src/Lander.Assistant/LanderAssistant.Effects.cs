@@ -65,6 +65,30 @@ public sealed partial class LanderAssistant
         _audio.SetEngine(engineLevel, body.Position.X, _span, elapsed);
     }
 
+    /// <summary>Hasta cuándo dura el ánimo de la voz (0: ninguno).</summary>
+    private double _voiceMoodUntil;
+
+    /// <summary>
+    /// Cómo suena un rato lo que dice (perfil de voz del Lander): con fallos tras estrellarse, más agudo al celebrar. Lo
+    /// último manda.
+    /// </summary>
+    private void VoiceMood(string mood, double seconds)
+    {
+        _host.SetVoiceMood(mood);
+        _voiceMoodUntil = _now + seconds;
+    }
+
+    private void ExpireVoiceMood(double now)
+    {
+        if (_voiceMoodUntil <= 0 || now < _voiceMoodUntil)
+        {
+            return;
+        }
+
+        _voiceMoodUntil = 0;
+        _host.SetVoiceMood(null);
+    }
+
     private void HandleGameEvent(GameEvent gameEvent)
     {
         var scale = _game.Body.Scale;
@@ -115,6 +139,7 @@ public sealed partial class LanderAssistant
             case GameEventKind.Crashed:
                 _particles.Explosion(position, scale, _skin.DebrisColors);
                 Play(Sound.Explosion);
+                VoiceMood("error", 25);
                 break;
 
             case GameEventKind.Respawned:
@@ -166,11 +191,13 @@ public sealed partial class LanderAssistant
             case GameEventKind.Celebrated:
                 _particles.Confetti(position - new Vec2(0, 20 * scale), scale);
                 Play(Sound.PerfectChime, 0.7);
+                VoiceMood("happy", 12);
                 break;
 
             case GameEventKind.LevelUp:
                 _particles.Confetti(position - new Vec2(0, 20 * scale), scale, 40);
                 Play(Sound.Fanfare);
+                VoiceMood("happy", 15);
                 var unlocked = gameEvent.Unlocks.Count > 0
                     ? Texts.Format("level.unlocked", string.Join(", ", gameEvent.Unlocks.Select(u => Texts.Get("unlock." + u.Id, u.Name))))
                     : Texts.Get("level.keepGoing");
@@ -199,6 +226,7 @@ public sealed partial class LanderAssistant
             case GameEventKind.MissionCompleted:
                 _particles.Confetti(position - new Vec2(0, 20 * scale), scale, 36);
                 Play(Sound.Fanfare);
+                VoiceMood("happy", 12);
                 break;
 
             case GameEventKind.CrystalCollected:

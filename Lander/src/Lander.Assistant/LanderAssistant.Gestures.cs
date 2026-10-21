@@ -141,7 +141,8 @@ public sealed partial class LanderAssistant
     {
         AssistantState.Listening => (Gfx.Rgb(0x38E1FF), 0.8 + 0.2 * Math.Sin(now * 7)),
         AssistantState.Thinking or AssistantState.Busy => (Gfx.Rgb(0xFFB547), 0.45 + 0.55 * Math.Max(0, Math.Sin(now * 7.5))),
-        AssistantState.Speaking => (Gfx.Rgb(0x6DFFA8), 0.7 + 0.3 * Math.Sin(now * 13)),
+        // Al hablar, sigue la voz (si no llega nivel, late como si hablara).
+        AssistantState.Speaking => (Gfx.Rgb(0x6DFFA8), _voiceLevel > 0 ? 0.3 + 0.7 * _voiceLevel : 0.7 + 0.3 * Math.Sin(now * 13)),
         AssistantState.AwaitingConfirmation => (Gfx.Rgb(0xFFE15A), 0.75 + 0.25 * Math.Sin(now * 4)),
         _ => (_signalColor, 0),
     };
@@ -169,8 +170,12 @@ public sealed partial class LanderAssistant
         _scene.Pose = _scene.Pose with { Signal = _signal, SignalColor = _signalColor };
     }
 
+    /// <summary>Lo fuerte que suena su voz ahora (0…1): la luz de la antena lo sigue.</summary>
+    private double _voiceLevel;
+
     public void OnVoiceLevel(double level)
     {
-        // La voz llega en la fase 5.
+        _voiceLevel = Math.Clamp(level, 0, 1);
+        _host.RequestTick();
     }
 }
