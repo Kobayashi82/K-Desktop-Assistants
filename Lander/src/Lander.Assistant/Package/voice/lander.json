@@ -12,9 +12,10 @@
     },
     {
       "fx": "radio",
-      "bandwidth": 3600,
-      "noise": 0.01,
-      "beep": true
+      "bandwidth": 2400,
+      "noise": 0.05,
+      "beep": false,
+      "squelch": false
     },
     {
       "fx": "ring",
@@ -31,14 +32,6 @@
       {
         "fx": "pitch",
         "semitones": -2
-      }
-    ],
-    "far": [
-      {
-        "fx": "radio",
-        "bandwidth": 2400,
-        "noise": 0.05,
-        "beep": false
       }
     ],
     "happy": [
