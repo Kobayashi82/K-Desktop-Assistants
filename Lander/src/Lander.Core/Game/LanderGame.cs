@@ -419,6 +419,54 @@ public sealed class LanderGame
         Visual.ShowBubble(new Bubble(BubbleIcon.Heart, 1.4));
     }
 
+    // Encargos del asistente -------------------------------------------------------------------------------
+
+    /// <summary>
+    /// Puede hacer maniobras para K-Desktop: en automático, sin carrera, sin pausa y sin estar agarrado ni destruido.
+    /// </summary>
+    public bool CanRunErrands =>
+        _initialized && Mode == ControlMode.Auto && !IsPaused && !Races.IsActive && Body.State is not (BodyState.Destroyed or BodyState.Held);
+
+    /// <summary>Vuela a un punto en el aire y espera allí mirando a <paramref name="look"/> (ver <see cref="Autopilot.Autopilot.BeginErrand"/>).</summary>
+    public void BeginErrand(Vec2 point, double speed, Vec2? look = null)
+    {
+        if (!CanRunErrands)
+        {
+            return;
+        }
+
+        PrepareContext(Sensors, TimeStep);
+        Autopilot.BeginErrand(_context, point, speed);
+        Autopilot.ErrandLook = look;
+    }
+
+    /// <summary>Termina el encargo: se posa en la ventana <paramref name="perchOn"/> si puede, o en lo que tenga debajo.</summary>
+    public void EndErrand(long perchOn = 0)
+    {
+        if (!_initialized)
+        {
+            return;
+        }
+
+        PrepareContext(Sensors, TimeStep);
+        var landOn = perchOn != 0 ? DestinationPicker.PickOnOwner(World, Body, perchOn, _random) : null;
+        Autopilot.EndErrand(_context, landOn);
+    }
+
+    /// <summary>El retroceso de un disparo: en el aire empuja la nave; posada, la sacude.</summary>
+    public void Recoil(Vec2 impulse)
+    {
+        if (Body.IsFlying)
+        {
+            Body.Velocity += impulse * Body.Scale;
+            Body.AngularVelocity += Math.Clamp(impulse.X * 0.01, -0.8, 0.8);
+        }
+        else
+        {
+            Visual.StartWiggle();
+        }
+    }
+
     /// <summary>Borra el progreso del piloto y quita las mejoras.</summary>
     public void ResetProgress()
     {

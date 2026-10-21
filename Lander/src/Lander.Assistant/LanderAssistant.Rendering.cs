@@ -310,6 +310,12 @@ public sealed partial class LanderAssistant
             }
         }
 
+        // Las balizas que deja para una orden (una ventana «siempre visible»).
+        foreach (var mark in _errandMarks)
+        {
+            _markerSpecs.Add(new MarkerSpec(MarkerKind.Beacon, mark.At, body.Scale, BubbleIcon.Flag));
+        }
+
         if (_markerSpecs.Count == 0)
         {
             if (_markers.HasVisible)

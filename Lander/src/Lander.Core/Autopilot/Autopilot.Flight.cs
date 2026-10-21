@@ -117,7 +117,7 @@ public sealed partial class Autopilot
         }
 
         // Antes de despegar, el motor se enciende un instante sin levantar la nave (salvo con prisa).
-        _spool = body.IsLanded && purpose is not (FlightPurpose.Hop or FlightPurpose.Dodge or FlightPurpose.Recover);
+        _spool = body.IsLanded && purpose is not (FlightPurpose.Hop or FlightPurpose.Dodge or FlightPurpose.Recover or FlightPurpose.Errand);
 
         var targetPoint = body.Position;
         if (destination is not null && destination.TryResolve(ctx.World, body, out var center, out _))
@@ -387,6 +387,11 @@ public sealed partial class Autopilot
         _flightTime += ctx.Dt;
         _totalFlightTime += ctx.Dt;
         _waggleCooldown -= ctx.Dt;
+
+        if (_purpose == FlightPurpose.Errand)
+        {
+            return UpdateErrand(ctx);
+        }
 
         if (body.IsFlying)
         {

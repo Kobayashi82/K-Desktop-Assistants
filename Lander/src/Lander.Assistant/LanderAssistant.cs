@@ -71,6 +71,7 @@ public sealed partial class LanderAssistant : IAssistant
         _progress = LoadProgress();
         _audio = new LanderAudio(host.Audio);
         _markers = new MarkerLayer(host.Rendering);
+        _effects = new ManoeuvreLayer(host.Rendering);
         _floors = new FloorLayer(host.Rendering);
         CreateContentVision();
         _surface = host.Rendering.CreateSurface();
@@ -122,6 +123,7 @@ public sealed partial class LanderAssistant : IAssistant
         var now = tick.Now;
         var elapsed = tick.Elapsed;
         _now = now;
+        ReleaseFrames();
         ExpireVoiceMood(now);
         if (!_game.IsInitialized && !TryStart())
         {
@@ -154,6 +156,7 @@ public sealed partial class LanderAssistant : IAssistant
         UpdateInteraction();
         UpdateWheelWatch();
         Render(now);
+        UpdateManoeuvres(now);
         UpdateMarkers(now);
         UpdateFloors(now);
         UpdateExtraStates();
@@ -243,7 +246,7 @@ public sealed partial class LanderAssistant : IAssistant
 
     private bool IsActive(double now) =>
         _game.Mode == ControlMode.Manual || _game.NeedsHighFrequency || _particles.Count > 0 || AntennaMoving || LightFading || SignalShowing
-        || _pressed || _dragging || _markers.HasVisible || _audio.EngineAudible || _reaction is not null || _exitStart is not null;
+        || _pressed || _dragging || _markers.HasVisible || _audio.EngineAudible || _reaction is not null || _exitStart is not null || ManoeuvreActive;
 
     private bool IsAttentive() =>
         _game.Visual.Bubble is not null
@@ -317,6 +320,7 @@ public sealed partial class LanderAssistant : IAssistant
         _content.Dispose();
         _audio.Dispose();
         _markers.Dispose();
+        _effects.Dispose();
         _floors.Dispose();
         _hit.Dispose();
         _surface.Dispose();

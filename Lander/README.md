@@ -53,6 +53,14 @@ en `src\Lander.Assistant\bin\…\`) e **Instalar**. Los pasos completos están e
 - **Extras:** modo manual, proponer y aceptar una misión, empezar, repetir y abandonar una carrera, en el menú del clic
   derecho, en los botones del panel y como acción «Asistente: acción» de cualquier comando de K-Desktop. Cada uno sale,
   se atenúa o se esconde según el momento (durante una carrera, «Abandonar» en lugar de empezar y repetir).
+- **Órdenes de K-Desktop (maniobras):** cuando un comando se ejecuta por él, cada paso se ve. Minimizar, maximizar,
+  restaurar y cerrar: vuela cerca y dispara al botón (el de cerrar, cargado); la ventana cambia justo en el impacto.
+  Traer delante: la llama con unas ondas en la barra de título y se posa en ella. Volumen, audio, radios, energía, tema y
+  pantalla: va a la bandeja. Opacidad y lupa: señala con un foco. «Siempre visible»: deja una baliza. Captura: barre la
+  zona y hace la foto (el flash, después). Teclas: «teclea». Abrir algo: despega y se posa en la ventana nueva cuando
+  aparece. Si no llega a tiempo, dispara en pleno vuelo; en «Rápido» no vuela y nada pasa de medio segundo. Celebra con
+  una voltereta; si algo sale mal, humo y un fallo de motor. Mover ventanas llega con el gancho: hasta entonces lo dice el
+  bocadillo y lo hace K-Desktop.
 - **Pilotando a mano:** con «Posarse en el contenido» encendido, una línea discontinua marca los suelos de contenido
   cercanos.
 - **Ajustes:** `Package/settings.json` (General, Aspecto, Comportamiento, Pilotaje, Sonido y Piloto), que K-Desktop dibuja
@@ -73,6 +81,7 @@ Fase 2 del módulo Asistente de K-Desktop terminada (0.5.0): el asistente, el co
 las ventanas, el juego entero, ajustes, panel, los extras como comandos y un repaso de paridad con el Lander
 independiente. No importa el progreso del Lander independiente (empieza de cero) ni se publica en *releases* todavía.
 Fase 5 (voz) en marcha: 0.6.0 trae la luz de la antena; 0.7.0, su voz y su personalidad; 0.8.0, la voz por radio «desde la Luna» siempre, esté en el monitor que esté; 0.8.1, con sus pitidos y sin el gruñido fuerte.
+Fase 6 (coreografía): 0.9.0 trae las maniobras de las órdenes.
 
 Lo que hace distinto del Lander independiente, a propósito:
 

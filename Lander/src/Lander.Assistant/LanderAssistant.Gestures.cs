@@ -9,8 +9,9 @@ using Lander.Core.Physics;
 namespace Lander.Assistant;
 
 /// <summary>
-/// Gestos que pide el módulo. De momento los dos que sabe todo asistente (<see cref="Gesture.Communicate"/> y
-/// <see cref="Gesture.React"/>); los de las órdenes (señalar, pulsar botones, mover ventanas…) llegan en la fase 6.
+/// Gestos que pide el módulo: los dos que sabe todo asistente (<see cref="Gesture.Communicate"/> y
+/// <see cref="Gesture.React"/>) y las maniobras de las órdenes (ver <c>LanderAssistant.Manoeuvres.cs</c>). Mover ventanas
+/// llega con el gancho (fase 7): hasta entonces lo dice el módulo y lo hace K-Desktop.
 /// </summary>
 public sealed partial class LanderAssistant
 {
@@ -18,11 +19,20 @@ public sealed partial class LanderAssistant
 
     private (Color Color, double Start)? _reaction;
 
-    public bool CanPerform(Gesture gesture) =>
-        gesture.Kind is GestureKind.Communicate or GestureKind.React && _game.IsInitialized && !_hidden && _exitStart is null;
+    public bool CanPerform(Gesture gesture) => gesture.Kind switch
+    {
+        GestureKind.Communicate or GestureKind.React => _game.IsInitialized && !_hidden && _exitStart is null,
+        var kind when IsManoeuvre(kind) => CanManoeuvre && !OnFullscreen(gesture),
+        _ => false,
+    };
 
     public async Task<GestureOutcome> PerformAsync(Gesture gesture, IGestureContext ctx, CancellationToken ct)
     {
+        if (IsManoeuvre(gesture.Kind))
+        {
+            return await ManoeuvreAsync(gesture, ctx, ct).ConfigureAwait(true);
+        }
+
         switch (gesture)
         {
             case Gesture.Communicate:
@@ -58,7 +68,10 @@ public sealed partial class LanderAssistant
         }
     }
 
-    /// <summary>Un destello del color de la reacción, la cara que toca y su sonido.</summary>
+    /// <summary>
+    /// Un destello del color de la reacción, la cara que toca y su sonido. Volando para una orden, además: voltereta al
+    /// celebrar, y humo y un fallo de motor (cae un poco y lo recupera) cuando algo sale mal.
+    /// </summary>
     private void React(Reaction reaction)
     {
         var body = _game.Body;
@@ -86,6 +99,18 @@ public sealed partial class LanderAssistant
                 visual.Flash(Expression.Scared, 1.2);
                 visual.StartWiggle();
                 Play(Sound.HardThud, 0.4);
+                if (body.State != BodyState.Destroyed)
+                {
+                    _particles.DustBurst(body.Position, 0.7, scale);
+                    _particles.EnginePuff(body.Position, new Lander.Core.Geometry.Vec2(0, -1), body.Velocity, scale, "smoke", _now);
+                }
+
+                if (_game.Autopilot.OnErrand)
+                {
+                    _game.Autopilot.Stall();
+                    Play(Sound.Puff, 0.8);
+                }
+
                 break;
 
             default:
@@ -94,6 +119,11 @@ public sealed partial class LanderAssistant
                 if (body.State != BodyState.Destroyed)
                 {
                     _particles.Confetti(body.Position - new Lander.Core.Geometry.Vec2(0, 20 * scale), scale, 30);
+                }
+
+                if (_game.Autopilot.OnErrand)
+                {
+                    _game.Autopilot.ErrandFlip();
                 }
 
                 Play(Sound.PerfectChime, 0.7);

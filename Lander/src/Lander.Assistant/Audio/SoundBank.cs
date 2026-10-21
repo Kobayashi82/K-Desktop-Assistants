@@ -15,6 +15,13 @@ internal enum Sound
     Respawn,
     Pop,
     Whoosh,
+
+    // Maniobras (fase 6): disparo, impacto, carga del disparo fuerte, foto y barrido.
+    Zap,
+    Impact,
+    Charge,
+    Shutter,
+    Scan,
 }
 
 /// <summary>
@@ -47,6 +54,11 @@ internal static class SoundBank
             [Sound.Respawn] = Sweep(300, 900, 0.35, 0.22),
             [Sound.Pop] = Sweep(1100, 700, 0.06, 0.18),
             [Sound.Whoosh] = Whoosh(random),
+            [Sound.Zap] = Zap(random),
+            [Sound.Impact] = Impact(random),
+            [Sound.Charge] = Sweep(260, 1250, 0.55, 0.14),
+            [Sound.Shutter] = Shutter(random),
+            [Sound.Scan] = Scan(),
         };
     }
 
@@ -252,6 +264,76 @@ internal static class SoundBank
         }
 
         return Normalize(samples, peak);
+    }
+
+    /// <summary>Disparo: un «piu» que cae deprisa, con algo de soplido al salir.</summary>
+    private static float[] Zap(Random random)
+    {
+        var samples = Buffer(0.17);
+        double phase = 0;
+        for (var i = 0; i < samples.Length; i++)
+        {
+            var t = i / (double)SampleRate;
+            phase += Math.Tau * (380 + 2300 * Math.Exp(-t * 28)) / SampleRate;
+            var tone = Math.Sin(phase) + 0.3 * Math.Sin(phase * 2);
+            var noise = (random.NextDouble() * 2 - 1) * Math.Exp(-t * 90);
+            samples[i] = (float)(Math.Min(1, t / 0.003) * Math.Exp(-t * 16) * (tone + noise * 0.5));
+        }
+
+        return Normalize(samples, 0.2);
+    }
+
+    /// <summary>Impacto en el botón: un chasquido corto con un golpe grave debajo.</summary>
+    private static float[] Impact(Random random)
+    {
+        var samples = Buffer(0.22);
+        double phase = 0, previous = 0;
+        for (var i = 0; i < samples.Length; i++)
+        {
+            var t = i / (double)SampleRate;
+            phase += Math.Tau * (90 + 120 * Math.Exp(-t * 30)) / SampleRate;
+            var white = random.NextDouble() * 2 - 1;
+            var crack = (white - previous) * Math.Exp(-t * 70);
+            previous = white;
+            samples[i] = (float)(crack * 0.8 + Math.Sin(phase) * Math.Exp(-t * 22));
+        }
+
+        return Normalize(samples, 0.24);
+    }
+
+    /// <summary>Foto: dos clics de obturador muy seguidos.</summary>
+    private static float[] Shutter(Random random)
+    {
+        var samples = Buffer(0.12);
+        foreach (var start in new[] { 0.0, 0.055 })
+        {
+            var first = (int)(start * SampleRate);
+            for (var i = first; i < samples.Length; i++)
+            {
+                var t = (i - first) / (double)SampleRate;
+                samples[i] += (float)(Math.Exp(-t * 160) * ((random.NextDouble() * 2 - 1) * 0.7 + Math.Sin(Math.Tau * 2600 * t) * 0.4));
+            }
+        }
+
+        return Normalize(samples, 0.2);
+    }
+
+    /// <summary>Barrido del escáner: un zumbido suave que sube y baja.</summary>
+    private static float[] Scan()
+    {
+        const double seconds = 0.6;
+        var samples = Buffer(seconds);
+        double phase = 0;
+        for (var i = 0; i < samples.Length; i++)
+        {
+            var t = i / (double)SampleRate;
+            var k = t / seconds;
+            phase += Math.Tau * (520 + 260 * Math.Sin(Math.PI * k)) / SampleRate;
+            var env = Math.Sin(Math.PI * k);
+            samples[i] = (float)(env * (Math.Sin(phase) + 0.2 * Math.Sin(phase * 3)) * (0.8 + 0.2 * Math.Sin(Math.Tau * 30 * t)));
+        }
+
+        return Normalize(samples, 0.1);
     }
 
     private static float[] Buffer(double seconds) => new float[(int)(seconds * SampleRate)];

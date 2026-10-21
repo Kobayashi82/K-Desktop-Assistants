@@ -43,6 +43,9 @@ public enum FlightPurpose
 
     /// <summary>Vuelo panorámico: recorre el monitor por el aire y se posa en otro sitio.</summary>
     Sightsee,
+
+    /// <summary>Un encargo del asistente: vuela a un punto y espera allí (ver Autopilot.Errands.cs).</summary>
+    Errand,
 }
 
 /// <summary>Cómo vuela hasta su destino.</summary>

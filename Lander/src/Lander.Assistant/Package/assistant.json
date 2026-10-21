@@ -2,7 +2,7 @@
   "$schema": "../../../../../docs/assistant/esquemas/assistant.schema.json",
   "id": "lander",
   "name": "Lander",
-  "version": "0.8.1",
+  "version": "0.9.0",
   "author": "Kobayashi82",
   "description": {
     "es": "Un pequeño módulo lunar que vuela por tus ventanas y aterriza en ellas. Incluye su juego.",
@@ -24,8 +24,8 @@
     "travel": "fly",
     "travelSpeed": 900,
     "canMoveWindows": false,
-    "canReachMaximized": false,
-    "gestures": ["communicate", "react"]
+    "canReachMaximized": true,
+    "gestures": ["communicate", "react", "pressButton", "activateWindow", "pointAt", "goTo", "mark", "scan", "typing", "waitForWindow"]
   },
   "extras": [
     {
