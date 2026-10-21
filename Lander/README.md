@@ -59,8 +59,14 @@ en `src\Lander.Assistant\bin\…\`) e **Instalar**. Los pasos completos están e
   pantalla: va a la bandeja. Opacidad y lupa: señala con un foco. «Siempre visible»: deja una baliza. Captura: barre la
   zona y hace la foto (el flash, después). Teclas: «teclea». Abrir algo: despega y se posa en la ventana nueva cuando
   aparece. Si no llega a tiempo, dispara en pleno vuelo; en «Rápido» no vuela y nada pasa de medio segundo. Celebra con
-  una voltereta; si algo sale mal, humo y un fallo de motor. Mover ventanas llega con el gancho: hasta entonces lo dice el
-  bocadillo y lo hace K-Desktop.
+  una voltereta; si algo sale mal, humo y un fallo de motor.
+- **Mover ventanas (colocar, centrar, al otro monitor):** dispara el gancho a la barra de título (un proyectil con su
+  cable, la cuerda del SDK 1.4) y la remolca: la ventana lo sigue con su «masa» (más grande, más pesada), con un pequeño
+  rebote, y queda al píxel. Si la ventana se mueve mientras vuela el gancho, lo recoge y lo intenta otra vez (dos veces).
+  Para mover poco, un empujón con los propulsores. Mientras remolca la física va acelerada para caber en el tiempo del
+  paso. Maximizada, primero el disparo a «restaurar»; las de administrador las coloca K-Desktop por él; si una no se deja,
+  la mueve K-Desktop. Con el **modo asistente** (Comportamiento, encendido por defecto) las órdenes no gastan
+  combustible; sin él gastan, y con el depósito casi vacío solo lo cuenta.
 - **Pilotando a mano:** con «Posarse en el contenido» encendido, una línea discontinua marca los suelos de contenido
   cercanos.
 - **Ajustes:** `Package/settings.json` (General, Aspecto, Comportamiento, Pilotaje, Sonido y Piloto), que K-Desktop dibuja
@@ -81,7 +87,7 @@ Fase 2 del módulo Asistente de K-Desktop terminada (0.5.0): el asistente, el co
 las ventanas, el juego entero, ajustes, panel, los extras como comandos y un repaso de paridad con el Lander
 independiente. No importa el progreso del Lander independiente (empieza de cero) ni se publica en *releases* todavía.
 Fase 5 (voz) en marcha: 0.6.0 trae la luz de la antena; 0.7.0, su voz y su personalidad; 0.8.0, la voz por radio «desde la Luna» siempre, esté en el monitor que esté; 0.8.1, con sus pitidos y sin el gruñido fuerte.
-Fase 6 (coreografía): 0.9.0 trae las maniobras de las órdenes.
+Fase 6 (coreografía): 0.9.0 trae las maniobras de las órdenes. Fase 7: 0.10.0, el gancho, el remolque y el empujón.
 
 Lo que hace distinto del Lander independiente, a propósito:
 

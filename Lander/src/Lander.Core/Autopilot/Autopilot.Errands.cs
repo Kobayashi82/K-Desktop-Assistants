@@ -26,8 +26,17 @@ public sealed partial class Autopilot
     /// <summary>Haciendo un encargo: volando hacia su punto o esperando en él.</summary>
     public bool OnErrand => State == AutopilotState.Flying && _purpose == FlightPurpose.Errand;
 
+    /// <summary>El punto del encargo, ya dentro de la pantalla (donde de verdad acabará).</summary>
+    public Vec2 ErrandPoint => _errandPoint;
+
     /// <summary>Ya está en su punto, casi quieto.</summary>
     public bool ErrandArrived { get; private set; }
+
+    /// <summary>
+    /// Cuántas veces más deprisa va el tiempo de la física (ver <see cref="Game.LanderGame.ErrandBoost"/>): el controlador
+    /// de vuelo y los tiempos del encargo van igual de acelerados. 1 = normal.
+    /// </summary>
+    public double TimeScale { get; set; } = 1;
 
     /// <summary>Adónde mira mientras hace el encargo (el botón al que apunta); null, al punto.</summary>
     public Vec2? ErrandLook { get; set; }
@@ -111,7 +120,7 @@ public sealed partial class Autopilot
         if (_stall > 0)
         {
             _stall -= ctx.Dt;
-            return new ThrustInput(Rotate: FlightGuidance.RotateToward(body, ctx.Physics, 0.25 * Math.Sin(ctx.Time * 30)), LandOn: ThrustInput.GroundOnly);
+            return new ThrustInput(Rotate: FlightGuidance.RotateToward(body, ctx.Physics, 0.25 * Math.Sin(ctx.Time * 30), TimeScale), LandOn: ThrustInput.GroundOnly);
         }
 
         if (_phase == FlightPhase.Flip)
@@ -135,7 +144,8 @@ public sealed partial class Autopilot
 
         var point = _errandPoint;
         var delta = point - body.Position;
-        ErrandArrived = delta.Length < body.Height && body.Velocity.Length < 90 * scale;
+        var k = TimeScale;
+        ErrandArrived = delta.Length < body.Height && body.Velocity.Length < 90 * scale * k;
         ctx.Visual.LookTarget = ErrandLook ?? point;
 
         // Más deprisa que un paseo (es un recado), frenando a tiempo con lo que de verdad da la nave: de lado, lo que
@@ -144,24 +154,25 @@ public sealed partial class Autopilot
         var gravity = ctx.Physics.Gravity * scale;
         var up = delta.Y < 0;
         var vy = Math.Sign(delta.Y) * Math.Min(380 * scale * speed,
-            Approach(delta.Y, up ? gravity * 0.7 : gravity * 0.9, body.Velocity.Y, 0.25));
+            Approach(delta.Y, up ? gravity * 0.7 : gravity * 0.9, body.Velocity.Y, 0.25 / k, k));
 
         // Cerca, nivelado y con los propulsores de traslación, como al atracar: llega justo al punto sin bambolearse.
-        if (Math.Abs(delta.X) < body.Height * 3.5 && Math.Abs(body.Velocity.X) < 160 * scale)
+        if (Math.Abs(delta.X) < body.Height * 3.5 && Math.Abs(body.Velocity.X) < 160 * scale * k)
         {
-            var near = Math.Sign(delta.X) * Approach(delta.X, ctx.Physics.LateralThrust * scale * 0.55, body.Velocity.X, 0.15);
+            var near = Math.Sign(delta.X) * Approach(delta.X, ctx.Physics.LateralThrust * scale * 0.55, body.Velocity.X, 0.15 / k, k);
             return SteerLevel(ctx, new Vec2(near, vy));
         }
 
         var vx = Math.Sign(delta.X) * Math.Min(560 * scale * speed,
-            MathUtil.ApproachSpeed(Math.Max(0, Math.Abs(delta.X) - body.Height * 2.5), gravity * 0.55, body.Velocity.X, 0.6));
-        return Steer(ctx, new Vec2(vx, vy));
+            MathUtil.ApproachSpeed(Math.Max(0, Math.Abs(delta.X) - body.Height * 2.5), gravity * (k > 1 ? 0.8 : 0.55), body.Velocity.X, 0.6 / k));
+        // Remolcando (la física acelerada) se inclina más: tira con fuerza.
+        return Steer(ctx, new Vec2(vx, vy), maxTilt: k > 1 ? 0.9 : FlightGuidance.DefaultMaxTilt);
     }
 
     /// <summary>Como <see cref="MathUtil.ApproachSpeed"/>, pero con una llegada final más decidida (tiene prisa).</summary>
-    private static double Approach(double distance, double deceleration, double currentSpeed, double lag)
+    private static double Approach(double distance, double deceleration, double currentSpeed, double lag, double timeScale)
     {
         var usable = Math.Max(0, Math.Abs(distance) - Math.Abs(currentSpeed) * lag);
-        return Math.Min(Math.Sqrt(2 * deceleration * usable), Math.Abs(distance) * 3.5);
+        return Math.Min(Math.Sqrt(2 * deceleration * usable), Math.Abs(distance) * 3.5 * timeScale);
     }
 }

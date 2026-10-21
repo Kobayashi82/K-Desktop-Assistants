@@ -229,6 +229,18 @@
               }
             },
             {
+              "type": "toggle", "key": "assistantMode", "default": true,
+              "label": { "es": "Modo asistente", "en": "Assistant mode", "fr": "Mode assistant", "de": "Assistentenmodus", "it": "Modalità assistente", "pt": "Modo assistente" },
+              "description": {
+                "es": "Lo que hace para tus órdenes no gasta combustible, así que nunca las retrasa. Sin él, las maniobras gastan (remolcar una ventana, mucho) y con el depósito casi vacío solo te lo cuenta.",
+                "en": "What it does for your orders uses no fuel, so it never delays them. Without it, manoeuvres use fuel (towing a window, a lot) and with an almost empty tank it only tells you.",
+                "fr": "Ce qu’il fait pour tes ordres ne consomme pas de carburant, donc il ne les retarde jamais. Sans lui, les manœuvres en consomment (remorquer une fenêtre, beaucoup) et avec le réservoir presque vide il se contente de te le dire.",
+                "de": "Was er für deine Befehle tut, verbraucht keinen Treibstoff, also verzögert er sie nie. Ohne ihn verbrauchen Manöver Treibstoff (ein Fenster abschleppen viel), und mit fast leerem Tank sagt er es dir nur.",
+                "it": "Ciò che fa per i tuoi ordini non consuma carburante, quindi non li ritarda mai. Senza, le manovre consumano (rimorchiare una finestra, parecchio) e con il serbatoio quasi vuoto te lo dice soltanto.",
+                "pt": "O que ele faz pelas suas ordens não gasta combustível, então nunca as atrasa. Sem ele, as manobras gastam (rebocar uma janela, bastante) e com o tanque quase vazio ele só avisa."
+              }
+            },
+            {
               "type": "toggle", "key": "allowDragging", "default": true,
               "label": { "es": "Cogerlo con el ratón", "en": "Pick it up with the mouse", "fr": "L’attraper avec la souris", "de": "Mit der Maus greifen", "it": "Prenderlo con il mouse", "pt": "Pegar com o mouse" },
               "description": {

@@ -20,7 +20,8 @@ public static class FlightGuidance
         PhysicsConfig config,
         Vec2 desiredVelocity,
         bool retractLegs = false,
-        double maxTilt = DefaultMaxTilt)
+        double maxTilt = DefaultMaxTilt,
+        double timeScale = 1)
     {
         var scale = body.Scale;
         var gravity = config.Gravity * scale;
@@ -28,7 +29,7 @@ public static class FlightGuidance
         var maxThrust = config.MainThrust * scale * thrustFactor;
 
         // Aceleración necesaria, compensando resistencia del aire y viento.
-        var acceleration = (desiredVelocity - body.Velocity) * VelocityGain
+        var acceleration = (desiredVelocity - body.Velocity) * (VelocityGain * timeScale)
             + body.Velocity * config.LinearDrag
             - body.ExternalAcceleration;
 
@@ -55,7 +56,7 @@ public static class FlightGuidance
 
         return new ThrustInput(
             Throttle: Math.Clamp(throttle, 0, 1),
-            Rotate: RotateToward(body, config, desiredAngle),
+            Rotate: RotateToward(body, config, desiredAngle, timeScale),
             RetractLegs: retractLegs);
     }
 
@@ -63,12 +64,12 @@ public static class FlightGuidance
     /// Como <see cref="TrackVelocity"/>, pero sin inclinarse: el motor principal sostiene y da la altura y
     /// los propulsores de traslación, el desplazamiento lateral, como al atracar una nave.
     /// </summary>
-    public static ThrustInput TrackVelocityLevel(LanderBody body, PhysicsConfig config, Vec2 desiredVelocity, bool retractLegs = false)
+    public static ThrustInput TrackVelocityLevel(LanderBody body, PhysicsConfig config, Vec2 desiredVelocity, bool retractLegs = false, double timeScale = 1)
     {
         var scale = body.Scale;
         var gravity = config.Gravity * scale;
         var thrustFactor = 1 - config.MaxDamageThrustPenalty * Math.Clamp(body.Damage, 0, 1);
-        var acceleration = (desiredVelocity - body.Velocity) * VelocityGain
+        var acceleration = (desiredVelocity - body.Velocity) * (VelocityGain * timeScale)
             + body.Velocity * config.LinearDrag
             - body.ExternalAcceleration;
 
@@ -77,16 +78,19 @@ public static class FlightGuidance
         var lateral = Math.Clamp(acceleration.X / (config.LateralThrust * scale * thrustFactor), -1, 1);
         return new ThrustInput(
             Throttle: Math.Clamp(throttle, 0, 1),
-            Rotate: RotateToward(body, config, 0),
+            Rotate: RotateToward(body, config, 0, timeScale),
             Lateral: Math.Abs(lateral) < 0.04 ? 0 : lateral,
             RetractLegs: retractLegs);
     }
 
-    /// <summary>Mando de los propulsores de giro para llevar la nave a <paramref name="desiredAngle"/>.</summary>
-    public static double RotateToward(LanderBody body, PhysicsConfig config, double desiredAngle)
+    /// <summary>
+    /// Mando de los propulsores de giro para llevar la nave a <paramref name="desiredAngle"/>. <paramref name="timeScale"/>:
+    /// con la física acelerada (remolcando), el controlador también.
+    /// </summary>
+    public static double RotateToward(LanderBody body, PhysicsConfig config, double desiredAngle, double timeScale = 1)
     {
         var angleError = MathUtil.WrapAngle(desiredAngle - body.Angle);
-        var angularAcceleration = AngleGain * angleError - AngularRateGain * body.AngularVelocity;
+        var angularAcceleration = AngleGain * timeScale * timeScale * angleError - AngularRateGain * timeScale * body.AngularVelocity;
         var rotate = Math.Clamp(angularAcceleration / config.RotationAcceleration, -1, 1);
         return Math.Abs(rotate) < 0.02 ? 0 : rotate;
     }

@@ -749,8 +749,8 @@ public sealed partial class Autopilot
     {
         var body = ctx.Body;
         var landOn = LandOn(ctx);
-        var limited = FlightEnvelope.Limit(ctx.World, body, ctx.Physics, velocity, GroundGuard(landOn));
-        var input = FlightGuidance.TrackVelocity(body, ctx.Physics, limited, retractLegs, maxTilt) with { LandOn = landOn };
+        var limited = FlightEnvelope.Limit(ctx.World, body, ctx.Physics, velocity, GroundGuard(landOn), TimeScale);
+        var input = FlightGuidance.TrackVelocity(body, ctx.Physics, limited, retractLegs, maxTilt, TimeScale) with { LandOn = landOn };
 
         // Cerca de una pared, si va demasiado deprisa hacia ella, los propulsores de traslación ayudan a frenar.
         var excess = body.Velocity.X - limited.X;
@@ -766,8 +766,8 @@ public sealed partial class Autopilot
     private ThrustInput SteerLevel(AutopilotContext ctx, Vec2 velocity)
     {
         var landOn = LandOn(ctx);
-        var limited = FlightEnvelope.Limit(ctx.World, ctx.Body, ctx.Physics, velocity, GroundGuard(landOn));
-        return FlightGuidance.TrackVelocityLevel(ctx.Body, ctx.Physics, limited) with { LandOn = landOn };
+        var limited = FlightEnvelope.Limit(ctx.World, ctx.Body, ctx.Physics, velocity, GroundGuard(landOn), TimeScale);
+        return FlightGuidance.TrackVelocityLevel(ctx.Body, ctx.Physics, limited, timeScale: TimeScale) with { LandOn = landOn };
     }
 
     /// <summary>Solo se acepta el destino aterrizando y con la nave casi recta: inclinada, mejor pasar de largo y volver.</summary>

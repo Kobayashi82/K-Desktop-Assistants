@@ -66,6 +66,9 @@ public sealed class LanderSettings
     /// <summary>Visita el reloj de la barra de tareas a las horas en punto.</summary>
     public bool VisitClock { get; set; } = true;
 
+    /// <summary>Las órdenes de K-Desktop no gastan combustible (ver <see cref="GameOptions.AssistantMode"/>).</summary>
+    public bool AssistantMode { get; set; } = true;
+
     public bool Paused { get; set; }
 
     /// <summary>
@@ -90,6 +93,7 @@ public sealed class LanderSettings
         PilotErrors = PilotErrors,
         Acrobatics = Acrobatics,
         VisitClock = VisitClock,
+        AssistantMode = AssistantMode,
     };
 
     /// <summary>Corrige valores fuera de rango (por ejemplo, de un archivo editado a mano).</summary>

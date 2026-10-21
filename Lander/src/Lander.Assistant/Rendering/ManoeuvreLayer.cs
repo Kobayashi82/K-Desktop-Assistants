@@ -29,13 +29,17 @@ internal enum EffectKind
 
     /// <summary>La carga del disparo fuerte, alrededor del lander.</summary>
     Charge,
+
+    /// <summary>El cable del gancho (<see cref="ManoeuvreEffect.Line"/>), con la garra en su punta.</summary>
+    Rope,
 }
 
 /// <param name="From">Origen (proyectil, foco); lo mueve el lander mientras vuela.</param>
 /// <param name="Area">Para el escáner y el flash.</param>
 /// <param name="Size">1 = normal; más, el disparo cargado.</param>
+/// <param name="Line">Para el cable: la cuerda que se dibuja (la simula quien la creó).</param>
 internal sealed record ManoeuvreEffect(EffectKind Kind, double Start, double Duration, Vec2 From, Vec2 To, Color Color, double Scale,
-    Rect Area = default, double Size = 1)
+    Rect Area = default, double Size = 1, Rope? Line = null)
 {
     public Vec2 From { get; set; } = From;
 
@@ -113,6 +117,9 @@ internal sealed class ManoeuvreLayer(IRendering rendering) : IDisposable
 
             case EffectKind.Flash:
                 return effect.Area;
+
+            case EffectKind.Rope when effect.Line is { } line:
+                return line.Bounds(14 * effect.Scale);
 
             case EffectKind.Bolt:
             case EffectKind.Spotlight:
@@ -232,6 +239,32 @@ internal sealed class ManoeuvreLayer(IRendering rendering) : IDisposable
             case EffectKind.Flash:
                 dc.DrawRectangle(Gfx.Brush(Colors.White.WithAlpha(0.42 * (1 - t) * (1 - t))), null, e.Area);
                 break;
+
+            case EffectKind.Rope when e.Line is { } line:
+            {
+                // Cable oscuro con un brillo encima y, en la punta, la garra girada como llega el cable.
+                var geometry = line.ToGeometry();
+                dc.DrawGeometry(null, Gfx.Pen(Gfx.Rgb(0x1E2329, 220), 3.4 * s), geometry);
+                dc.DrawGeometry(null, Gfx.Pen(Gfx.Rgb(0xB8C2CC, 200), 1.2 * s), geometry);
+                var points = line.Points;
+                var tip = points[^1];
+                var back = points[^2];
+                var direction = new Vec2(tip.X - back.X, tip.Y - back.Y);
+                direction = direction.LengthSquared < 1e-6 ? new Vec2(0, 1) : direction.Normalized();
+                var side = new Vec2(-direction.Y, direction.X);
+                var t0 = new Point(tip.X, tip.Y);
+                var pen = Gfx.Pen(Gfx.Rgb(0xD9DEE3), 2 * s);
+                for (var sign = -1.0; sign <= 1; sign += 2)
+                {
+                    var arm = new Point(tip.X + (direction.X * 4 + side.X * 6 * sign) * s, tip.Y + (direction.Y * 4 + side.Y * 6 * sign) * s);
+                    var claw = new Point(arm.X + direction.X * 4 * s - side.X * 2 * sign * s, arm.Y + direction.Y * 4 * s - side.Y * 2 * sign * s);
+                    dc.DrawLine(pen, t0, arm);
+                    dc.DrawLine(pen, arm, claw);
+                }
+
+                dc.DrawEllipse(Gfx.Brush(Gfx.Rgb(0xD9DEE3)), null, t0, 2.6 * s, 2.6 * s);
+                break;
+            }
 
             case EffectKind.Charge:
             {

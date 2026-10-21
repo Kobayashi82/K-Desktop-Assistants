@@ -128,6 +128,28 @@ public class ErrandTests
     }
 
     [Fact]
+    public void Errands_do_not_use_fuel_even_with_the_boost()
+    {
+        var world = Desktop();
+        var game = NewGame(world, 9);
+        game.Body.Fuel = game.Body.FuelCapacity * 0.05;
+        var fuel = game.Body.Fuel;
+        game.ErrandBoost = 6;
+        game.BeginErrand(new Vec2(1700, 300), 3);
+        var events = new List<GameEvent>();
+        for (var i = 0; i < 6 * 60; i++)
+        {
+            game.Step(world, Awake, default);
+            game.DrainEvents(events);
+        }
+
+        Assert.True(game.Autopilot.ErrandArrived);
+        Assert.True(game.Body.Fuel >= fuel);
+        Assert.DoesNotContain(events, e => e.Kind is GameEventKind.Crashed or GameEventKind.FuelEmpty);
+        game.ErrandBoost = 1;
+    }
+
+    [Fact]
     public void An_abandoned_errand_ends_by_itself()
     {
         var world = Desktop();

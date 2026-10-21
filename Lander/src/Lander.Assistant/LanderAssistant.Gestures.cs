@@ -10,8 +10,8 @@ namespace Lander.Assistant;
 
 /// <summary>
 /// Gestos que pide el módulo: los dos que sabe todo asistente (<see cref="Gesture.Communicate"/> y
-/// <see cref="Gesture.React"/>) y las maniobras de las órdenes (ver <c>LanderAssistant.Manoeuvres.cs</c>). Mover ventanas
-/// llega con el gancho (fase 7): hasta entonces lo dice el módulo y lo hace K-Desktop.
+/// <see cref="Gesture.React"/>) y las maniobras de las órdenes (ver <c>LanderAssistant.Manoeuvres.cs</c>); mover ventanas,
+/// con el gancho (<c>LanderAssistant.Hook.cs</c>).
 /// </summary>
 public sealed partial class LanderAssistant
 {

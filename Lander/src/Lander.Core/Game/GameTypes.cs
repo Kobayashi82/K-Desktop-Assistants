@@ -148,4 +148,10 @@ public sealed record GameOptions
     /// ni saltos balísticos) a 1 (las hace a menudo). 0,5 es lo normal.
     /// </summary>
     public double Acrobatics { get; init; } = 0.5;
+
+    /// <summary>
+    /// «Modo asistente»: lo que hace para las órdenes de K-Desktop no gasta combustible, así que nunca retrasa una orden
+    /// por repostar. Sin él, las maniobras gastan (remolcar, mucho) y con el depósito casi vacío no las hace.
+    /// </summary>
+    public bool AssistantMode { get; init; } = true;
 }

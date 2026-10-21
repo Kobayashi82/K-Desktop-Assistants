@@ -92,7 +92,7 @@ public static class FlightEnvelope
     /// Recorta una velocidad deseada para que siempre se pueda frenar antes del techo y de las paredes.
     /// Hacia arriba basta con cortar el motor (la gravedad frena); de lado hace falta inclinarse.
     /// </summary>
-    public static Vec2 Limit(World world, LanderBody body, PhysicsConfig config, Vec2 desired, long landOn = ThrustInput.GroundOnly)
+    public static Vec2 Limit(World world, LanderBody body, PhysicsConfig config, Vec2 desired, long landOn = ThrustInput.GroundOnly, double timeScale = 1)
     {
         var scale = body.Scale;
 
@@ -126,8 +126,8 @@ public static class FlightEnvelope
                 // Para frenar de lado primero hay que inclinarse hacia el otro lado, y mientras gira sigue
                 // avanzando: más tiempo cuanto más inclinado vaya hacia la pared.
                 var toward = body.Angle * Math.Sign(desired.X);
-                var lag = 0.2 + 2 * Math.Sqrt(Math.Max(0, toward + BrakingTilt) / config.RotationAcceleration);
-                var braking = LateralBraking * scale;
+                var lag = 0.2 / timeScale + 2 * Math.Sqrt(Math.Max(0, toward + BrakingTilt) / config.RotationAcceleration);
+                var braking = LateralBraking * scale * timeScale * timeScale;
                 var maxSide = braking * (Math.Sqrt(lag * lag + 2 * room / braking) - lag);
                 desired = desired.WithX(Math.Clamp(desired.X, -maxSide, maxSide));
             }

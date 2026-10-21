@@ -2,7 +2,7 @@
   "$schema": "../../../../../docs/assistant/esquemas/assistant.schema.json",
   "id": "lander",
   "name": "Lander",
-  "version": "0.9.0",
+  "version": "0.10.0",
   "author": "Kobayashi82",
   "description": {
     "es": "Un pequeño módulo lunar que vuela por tus ventanas y aterriza en ellas. Incluye su juego.",
@@ -14,7 +14,7 @@
   },
   "homepage": "https://github.com/Kobayashi82/K-Desktop-Assistants",
   "license": "MIT",
-  "sdk": "1.2",
+  "sdk": "1.4",
   "entry": "lib/Lander.Assistant.dll!Lander.Assistant.LanderAssistant",
   "icon": "icon.png",
   "wakeWord": "Lander",
@@ -23,9 +23,9 @@
   "traits": {
     "travel": "fly",
     "travelSpeed": 900,
-    "canMoveWindows": false,
+    "canMoveWindows": true,
     "canReachMaximized": true,
-    "gestures": ["communicate", "react", "pressButton", "activateWindow", "pointAt", "goTo", "mark", "scan", "typing", "waitForWindow"]
+    "gestures": ["communicate", "react", "pressButton", "activateWindow", "pointAt", "goTo", "mark", "scan", "typing", "waitForWindow", "moveWindow"]
   },
   "extras": [
     {

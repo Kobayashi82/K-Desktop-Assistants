@@ -68,6 +68,9 @@ public sealed partial class LanderAssistant
         {
             Gesture.PressButton p => p.ButtonBounds.Center,
             Gesture.ActivateWindow a => a.Window.Bounds.Center,
+            Gesture.MoveWindow w when _host.World.Current.MonitorAt(w.Destination.Center) is { } there && _sensors.FullscreenMonitors.Contains(there.Index) =>
+                w.Destination.Center,
+            Gesture.MoveWindow w => w.Window.Bounds.Center,
             Gesture.Typing { Window: { } w } => w.Bounds.Center,
             Gesture.Scan s => s.Area.Center,
             Gesture.PointAt p => PlaceCenter(p.Target),
@@ -79,7 +82,7 @@ public sealed partial class LanderAssistant
     }
 
     private static bool IsManoeuvre(GestureKind kind) => kind is GestureKind.PressButton or GestureKind.ActivateWindow or GestureKind.PointAt
-        or GestureKind.GoTo or GestureKind.Mark or GestureKind.Scan or GestureKind.Typing or GestureKind.WaitForWindow;
+        or GestureKind.GoTo or GestureKind.Mark or GestureKind.Scan or GestureKind.Typing or GestureKind.WaitForWindow or GestureKind.MoveWindow;
 
     private async Task<GestureOutcome> ManoeuvreAsync(Gesture gesture, IGestureContext ctx, CancellationToken ct)
     {
@@ -87,6 +90,7 @@ public sealed partial class LanderAssistant
         _lingerUntil = double.NaN;
         var pace = PaceOf(ctx.Speed);
         var committed = false;
+        GestureOutcome? outcome = null;
         void Commit()
         {
             committed = true;
@@ -123,9 +127,12 @@ public sealed partial class LanderAssistant
                 case Gesture.WaitForWindow wait:
                     await LiftOffAsync(wait.Process, pace, ctx, Commit, ct);
                     break;
+                case Gesture.MoveWindow move:
+                    outcome = await TowAsync(move, pace, ctx, Commit, ct);
+                    break;
             }
 
-            return committed ? GestureOutcome.Committed : GestureOutcome.NotPerformed;
+            return outcome ?? (committed ? GestureOutcome.Committed : GestureOutcome.NotPerformed);
         }
         catch (OperationCanceledException)
         {

@@ -221,7 +221,14 @@ public sealed class LanderGame
         else
         {
             input = Mode == ControlMode.Manual ? MapManual(controls) : Autopilot.Update(_context);
+            var fuel = Body.Fuel;
             _physics.Step(Body, input, world, dt, _physicsEvents);
+
+            // «Modo asistente»: lo que hace para una orden no gasta combustible (nunca se queda sin él a medias).
+            if (Options.AssistantMode && Autopilot.OnErrand && Body.Fuel < fuel)
+            {
+                Body.Fuel = fuel;
+            }
         }
 
         LastInput = input;
@@ -425,7 +432,11 @@ public sealed class LanderGame
     /// Puede hacer maniobras para K-Desktop: en automático, sin carrera, sin pausa y sin estar agarrado ni destruido.
     /// </summary>
     public bool CanRunErrands =>
-        _initialized && Mode == ControlMode.Auto && !IsPaused && !Races.IsActive && Body.State is not (BodyState.Destroyed or BodyState.Held);
+        _initialized && Mode == ControlMode.Auto && !IsPaused && !Races.IsActive && Body.State is not (BodyState.Destroyed or BodyState.Held)
+        && (Options.AssistantMode || Body.FuelFraction > ErrandFuelReserve);
+
+    /// <summary>Sin el modo asistente, con menos de esto en el depósito no hace maniobras (que lo diga el módulo).</summary>
+    public const double ErrandFuelReserve = 0.25;
 
     /// <summary>Vuela a un punto en el aire y espera allí mirando a <paramref name="look"/> (ver <see cref="Autopilot.Autopilot.BeginErrand"/>).</summary>
     public void BeginErrand(Vec2 point, double speed, Vec2? look = null)
@@ -476,9 +487,56 @@ public sealed class LanderGame
         RefreshUpgrades();
     }
 
+    private double _errandBoost = 1;
+
+    /// <summary>
+    /// Para remolcar una ventana a tiempo: la física va más deprisa (las aceleraciones por este factor, las velocidades
+    /// por su raíz), como un vídeo acelerado: la nave vuela igual, pero antes. 1 = normal (hasta 6).
+    /// </summary>
+    public double ErrandBoost
+    {
+        get => _errandBoost;
+        set
+        {
+            var boost = Math.Clamp(value, 1, 6);
+            if (Math.Abs(boost - _errandBoost) < 1e-9)
+            {
+                return;
+            }
+
+            _errandBoost = boost;
+            Autopilot.TimeScale = Math.Sqrt(boost);
+            RefreshUpgrades();
+        }
+    }
+
+    /// <summary>La física con el tiempo acelerado <paramref name="k"/> veces (aceleraciones k², velocidades k).</summary>
+    private static PhysicsConfig TimeScaled(PhysicsConfig config, double k) => config with
+    {
+        Gravity = config.Gravity * k * k,
+        MainThrust = config.MainThrust * k * k,
+        LateralThrust = config.LateralThrust * k * k,
+        RotationAcceleration = config.RotationAcceleration * k * k,
+        MaxAngularSpeed = config.MaxAngularSpeed * k,
+        LinearDrag = config.LinearDrag * k,
+        AngularDrag = config.AngularDrag * k,
+        StabilizerStiffness = config.StabilizerStiffness * k * k,
+        StabilizerDamping = config.StabilizerDamping * k,
+        MainBurnRate = config.MainBurnRate * k,
+        LateralBurnRate = config.LateralBurnRate * k,
+        RotationBurnRate = config.RotationBurnRate * k,
+        Perfect = config.Perfect with { VerticalSpeed = config.Perfect.VerticalSpeed * k, HorizontalSpeed = config.Perfect.HorizontalSpeed * k },
+        Hard = config.Hard with { VerticalSpeed = config.Hard.VerticalSpeed * k, HorizontalSpeed = config.Hard.HorizontalSpeed * k },
+    };
+
     private void RefreshUpgrades()
     {
         var config = Unlocks.ApplyUpgrades(_baseConfig, Progress.Level);
+        if (_errandBoost > 1)
+        {
+            config = TimeScaled(config, Math.Sqrt(_errandBoost));
+        }
+
         var fuelFraction = Body.FuelFraction;
         _physics.Config = config;
         Body.FuelCapacity = config.FuelCapacity;
