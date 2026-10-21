@@ -72,7 +72,7 @@ en `src\Lander.Assistant\bin\…\`) e **Instalar**. Los pasos completos están e
 Fase 2 del módulo Asistente de K-Desktop terminada (0.5.0): el asistente, el comportamiento libre con el contenido de
 las ventanas, el juego entero, ajustes, panel, los extras como comandos y un repaso de paridad con el Lander
 independiente. No importa el progreso del Lander independiente (empieza de cero) ni se publica en *releases* todavía.
-Fase 5 (voz) en marcha: 0.6.0 trae la luz de la antena; 0.7.0, su voz y su personalidad; 0.8.0, la voz por radio «desde la Luna» siempre, esté en el monitor que esté.
+Fase 5 (voz) en marcha: 0.6.0 trae la luz de la antena; 0.7.0, su voz y su personalidad; 0.8.0, la voz por radio «desde la Luna» siempre, esté en el monitor que esté; 0.8.1, con sus pitidos y sin el gruñido fuerte.
 
 Lo que hace distinto del Lander independiente, a propósito:
 
