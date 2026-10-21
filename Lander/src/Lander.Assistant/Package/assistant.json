@@ -2,7 +2,7 @@
   "$schema": "../../../../../docs/assistant/esquemas/assistant.schema.json",
   "id": "lander",
   "name": "Lander",
-  "version": "0.10.2",
+  "version": "0.10.3",
   "author": "Kobayashi82",
   "description": {
     "es": "Un pequeño módulo lunar que vuela por tus ventanas y aterriza en ellas. Incluye su juego.",
@@ -18,6 +18,7 @@
   "entry": "lib/Lander.Assistant.dll!Lander.Assistant.LanderAssistant",
   "icon": "icon.png",
   "wakeWord": "Lander",
+  "model": { "suggested": ["unsloth/Qwen3.5-9B-GGUF:Q4_K_M", "unsloth/Qwen3.5-4B-GGUF:Q4_K_M"] },
   "voice": "voice/lander.json",
   "persona": "persona/{lang}.json",
   "traits": {
