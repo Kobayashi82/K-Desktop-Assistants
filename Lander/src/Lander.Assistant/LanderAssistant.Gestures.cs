@@ -3,6 +3,7 @@ using KDesktop.Assistant.Sdk;
 using Lander.Assistant.Audio;
 using Lander.Assistant.Rendering;
 using Lander.Core.Game;
+using Lander.Core.Geometry;
 using Lander.Core.Physics;
 
 namespace Lander.Assistant;
@@ -121,9 +122,52 @@ public sealed partial class LanderAssistant
         return (reaction.Color, 0.55 * Math.Sin(Math.PI * t));
     }
 
-    /// <summary>Lo que hace el módulo (escuchar, pensar, hablar…). El lander lo enseñará con la cara a partir de la fase 3.</summary>
-    public void SetState(AssistantState state) =>
+    /// <summary>Lo que hace el módulo ahora (escuchar, pensar, hablar…): se ve en la luz de la antena.</summary>
+    private AssistantState _moduleState;
+
+    /// <summary>Lo que hace el módulo (escuchar, pensar, hablar…): la luz de la antena lo enseña.</summary>
+    public void SetState(AssistantState state)
+    {
         _host.Log.Debug($"Estado: {state}");
+        _moduleState = state;
+        _host.RequestTick();
+    }
+
+    /// <summary>
+    /// La luz de la antena según lo que hace el módulo: cian y latiendo al escucharte, ámbar parpadeando mientras piensa,
+    /// verde al hablar (y amarilla esperando un sí o un no). Apagada en reposo.
+    /// </summary>
+    private (Color Color, double Level) SignalTarget(double now) => _moduleState switch
+    {
+        AssistantState.Listening => (Gfx.Rgb(0x38E1FF), 0.8 + 0.2 * Math.Sin(now * 7)),
+        AssistantState.Thinking or AssistantState.Busy => (Gfx.Rgb(0xFFB547), 0.45 + 0.55 * Math.Max(0, Math.Sin(now * 7.5))),
+        AssistantState.Speaking => (Gfx.Rgb(0x6DFFA8), 0.7 + 0.3 * Math.Sin(now * 13)),
+        AssistantState.AwaitingConfirmation => (Gfx.Rgb(0xFFE15A), 0.75 + 0.25 * Math.Sin(now * 4)),
+        _ => (_signalColor, 0),
+    };
+
+    private double _signal;
+    private Color _signalColor = Gfx.Rgb(0x38E1FF);
+    private double _signalClock;
+
+    /// <summary>La luz sigue encendida o apagándose: hay que seguir dibujando.</summary>
+    private bool SignalShowing => _signal > 0 || _moduleState is not (AssistantState.Idle or AssistantState.Sleeping);
+
+    /// <summary>La luz de este instante, con suavidad al encender y apagar.</summary>
+    private void UpdateSignal(double now)
+    {
+        var dt = Math.Clamp(now - _signalClock, 0, 0.1);
+        _signalClock = now;
+        var (color, level) = SignalTarget(now);
+        _signalColor = color;
+        _signal = level > 0 ? MathUtil.Damp(_signal, level, 14, dt) : MathUtil.Damp(_signal, 0, 5, dt);
+        if (level <= 0 && _signal < 0.02)
+        {
+            _signal = 0;
+        }
+
+        _scene.Pose = _scene.Pose with { Signal = _signal, SignalColor = _signalColor };
+    }
 
     public void OnVoiceLevel(double level)
     {

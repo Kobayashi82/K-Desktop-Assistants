@@ -38,7 +38,11 @@ en `src\Lander.Assistant\bin\…\`) e **Instalar**. Los pasos completos están e
 - **Ritmo:** `Tick` devuelve cuánto puede dormir: a cada fotograma mientras se mueve, 20 veces por segundo con el
   cursor cerca, 4 en reposo y 2 con el usuario ausente, y se despierta justo para parpadear.
 - **Ratón:** una zona de clic con la forma del cuerpo, solo cuando el cursor se acerca: tocarlo, cogerlo y lanzarlo, y
-  doble clic para pilotarlo. El clic derecho abre el menú del asistente de K-Desktop.
+  doble clic para pilotarlo. El clic derecho abre el menú del asistente de K-Desktop; mantener pulsado el clic sobre él,
+  hablarle.
+- **Luz de la antena:** lo que hace el módulo (`SetState`): cian latiendo mientras K-Desktop te escucha para él, ámbar
+  parpadeando mientras piensa, verde al hablar, amarilla esperando un sí o un no. En cada aspecto, en la punta de su
+  antena (en el platillo, las dos antenas del piloto; en píxeles, la celda de arriba).
 - **Teclado:** en modo manual pide a K-Desktop las flechas, Espacio, Esc, A, D y G (solo sin Ctrl, Alt ni Win, así que
   los atajos siguen funcionando).
 - **Sonido:** los sonidos sintetizados de siempre en el mezclador del host, con panorama según dónde esté.
@@ -64,6 +68,7 @@ en `src\Lander.Assistant\bin\…\`) e **Instalar**. Los pasos completos están e
 Fase 2 del módulo Asistente de K-Desktop terminada (0.5.0): el asistente, el comportamiento libre con el contenido de
 las ventanas, el juego entero, ajustes, panel, los extras como comandos y un repaso de paridad con el Lander
 independiente. No importa el progreso del Lander independiente (empieza de cero) ni se publica en *releases* todavía.
+Fase 5 (voz) en marcha: 0.6.0 trae la luz de la antena.
 
 Lo que hace distinto del Lander independiente, a propósito:
 

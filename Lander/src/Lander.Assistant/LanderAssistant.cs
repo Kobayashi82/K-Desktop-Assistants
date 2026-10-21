@@ -241,7 +241,7 @@ public sealed partial class LanderAssistant : IAssistant
         _sensors.UserIdleSeconds > 60 && _game.Mode == ControlMode.Auto && !_pressed && !_dragging;
 
     private bool IsActive(double now) =>
-        _game.Mode == ControlMode.Manual || _game.NeedsHighFrequency || _particles.Count > 0 || AntennaMoving || LightFading
+        _game.Mode == ControlMode.Manual || _game.NeedsHighFrequency || _particles.Count > 0 || AntennaMoving || LightFading || SignalShowing
         || _pressed || _dragging || _markers.HasVisible || _audio.EngineAudible || _reaction is not null || _exitStart is not null;
 
     private bool IsAttentive() =>

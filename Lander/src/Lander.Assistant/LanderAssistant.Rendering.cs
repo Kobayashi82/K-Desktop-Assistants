@@ -110,7 +110,8 @@ public sealed partial class LanderAssistant
         var raceSignature = race is null ? 0 : HashCode.Combine(race.Status, race.Next, race.Medal, (int)(race.Elapsed * 10), (int)(race.ResultAge * 4));
 
         // Se dibuja con precisión de subpíxel: también cuenta como cambio.
-        var subpixel = HashCode.Combine((int)(position.X * 8), (int)(position.Y * 8), (int)(exit * 30), _reaction?.GetHashCode() ?? 0);
+        var subpixel = HashCode.Combine((int)(position.X * 8), (int)(position.Y * 8), (int)(exit * 30), _reaction?.GetHashCode() ?? 0,
+            (int)(_scene.Pose.Signal * 40), _scene.Pose.SignalColor);
         var animation = HashCode.Combine((int)(_scene.Pose.Compress * 20), (int)(_scene.Pose.Yawn * 20), (int)(_scene.Pose.AntennaSway * 100),
             (int)(_scene.Offset.X * 10), (int)(_scene.Offset.Y * 10), (int)(_scene.Tilt * 300), (int)(_scene.ShadowStrength * 30), (int)(_scene.GroundGlow * 30) * 37 + (int)(_scene.LandingLight * 30));
         var signature = HashCode.Combine(
@@ -177,6 +178,7 @@ public sealed partial class LanderAssistant
         _scene.Offset = new Vec2(jitter.X, jitter.Y - hop);
         _scene.Tilt = tilt;
         _scene.Pose = _scene.Pose with { Compress = compress, Yawn = Math.Pow(yawn, 0.7), AntennaSway = _antenna };
+        UpdateSignal(now);
 
         // Sombra y resplandor sobre la superficie de debajo.
         var feet = position.Y + body.HalfHeight + compress * body.Scale * 0.2;

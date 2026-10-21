@@ -78,6 +78,10 @@ internal sealed class ApolloSkin : LanderSkin
         }
     }
 
+    protected internal override Point SignalPoint => new(12.8, -25.4);
+
+    protected override (Point Pivot, double Factor) SignalSway => (new Point(9, -17.5), 120.0 / 180);
+
     protected override void DrawLights(DrawingContext dc, in LanderPose pose) =>
         LanderParts.NavigationLights(dc, new Point(-17.5, 1.5), new Point(17.5, 1.5), new Point(12.8, -26), pose.Time);
 }

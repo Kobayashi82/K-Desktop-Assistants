@@ -48,6 +48,11 @@ internal readonly record struct LanderPose
     /// <summary>Inclinación de la antena por la inercia (radianes).</summary>
     public double AntennaSway { get; init; }
 
+    /// <summary>Luz de la punta de la antena (0 apagada … 1): lo que hace el módulo (escuchar, pensar, hablar).</summary>
+    public double Signal { get; init; }
+
+    public System.Windows.Media.Color SignalColor { get; init; }
+
     public LanderPose()
     {
     }

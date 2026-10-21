@@ -175,6 +175,13 @@ internal sealed class PixelSkin : LanderSkin
         }
     }
 
+    /// <summary>En píxeles: la celda de arriba del todo, del color de la señal y sin halo.</summary>
+    protected override void DrawSignal(DrawingContext dc, in LanderPose pose)
+    {
+        var color = Gfx.Lerp(Gfx.Rgb(0x30343A), pose.SignalColor, Math.Clamp(pose.Signal, 0, 1));
+        DrawCell(dc, new SolidColorBrush(color), 8, 0);
+    }
+
     private static void DrawGrid(DrawingContext dc, string[] rows, int firstRow)
     {
         for (var row = 0; row < rows.Length; row++)

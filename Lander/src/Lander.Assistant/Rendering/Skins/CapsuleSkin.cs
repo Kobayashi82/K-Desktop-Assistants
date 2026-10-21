@@ -67,6 +67,10 @@ internal sealed class CapsuleSkin : LanderSkin
         }
     }
 
+    protected internal override Point SignalPoint => new(0, -20.5);
+
+    protected override (Point Pivot, double Factor) SignalSway => (default, 0);
+
     protected override void DrawLights(DrawingContext dc, in LanderPose pose) =>
         LanderParts.NavigationLights(dc, new Point(-13.5, 5.5), new Point(13.5, 5.5), new Point(0, -20.5), pose.Time);
 }

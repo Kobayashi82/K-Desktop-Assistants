@@ -95,6 +95,13 @@ internal sealed class SaucerSkin : LanderSkin
         // Las luces del borde ya hacen de luces de navegación.
     }
 
+    /// <summary>Las dos antenas del piloto se encienden a la vez.</summary>
+    protected override void DrawSignal(DrawingContext dc, in LanderPose pose)
+    {
+        LanderParts.Light(dc, new Point(-4.6, -14.3), pose.SignalColor, pose.Signal * 0.8);
+        LanderParts.Light(dc, new Point(4.6, -14.3), pose.SignalColor, pose.Signal * 0.8);
+    }
+
     private static StreamGeometry CreateDome()
     {
         var geometry = new StreamGeometry();

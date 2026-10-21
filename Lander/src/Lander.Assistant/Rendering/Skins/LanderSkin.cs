@@ -51,6 +51,11 @@ internal abstract class LanderSkin
         }
 
         DrawBody(dc, pose);
+        if (pose.Signal > 0.01)
+        {
+            DrawSignal(dc, pose);
+        }
+
         LanderParts.Jet(dc, LeftJetPoint, -1, pose.LeftJet);
         LanderParts.Jet(dc, RightJetPoint, 1, pose.RightJet);
         LanderParts.Jet(dc, LowerLeftJetPoint, -1, pose.LowerLeftJet);
@@ -75,6 +80,29 @@ internal abstract class LanderSkin
 
     protected virtual void DrawLights(DrawingContext dc, in LanderPose pose) =>
         LanderParts.NavigationLights(dc, new Point(-16.5, 1.5), new Point(16.5, 1.5), new Point(8.8, -28.6), pose.Time);
+
+    /// <summary>Dónde se enciende la luz de señal: la punta de la antena.</summary>
+    protected internal virtual Point SignalPoint => new(8.8, -27.4);
+
+    /// <summary>Sobre qué punto se mece la antena y cuánto (1 = lo que dice la inercia; 0, no se mece).</summary>
+    protected virtual (Point Pivot, double Factor) SignalSway => (new Point(5.5, -21.6), 1);
+
+    /// <summary>La luz de la antena (escuchando, pensando, hablando), meciéndose con ella.</summary>
+    protected virtual void DrawSignal(DrawingContext dc, in LanderPose pose)
+    {
+        var (pivot, factor) = SignalSway;
+        var sways = factor != 0 && pose.AntennaSway != 0;
+        if (sways)
+        {
+            dc.PushTransform(new RotateTransform(pose.AntennaSway * factor * 180 / Math.PI, pivot.X, pivot.Y));
+        }
+
+        LanderParts.Light(dc, SignalPoint, pose.SignalColor, pose.Signal);
+        if (sways)
+        {
+            dc.Pop();
+        }
+    }
 }
 
 public static class SkinCatalog
