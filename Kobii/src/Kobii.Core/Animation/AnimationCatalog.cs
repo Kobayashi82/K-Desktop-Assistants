@@ -76,11 +76,11 @@ public static class AnimationCatalog
         // Descansar.
         new("sentarse", "Sentarse", Pose.Sit, Seconds: 8),
         new("sentarse-mirar", "Sentarse a mirar", Pose.Sit, Gesture.LookAround, Seconds: 7, Face: Expression.Curious),
-        new("tumbarse", "Tumbarse", Pose.LieSide, Seconds: 10, Face: Expression.Happy),
+        new("tumbarse", "Tumbarse", Pose.Lie, Seconds: 10, Face: Expression.Happy),
         new("derretirse", "Derretirse", Pose.Flop, Seconds: 6, Face: Expression.Sleepy),
         new("acurrucarse", "Acurrucarse", Pose.Curl, Seconds: 8, Face: Expression.Sleepy),
         new("cabezadas", "Dar cabezadas", Pose.Doze, Seconds: 12, Face: Expression.Sleeping, Emote: EmoteKind.Sleep, EmoteEvery: 2.6),
-        new("siesta", "Siesta", Pose.LieSide, Seconds: 25, Face: Expression.Sleeping, Emote: EmoteKind.Sleep, EmoteEvery: 2.6),
+        new("siesta", "Siesta", Pose.Lie, Seconds: 25, Face: Expression.Sleeping, Emote: EmoteKind.Sleep, EmoteEvery: 2.6),
         new("siesta-almohada", "Siesta con almohada", Pose.Curl, Gesture.Hug, Prop.Pillow, Seconds: 25, Face: Expression.Sleeping, Emote: EmoteKind.Sleep, EmoteEvery: 2.6),
         new("sentarse-borde", "Sentarse en el borde", Pose.SitEdge, Seconds: 12, Face: Expression.Happy),
         new("asomarse", "Asomarse por el borde", Pose.Peek, Seconds: 4, Face: Expression.Curious, Emote: EmoteKind.Exclamation, Look: new Vec2(0.6, 0.9)),

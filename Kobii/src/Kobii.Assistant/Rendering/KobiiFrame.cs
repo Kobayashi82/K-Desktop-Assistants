@@ -34,6 +34,9 @@ internal sealed class KobiiFrame
 
     public CreatureConstants Constants;
 
+    /// <summary>Esqueleto interpolado de este fotograma.</summary>
+    public Rig Rig { get; set; }
+
     public bool Dark { get; set; }
 
     public Palette Palette { get; set; } = Species.Palettes[0];
@@ -103,6 +106,7 @@ internal sealed class KobiiFrame
         c.Ghost = 0;
         c.Wet = (float)visual.Wet;
         c.SetRig(rig);
+        Rig = rig;
         c.Elder = 0;
         c.SetPalette(Palette);
         c.PassMode = 0;

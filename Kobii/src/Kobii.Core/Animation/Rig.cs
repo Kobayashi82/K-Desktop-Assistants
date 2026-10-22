@@ -55,6 +55,9 @@ public struct Rig
     /// <summary>Encorvado hacia delante (0–1): la postura de los mayores.</summary>
     public double Hunch { get; set; }
 
+    /// <summary>Derretido como un charco (0–1): el cuerpo se escurre hacia los lados y la cara baja con él.</summary>
+    public double Melt { get; set; }
+
     /// <summary>Desplazamiento de cada mano desde su sitio (L: la de la izquierda de la pantalla).</summary>
     public double HandLX { get; set; }
 
@@ -202,6 +205,7 @@ public struct Rig
         Spin = L(a.Spin, b.Spin, t),
         Stretch = L(a.Stretch, b.Stretch, t),
         Hunch = L(a.Hunch, b.Hunch, t),
+        Melt = L(a.Melt, b.Melt, t),
         HandLX = L(a.HandLX, b.HandLX, t),
         HandLY = L(a.HandLY, b.HandLY, t),
         HandRX = L(a.HandRX, b.HandRX, t),
@@ -286,7 +290,7 @@ public struct Rig
 
         if (mask.HasFlag(RigMask.Body))
         {
-            (r.OffsetX, r.OffsetY, r.Spin, r.Stretch) = (mixed.OffsetX, mixed.OffsetY, mixed.Spin, mixed.Stretch);
+            (r.OffsetX, r.OffsetY, r.Spin, r.Stretch, r.Melt) = (mixed.OffsetX, mixed.OffsetY, mixed.Spin, mixed.Stretch, mixed.Melt);
         }
 
         if (mask.HasFlag(RigMask.Mouth))
