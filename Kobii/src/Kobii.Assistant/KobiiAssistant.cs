@@ -10,8 +10,8 @@ namespace Kobii.Assistant;
 
 /// <summary>
 /// Kobii como asistente de K-Desktop. El comportamiento está en Kobii.Core (<see cref="KobiiGame"/>): aquí se le da el
-/// mundo y los sensores del host, se avanza con paso fijo, se dibuja con el shader de Kobii AI sobre la GPU del host
-/// (<see cref="ISurface.PresentGpu"/>) y se atienden el ratón, los gestos y los estados del módulo.
+/// mundo y los sensores del host, se avanza con paso fijo, se dibuja en vectorial (<see cref="ISurface.Present"/>)
+/// y se atienden el ratón, los gestos y los estados del módulo.
 /// </summary>
 /// <remarks>
 /// Todo ocurre en el hilo del motor del host (ver <see cref="IAssistant"/>). Quieto y sin nadie mirando, duerme casi del
@@ -25,6 +25,9 @@ public sealed partial class KobiiAssistant : IAssistant
 
     /// <summary>Quieto pero respirando o asentándose: no hace falta dibujarlo a cada fotograma.</summary>
     private const double CalmInterval = 1.0 / 12;
+
+    /// <summary>Solo se mueven las partículas (una «z» al dormir, una nota): no hace falta el ritmo de la pantalla.</summary>
+    private const double ParticleInterval = 1.0 / 30;
     private const int MaxStepsPerTick = 20;
 
     /// <summary>Lo que tarda en desvanecerse al salir (el host espera a <see cref="ExitAsync"/>).</summary>
@@ -41,7 +44,6 @@ public sealed partial class KobiiAssistant : IAssistant
     private IAssistantHost _host = null!;
     private KobiiSettings _settings = new();
     private KobiiGame _game = null!;
-    private Task<CompiledShader>? _shader;
 
     private double _now;
     private double _accumulator;
@@ -78,10 +80,6 @@ public sealed partial class KobiiAssistant : IAssistant
         _hit = host.Pointer.CreateHitArea();
         _hit.Cursor = PointerCursor.Hand;
         _host.World.Changed += OnWorldChanged;
-
-        // El shader tarda en compilarse la primera vez (luego sale de la caché): fuera del hilo del motor.
-        var cache = Path.Combine(Path.GetTempPath(), "K-Desktop", "Kobii", "shaders");
-        _shader = Task.Run(() => CreatureRenderer.Compile(cache, message => Log.Info(message)));
         _host.Log.Info($"Kobii {typeof(KobiiAssistant).Assembly.GetName().Version?.ToString(3)}: color {_settings.Color}.");
     }
 
@@ -149,6 +147,7 @@ public sealed partial class KobiiAssistant : IAssistant
         }
 
         var interval = IsActive(now) ? FrameInterval
+            : _particles.Count > 0 ? Math.Max(FrameInterval, ParticleInterval)
             : IsUserAway() ? AwayInterval
             : _game.NeedsHighFrequency ? CalmInterval
             : IsAttentive() ? AttentiveInterval : IdleInterval;
@@ -202,7 +201,7 @@ public sealed partial class KobiiAssistant : IAssistant
     private bool IsUserAway() => _sensors.UserIdleSeconds > 60 && !_pressed && !_dragging;
 
     private bool IsActive(double now) =>
-        _game.NeedsFullRate || _particles.Count > 0 || _pressed || _dragging || _exitStart is not null || now - _fadeStart < FadeInDuration;
+        _game.NeedsFullRate || _pressed || _dragging || _exitStart is not null || now - _fadeStart < FadeInDuration;
 
     private bool IsAttentive() =>
         _sensors.Cursor is { } cursor && Vec2.Distance(cursor, _game.Body.Center) < _game.Body.Height * 7;
@@ -233,6 +232,9 @@ public sealed partial class KobiiAssistant : IAssistant
         DrainGameEvents();
     }
 
+    /// <summary>Las cifras de diagnóstico van al registro también en Release (para medir lo que cuesta).</summary>
+    private static readonly bool StatsAlways = Environment.GetEnvironmentVariable("KOBII_STATS") == "1";
+
     private void Stats(double now)
     {
         _statTicks++;
@@ -244,7 +246,15 @@ public sealed partial class KobiiAssistant : IAssistant
         var seconds = now - _statsStart;
         if (_statsStart > 0)
         {
-            _host.Log.Debug(FormattableString.Invariant($"Kobii: {_statTicks / seconds:0.0} ciclos/s, {_statSteps / seconds:0.0} pasos/s, {_statFrames / seconds:0.0} fotogramas/s, {_statTickMs / Math.Max(1, _statTicks):0.00} ms por ciclo, {_statPresentMs / Math.Max(1, _statFrames):0.00} ms por fotograma (dibujo {_statDrawMs / Math.Max(1, _statFrames):0.00}) ({_game.Activity}; {_game.BusyReason}; partículas {_particles.Count}, cursor cerca {IsAttentive()})"));
+            var line = FormattableString.Invariant($"Kobii: {_statTicks / seconds:0.0} ciclos/s, {_statSteps / seconds:0.0} pasos/s, {_statFrames / seconds:0.0} fotogramas/s, {_statTickMs / Math.Max(1, _statTicks):0.00} ms por ciclo, {_statPresentMs / Math.Max(1, _statFrames):0.00} ms por fotograma (dibujo {_statDrawMs / Math.Max(1, _statFrames):0.00}) ({_game.Activity}; {_game.BusyReason}; partículas {_particles.Count}, cursor cerca {IsAttentive()})");
+            if (StatsAlways)
+            {
+                _host.Log.Info(line);
+            }
+            else
+            {
+                _host.Log.Debug(line);
+            }
         }
 
         _statsStart = now;
@@ -297,7 +307,5 @@ public sealed partial class KobiiAssistant : IAssistant
         _hit.Dispose();
         _effects.Dispose();
         _surface.Dispose();
-        _gpu?.Dispose();
-        _gpu = null;
     }
 }

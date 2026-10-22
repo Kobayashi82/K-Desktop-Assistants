@@ -7,8 +7,8 @@ using Kobii.Core.Terrain;
 namespace Kobii.Assistant.Tests;
 
 /// <summary>
-/// El dibujo, fuera de pantalla con WARP y las mismas piezas que en la capa del host: el shader compila, Kobii se ve de
-/// su color, lo que lleva en la mano sale y las partículas también. <c>KOBII_RENDER_PNG</c> = carpeta donde dejar las
+/// El dibujo vectorial en memoria con WPF (lo mismo que se manda al host): Kobii se ve de su color, lo que lleva en la
+/// mano sale y las partículas también. <c>KOBII_RENDER_PNG</c> = carpeta donde dejar las
 /// imágenes para verlas.
 /// </summary>
 public sealed class RenderTests
@@ -19,11 +19,9 @@ public sealed class RenderTests
     [Fact]
     public void Kobii_is_drawn_in_the_chosen_colour()
     {
-        var shader = CreatureRenderer.Compile(Path.Combine(Path.GetTempPath(), "K-Desktop", "Kobii", "shaders-tests"));
-        using var target = new Offscreen(Size, Size, shader);
         foreach (var palette in Species.Palettes)
         {
-            var pixels = Draw(target, palette, game => { });
+            var pixels = Draw(palette, game => { });
             var (coverage, average) = Measure(pixels);
             Assert.InRange(coverage, 0.05, 0.5);
 
@@ -31,27 +29,25 @@ public sealed class RenderTests
             var body = (R: (palette.Body >> 16) & 0xFF, G: (palette.Body >> 8) & 0xFF, B: palette.Body & 0xFF);
             var distance = Math.Abs(average.R - body.R) + Math.Abs(average.G - body.G) + Math.Abs(average.B - body.B);
             Assert.True(distance < 150, $"{palette.Id}: medio {average}, cuerpo {body}");
-            Save(target, pixels, palette.Id);
+            Save(pixels, palette.Id);
         }
     }
 
     [Fact]
     public void What_it_holds_and_its_particles_are_drawn_too()
     {
-        var shader = CreatureRenderer.Compile(Path.Combine(Path.GetTempPath(), "K-Desktop", "Kobii", "shaders-tests"));
-        using var target = new Offscreen(Size, Size, shader);
-        var plain = Measure(Draw(target, Species.Palettes[0], game => { })).Coverage;
-        var balloon = Measure(Draw(target, Species.Palettes[0], game => game.PlayClip("globo"), seconds: 1.5)).Coverage;
+        var plain = Measure(Draw(Species.Palettes[0], game => { })).Coverage;
+        var balloon = Measure(Draw(Species.Palettes[0], game => game.PlayClip("globo"), seconds: 1.5)).Coverage;
         Assert.True(balloon > plain + 0.01, $"globo {balloon:0.000} frente a {plain:0.000}");
 
         var particles = new ParticleSystem(new GameRandom(1));
         particles.Spawn(new Emote(EmoteKind.Heart, new Vec2(1090, 1360), 3, 4), 0xFFFFFF);
         particles.Update(0.2);
-        var hearts = Measure(Draw(target, Species.Palettes[0], game => { }, particles: particles)).Coverage;
+        var hearts = Measure(Draw(Species.Palettes[0], game => { }, particles: particles)).Coverage;
         Assert.True(hearts > plain + 0.005, $"corazones {hearts:0.000} frente a {plain:0.000}");
     }
 
-    private static byte[] Draw(Offscreen target, Palette palette, Action<KobiiGame> setup, double seconds = 0.5, ParticleSystem? particles = null)
+    private static byte[] Draw(Palette palette, Action<KobiiGame> setup, double seconds = 0.5, ParticleSystem? particles = null)
     {
         var world = TerrainBuilder.Build([Monitor], []);
         var game = new KobiiGame(new GameOptions { Size = 1.2, Liveliness = 0.0001, FollowCursor = false }, new GameRandom(3));
@@ -66,8 +62,51 @@ public sealed class RenderTests
         var frame = new KobiiFrame { Palette = palette };
         var feet = game.Body.Feet;
         frame.Update(game, feet, game.Time, 0, feet.Y, 1, 1);
-        target.Draw(frame, new Vec2(feet.X - Size / 2, feet.Y - Size * 0.8), particles?.Items);
-        return target.ReadPixels();
+        return OnSta(() =>
+        {
+            // Como la superficie del host: coordenadas de pantalla, con el lienzo empezando en origin.
+            var visual = new System.Windows.Media.DrawingVisual();
+            using (var dc = visual.RenderOpen())
+            {
+                dc.PushTransform(new System.Windows.Media.TranslateTransform(-(feet.X - Size / 2), -(feet.Y - Size * 0.8)));
+                var props = frame.Props;
+                new KobiiPainter().Draw(dc, frame, frame.HasExtras ? d => ScenePainter.DrawProps(d, props) : null);
+                if (particles is not null)
+                {
+                    ScenePainter.DrawParticles(dc, particles.Items);
+                }
+
+                dc.Pop();
+            }
+
+            var bitmap = new System.Windows.Media.Imaging.RenderTargetBitmap(Size, Size, 96, 96, System.Windows.Media.PixelFormats.Pbgra32);
+            bitmap.Render(visual);
+            var pixels = new byte[Size * Size * 4];
+            bitmap.CopyPixels(pixels, Size * 4, 0);
+            return pixels;
+        });
+    }
+
+    /// <summary>WPF necesita un hilo STA.</summary>
+    private static T OnSta<T>(Func<T> work)
+    {
+        T result = default!;
+        Exception? error = null;
+        var thread = new Thread(() =>
+        {
+            try
+            {
+                result = work();
+            }
+            catch (Exception e)
+            {
+                error = e;
+            }
+        });
+        thread.SetApartmentState(ApartmentState.STA);
+        thread.Start();
+        thread.Join();
+        return error is null ? result : throw new InvalidOperationException("Falló el dibujo.", error);
     }
 
     /// <summary>Qué parte del lienzo está pintada y el color medio de lo pintado (sin premultiplicar).</summary>
@@ -92,14 +131,14 @@ public sealed class RenderTests
         return count == 0 ? (0, (0, 0, 0)) : ((double)count / (pixels.Length / 4), (r / count, g / count, b / count));
     }
 
-    private static void Save(Offscreen target, byte[] pixels, string name)
+    private static void Save(byte[] pixels, string name)
     {
         if (Environment.GetEnvironmentVariable("KOBII_RENDER_PNG") is not { Length: > 0 } folder)
         {
             return;
         }
 
-        var image = System.Windows.Media.Imaging.BitmapSource.Create(target.Width, target.Height, 96, 96, System.Windows.Media.PixelFormats.Pbgra32, null, pixels, target.Width * 4);
-        ArtSheet.Save(image, Path.Combine(folder, name + ".png"));
+        var image = System.Windows.Media.Imaging.BitmapSource.Create(Size, Size, 96, 96, System.Windows.Media.PixelFormats.Pbgra32, null, pixels, Size * 4);
+        VectorSheet.Save(image, Path.Combine(folder, name + ".png"));
     }
 }

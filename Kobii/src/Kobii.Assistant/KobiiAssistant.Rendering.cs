@@ -7,10 +7,9 @@ using SdkRect = KDesktop.Assistant.Sdk.PixelRect;
 namespace Kobii.Assistant;
 
 /// <summary>
-/// Dibujo de Kobii en la capa del host. El cuerpo va en su superficie con el shader de Kobii AI (<see cref="ISurface.PresentGpu"/>)
-/// y lo que lleva en la mano encima, con Direct2D; las partículas (corazones, notas, confeti) van en otra superficie, por
-/// delante y solo mientras las hay, para que el lienzo del cuerpo (lo que cuesta, porque el shader trabaja en cada píxel)
-/// sea pequeño. Solo se presenta un fotograma cuando cambia algo visible (se compara una huella del estado).
+/// Dibujo de Kobii en la capa del host, en vectorial con la API de WPF (<see cref="ISurface.Present"/>; el host lo pasa a la GPU
+/// con Direct2D). El cuerpo y lo que lleva en la mano van en su superficie; las partículas (corazones, notas, confeti) en otra,
+/// por delante y solo mientras las hay. Solo se presenta un fotograma cuando cambia algo visible (se compara una huella).
 /// </summary>
 public sealed partial class KobiiAssistant
 {
@@ -26,12 +25,11 @@ public sealed partial class KobiiAssistant
     private const double BlinkLength = 0.16;
 
     private readonly KobiiFrame _frame = new();
+    private readonly KobiiPainter _painter = new();
     private ISurface _surface = null!;
     private ISurface _effects = null!;
     private IHitArea _hit = null!;
-    private Gpu? _gpu;
     private bool _forceRender = true;
-    private bool _shaderFailed;
     private int _lastSignature;
     private bool _effectsShown;
     private (int X, int Y, int W, int H) _hitKey = (int.MinValue, 0, 0, 0);
@@ -39,7 +37,7 @@ public sealed partial class KobiiAssistant
 
     private void Render(double now)
     {
-        if (_hidden || !ShaderReady())
+        if (_hidden)
         {
             return;
         }
@@ -65,20 +63,18 @@ public sealed partial class KobiiAssistant
         var height = (int)Math.Ceiling(h * CanvasHeight);
         var left = (int)Math.Floor(feet.X) - width / 2;
         var top = (int)Math.Floor(feet.Y + h * CanvasBelow) - height;
-        _frame.SetCanvas(new Vec2(left, top), width, height);
 
-        var signature = Signature(left, top);
-        var needsFrame = _surface.NeedsFrame || _forceRender;
-        if (needsFrame || signature != _lastSignature)
+        var signature = _frame.Signature();
+        if (_forceRender || signature != _lastSignature)
         {
             _forceRender = false;
             _lastSignature = signature;
-            var origin = new Vec2(left, top);
             var presentClock = System.Diagnostics.Stopwatch.GetTimestamp();
-            _surface.PresentGpu(SdkRect.FromSize(left, top, width, height), target =>
+            _surface.Present(SdkRect.FromSize(left, top, width, height), dc =>
             {
                 var drawClock = System.Diagnostics.Stopwatch.GetTimestamp();
-                DrawBody(target, origin, width, height);
+                var props = _frame.Props;
+                _painter.Draw(dc, _frame, _frame.HasExtras ? d => ScenePainter.DrawProps(d, props) : null);
                 _statDrawMs += System.Diagnostics.Stopwatch.GetElapsedTime(drawClock).TotalMilliseconds;
             });
             _statPresentMs += System.Diagnostics.Stopwatch.GetElapsedTime(presentClock).TotalMilliseconds;
@@ -86,14 +82,6 @@ public sealed partial class KobiiAssistant
         }
 
         RenderEffects();
-    }
-
-    private void DrawBody(GpuTarget target, Vec2 origin, int width, int height)
-    {
-        var gpu = Devices(target);
-        using var view = Gpu.TargetView(target);
-        using var bitmap = Gpu.TargetBitmap(target);
-        FramePainter.DrawBody(gpu, view, bitmap, _frame, origin, width, height);
     }
 
     /// <summary>Las partículas, en su superficie del tamaño de lo que ocupan.</summary>
@@ -114,48 +102,8 @@ public sealed partial class KobiiAssistant
         var top = (int)Math.Floor(bounds.Top);
         var width = Math.Clamp((int)Math.Ceiling(bounds.Right) - left, 1, 4096);
         var height = Math.Clamp((int)Math.Ceiling(bounds.Bottom) - top, 1, 4096);
-        var origin = new Vec2(left, top);
         _effectsShown = true;
-        _effects.PresentGpu(SdkRect.FromSize(left, top, width, height), target =>
-        {
-            var gpu = Devices(target);
-            using var bitmap = Gpu.TargetBitmap(target);
-            if (bitmap is not null)
-            {
-                FramePainter.DrawParticles(gpu, bitmap, origin, _particles.Items);
-            }
-        });
-    }
-
-    /// <summary>Los dispositivos del host y lo que dibuja con ellos (se rehacen si el host los rehízo).</summary>
-    private Gpu Devices(GpuTarget target)
-    {
-        var gpu = Gpu.For(ref _gpu, target);
-        gpu.Renderer ??= new CreatureRenderer(gpu.Device, gpu.Context, _shader!.Result);
-        gpu.Painter ??= new ScenePainter(gpu);
-        return gpu;
-    }
-
-    /// <summary>El shader ya está compilado (si falló, se dice una vez en el registro y Kobii no se ve).</summary>
-    private bool ShaderReady()
-    {
-        if (_shader is not { IsCompleted: true } shader)
-        {
-            return false;
-        }
-
-        if (shader.IsCompletedSuccessfully)
-        {
-            return true;
-        }
-
-        if (!_shaderFailed)
-        {
-            _shaderFailed = true;
-            _host.Log.Error("No se pudo compilar el shader de Kobii.", shader.Exception?.InnerException);
-        }
-
-        return false;
+        _effects.Present(SdkRect.FromSize(left, top, width, height), dc => ScenePainter.DrawParticles(dc, _particles.Items));
     }
 
     /// <summary>Aparece al entrar o volver y se desvanece al salir.</summary>
@@ -166,22 +114,10 @@ public sealed partial class KobiiAssistant
         return fadeIn * fadeOut;
     }
 
-    /// <summary>Huella de todo lo que se ve en un fotograma (para no repetir uno idéntico).</summary>
-    private int Signature(int left, int top)
-    {
-        var hash = new HashCode();
-        var constants = _frame.Constants;
-        hash.AddBytes(System.Runtime.InteropServices.MemoryMarshal.AsBytes(new ReadOnlySpan<CreatureConstants>(in constants)));
-        hash.Add(left);
-        hash.Add(top);
-        hash.Add(_frame.Props);
-        return hash.ToHashCode();
-    }
-
     /// <summary>La zona de clic sigue al cuerpo (una elipse como la de <see cref="KobiiGame.HitTest"/>).</summary>
     private void UpdateHitArea()
     {
-        if (_hidden || _exitStart is not null || !ShaderReady())
+        if (_hidden || _exitStart is not null)
         {
             if (_hitShown)
             {

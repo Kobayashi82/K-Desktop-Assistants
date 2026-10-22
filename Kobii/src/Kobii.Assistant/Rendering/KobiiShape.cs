@@ -29,7 +29,7 @@ internal static class KobiiShape
     /// <summary>Cuánto ha crecido (la forma de joven).</summary>
     public static readonly double Grow = Rig.Grow(Species.Form);
 
-    private const int Rays = 160;
+    public const int Rays = 128;
 
     /// <summary>Lo que se desplaza la cabeza al encorvarse.</summary>
     public static Vec2 HunchShift(in Rig rig, double facing) => new Vec2(Math.Clamp(facing * 2.0, -1, 1) * 0.12, 0.09) * rig.Hunch;
@@ -51,20 +51,11 @@ internal static class KobiiShape
         var melt = rig.Melt;
         var drop = MeltDrop(melt);
 
-        // Derretido, la bola de arriba se hunde y encoge y la base se escurre hacia los lados como un charco.
+        // Aplastado, la bola de arriba se hunde y encoge y la base se ensancha.
         var top = Circle(q - new Vec2(0, -0.98 - 0.05 * g + drop) - HunchShift(rig, facing), 0.80 - 0.04 * g - 0.16 * melt);
         var baseRadius = new Vec2(0.92 - 0.06 * g + 0.42 * melt, 0.52 + 0.04 * g - 0.24 * melt);
         var bottom = Ellipse(q - new Vec2(0, -baseRadius.Y + 0.003), baseRadius);
         var d = SMin(top, bottom, 0.35 + 0.15 * melt);
-
-        // Gotitas que se escurren por la base al derretirse.
-        var drip = Math.Clamp((melt - 0.6) / 0.4, 0, 1);
-        if (drip > 0.01)
-        {
-            var w = baseRadius.X;
-            d = SMin(d, Circle(q - new Vec2(-w * 0.86, -0.05), 0.09 * drip), 0.10);
-            d = SMin(d, Circle(q - new Vec2(w * 0.95, -0.04), 0.07 * drip), 0.08);
-        }
 
         var h = HeadSpace(q, rig, facing);
         if (rig.Cheeks > 0.01)
@@ -91,20 +82,72 @@ internal static class KobiiShape
     /// La silueta del cuerpo como geometría congelada: se lanzan rayos desde el centro y en cada uno se busca el borde más
     /// exterior; los puntos se unen con curvas suaves (Catmull-Rom).
     /// </summary>
-    public static Geometry Silhouette(in Rig rig, double facing)
+    /// <param name="radii">Lo que mide cada rayo (de <see cref="Rays"/> elementos), para la vez siguiente; null si no hace falta.</param>
+    /// <param name="near">Los radios traen lo de la vez anterior: se busca cerca (la forma cambia poco de un fotograma a otro).</param>
+    public static Geometry Silhouette(in Rig rig, double facing, double[]? radii = null, bool near = false)
     {
         var center = new Vec2(0, -0.95 + 0.40 * rig.Melt);
         var points = new Point[Rays];
+        var guess = near && radii is { Length: Rays };
         for (var i = 0; i < Rays; i++)
         {
             var angle = Math.Tau * i / Rays;
             var dir = new Vec2(Math.Cos(angle), Math.Sin(angle));
-            var r = Edge(center, dir, rig, facing);
+            var r = guess ? Near(center, dir, radii![i], rig, facing) : Edge(center, dir, rig, facing);
+            if (radii is { Length: Rays })
+            {
+                radii[i] = r;
+            }
+
             var p = center + dir * r;
             points[i] = new Point(p.X, p.Y);
         }
 
         return Smooth(points);
+    }
+
+    /// <summary>
+    /// El borde cerca de <paramref name="previous"/>: se avanza a pasos cortos hacia donde cambia el signo y se afina con
+    /// bisección. Si se aleja mucho (la forma cambió de golpe), se busca desde fuera.
+    /// </summary>
+    private static double Near(Vec2 center, Vec2 dir, double previous, in Rig rig, double facing)
+    {
+        const double step = 0.03;
+        var inside = Body(center + dir * previous, rig, facing) <= 0;
+        double a = previous, b = previous;
+        for (var k = 0; k < 8; k++)
+        {
+            b = inside ? a + step : a - step;
+            if (b <= 0)
+            {
+                return Edge(center, dir, rig, facing);
+            }
+
+            if (Body(center + dir * b, rig, facing) <= 0 != inside)
+            {
+                // El borde está entre a y b: bisección (dentro, fuera).
+                var (lo, hi) = inside ? (a, b) : (b, a);
+                for (var j = 0; j < 9; j++)
+                {
+                    var mid = (lo + hi) / 2;
+                    if (Body(center + dir * mid, rig, facing) <= 0)
+                    {
+                        lo = mid;
+                    }
+                    else
+                    {
+                        hi = mid;
+                    }
+                }
+
+                // Un trozo de la forma más afuera (una oreja que se acerca al rayo) solo lo ve la búsqueda desde fuera.
+                return inside || Body(center + dir * (hi + 0.25), rig, facing) > 0 ? (lo + hi) / 2 : Edge(center, dir, rig, facing);
+            }
+
+            a = b;
+        }
+
+        return Edge(center, dir, rig, facing);
     }
 
     /// <summary>Distancia desde <paramref name="center"/> al borde más exterior en la dirección <paramref name="dir"/>.</summary>

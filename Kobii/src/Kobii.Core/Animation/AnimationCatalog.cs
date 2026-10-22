@@ -58,8 +58,12 @@ public sealed record AnimationClip(
     Vec2? Look = null)
 {
     /// <summary>Se mueve todo el rato (hay que dibujarlo a la frecuencia alta).</summary>
-    public bool Lively => Poses.Info(Pose).Lively || (Gesture != Gesture.None && Gesture is not (Gesture.Hold or Gesture.HoldBoth or Gesture.HoldUp or Gesture.Think or Gesture.CoverEyes or Gesture.Hug or Gesture.HoldBelly or Gesture.Back))
+    public bool Lively => Poses.Info(Pose).Lively || (Gesture != Gesture.None && !IsStill(Gesture))
         || Motion != ClipMotion.None || Prop is Prop.Ball or Prop.Balloon;
+
+    /// <summary>Un gesto que se queda quieto una vez hecho (sujetar algo, abrazar, pensar con la mano en la barbilla).</summary>
+    public static bool IsStill(Gesture gesture) =>
+        gesture is Gesture.Hold or Gesture.HoldBoth or Gesture.HoldUp or Gesture.Think or Gesture.CoverEyes or Gesture.Hug or Gesture.HoldBelly or Gesture.Back;
 }
 
 /// <summary>
@@ -77,7 +81,6 @@ public static class AnimationCatalog
         new("sentarse", "Sentarse", Pose.Sit, Seconds: 8),
         new("sentarse-mirar", "Sentarse a mirar", Pose.Sit, Gesture.LookAround, Seconds: 7, Face: Expression.Curious),
         new("tumbarse", "Tumbarse", Pose.Lie, Seconds: 10, Face: Expression.Happy),
-        new("derretirse", "Derretirse", Pose.Flop, Seconds: 6, Face: Expression.Sleepy),
         new("acurrucarse", "Acurrucarse", Pose.Curl, Seconds: 8, Face: Expression.Sleepy),
         new("cabezadas", "Dar cabezadas", Pose.Doze, Seconds: 12, Face: Expression.Sleeping, Emote: EmoteKind.Sleep, EmoteEvery: 2.6),
         new("siesta", "Siesta", Pose.Lie, Seconds: 25, Face: Expression.Sleeping, Emote: EmoteKind.Sleep, EmoteEvery: 2.6),
@@ -114,7 +117,6 @@ public static class AnimationCatalog
         new("leer", "Leer", Pose.Sit, Gesture.HoldBoth, Prop.Book, Seconds: 12, Face: Expression.Neutral, Look: Down),
         new("leer-de-pie", "Leer de pie", Pose.Stand, Gesture.HoldBoth, Prop.Book, Seconds: 8, Face: Expression.Curious, Look: Down),
         new("leer-gafas", "Leer con gafas", Pose.Sit, Gesture.HoldBoth, Prop.Book, Seconds: 14, Face: Expression.Neutral, Wear: Wear.Glasses, Look: Down),
-        new("pintar", "Pintar", Pose.Stand, Gesture.Paint, Prop.Brush, Seconds: 8, Face: Expression.Curious, Emote: EmoteKind.Paint, EmoteEvery: 0.9, EmoteFrom: EmoteSource.Hand),
         new("cantar", "Cantar", Pose.Sway, Gesture.Sing, Prop.Microphone, Seconds: 7, Face: Expression.Joy, Emote: EmoteKind.Note, EmoteEvery: 0.6, EmoteFrom: EmoteSource.Mouth),
         new("canturrear", "Canturrear", Pose.Sway, Gesture.Conduct, Seconds: 6, Face: Expression.Happy, Emote: EmoteKind.Note, EmoteEvery: 0.9, EmoteFrom: EmoteSource.Mouth),
         new("oler-flor", "Oler una flor", Pose.Stand, Gesture.Smell, Prop.Flower, Seconds: 5, Face: Expression.Love, Emote: EmoteKind.Heart, EmoteEvery: 2.5),
@@ -142,24 +144,12 @@ public static class AnimationCatalog
         new("encogerse", "Encogerse de hombros", Pose.Stand, Gesture.Shrug, Seconds: 2, Face: Expression.Confused, Emote: EmoteKind.Question),
         new("rascarse", "Rascarse la cabeza", Pose.Stand, Gesture.Scratch, Seconds: 2.4, Face: Expression.Confused, Emote: EmoteKind.Question),
         new("abrazarse", "Abrazarse", Pose.Sit, Gesture.Hug, Seconds: 6, Face: Expression.Sad),
-        new("taparse", "Taparse los ojos", Pose.Crouch, Gesture.CoverEyes, Seconds: 3, Face: Expression.Sad),
-        new("barriga", "Agarrarse la barriga", Pose.Crouch, Gesture.HoldBelly, Seconds: 3, Face: Expression.Pain),
-        new("tamborilear", "Tamborilear la barriga", Pose.Sit, Gesture.Drum, Seconds: 3, Face: Expression.Happy),
         new("impaciente", "Impaciente", Pose.Stand, Gesture.TapFoot, Seconds: 3, Face: Expression.Angry),
         new("enfurrunarse", "Enfurruñarse", Pose.Sit, Gesture.Hug, Seconds: 5, Face: Expression.Angry),
-        new("suspirar", "Suspirar", Pose.Flop, Seconds: 4, Face: Expression.Sad),
+        new("suspirar", "Suspirar", Pose.Sit, Seconds: 4, Face: Expression.Sad, Look: Down),
         new("balancearse", "Balancearse", Pose.Sway, Seconds: 5, Face: Expression.Happy),
         new("susto", "¡Un susto!", Pose.Tumble, Gesture.Flail, Seconds: 1.2, Face: Expression.Surprised, Emote: EmoteKind.Exclamation, Motion: ClipMotion.Hop),
 
-        // De mayor.
-        new("baston", "Descansar en el bastón", Pose.Hunched, Gesture.Hold, Prop.Cane, Seconds: 8),
-        new("batallitas", "Acordarse de cuando era pequeño", Pose.Sit, Gesture.Think, Seconds: 10, Face: Expression.Happy, Look: Up),
-        new("buscar-gafas", "Buscar las gafas", Pose.Stand, Gesture.LookAround, Seconds: 4, Face: Expression.Confused, Emote: EmoteKind.Question, Wear: Wear.GlassesUp),
-        new("encontrar-gafas", "¡Aquí estaban!", Pose.Stand, Gesture.Scratch, Seconds: 1.8, Face: Expression.Joy, Emote: EmoteKind.Exclamation, Wear: Wear.Glasses),
-        new("despiste", "¿A qué venía yo?", Pose.Stand, Gesture.Scratch, Seconds: 2.6, Face: Expression.Confused, Emote: EmoteKind.Question),
-        new("cabezada-mayor", "Cabezadita", Pose.Doze, Seconds: 14, Face: Expression.Sleeping, Emote: EmoteKind.Sleep, EmoteEvery: 3),
-        new("espalda", "¡Ay, la espalda!", Pose.Hunched, Gesture.Back, Seconds: 2.6, Face: Expression.Pain),
-        new("despedirse", "Despedirse", Pose.Stand, Gesture.Wave, Seconds: 3.5, Face: Expression.Love, Emote: EmoteKind.Heart, EmoteEvery: 1.1),
     ];
 
     private static readonly Dictionary<string, AnimationClip> ById = All.ToDictionary(c => c.Id);

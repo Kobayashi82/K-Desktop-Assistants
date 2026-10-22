@@ -1,9 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <!--
-    Dibuja las imágenes del paquete con el shader de Kobii (icono y galería de colores): «dotnet run» en esta carpeta.
-    Las deja en src\Kobii.Assistant\Package (o en la carpeta que se le pase). Con «sheet <archivo.png>», una hoja con
-    sus posturas para verlas de un vistazo.
+    Dibuja las imágenes del paquete con el dibujo vectorial de Kobii (icono y galería de colores): «dotnet run» en esta
+    carpeta. Las deja en src\Kobii.Assistant\Package (o en la carpeta que se le pase). «vsheet <archivo.png> [dark]
+    [only=grupo]» hace una hoja con colores, caras y posturas; «vbench» mide lo que cuesta grabar un fotograma.
   -->
   <PropertyGroup>
     <OutputType>Exe</OutputType>

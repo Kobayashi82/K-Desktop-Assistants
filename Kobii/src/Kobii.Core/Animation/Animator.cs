@@ -110,10 +110,11 @@ public sealed class Animator
         || _clip?.Lively == true || (_clip is null && Poses.Info(_basePose).Lively);
 
     /// <summary>
-    /// Se mueve de verdad (un cambio de postura, un gesto, un clip que no para): lo de <see cref="IsMoving"/> sin los muelles
-    /// que se asientan ni el vaivén de estar de pie, que se ven bien a pocos fotogramas por segundo.
+    /// Se mueve de verdad (un cambio de postura, un gesto que no se queda quieto, un clip que no para): lo de
+    /// <see cref="IsMoving"/> sin los muelles que se asientan, el vaivén de estar de pie ni un gesto ya quieto (abrazar la
+    /// almohada), que se ven bien a pocos fotogramas por segundo.
     /// </summary>
-    public bool IsMovingMuch => _blend < 1 || _gesture != Gesture.None || _overrideWeight > 0 || _clip?.Lively == true;
+    public bool IsMovingMuch => _blend < 1 || (_gesture != Gesture.None && !AnimationClip.IsStill(_gesture)) || _overrideWeight > 0 || _clip?.Lively == true;
 
     /// <summary>Cambia la postura de base (se funde con la anterior).</summary>
     public void SetBasePose(Pose pose)

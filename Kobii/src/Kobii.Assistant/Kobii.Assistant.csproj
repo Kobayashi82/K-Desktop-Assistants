@@ -13,7 +13,6 @@
     <PlatformTarget>x64</PlatformTarget>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <IsPackable>false</IsPackable>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>
@@ -27,16 +26,7 @@
     <ProjectReference Include="$(AssistantSdkProject)" Private="false" ExcludeAssets="runtime" />
   </ItemGroup>
 
-  <!-- El cuerpo se dibuja con un shader en la GPU del host (PresentGpu): el paquete lleva su propio Vortice para usar los
-       punteros que le da; el host carga el asistente en su propio contexto, así que no choca con el suyo. -->
   <ItemGroup>
-    <PackageReference Include="Vortice.D3DCompiler" />
-    <PackageReference Include="Vortice.Direct2D1" />
-    <PackageReference Include="Vortice.Direct3D11" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Include="Shaders\Creature.hlsl" LogicalName="Kobii.Assistant.Shaders.Creature.hlsl" />
     <None Remove="Package\**" />
   </ItemGroup>
 

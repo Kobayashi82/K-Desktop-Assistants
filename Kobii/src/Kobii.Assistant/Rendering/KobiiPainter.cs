@@ -26,18 +26,21 @@ internal sealed class KobiiPainter
     private static readonly Color MouthDark = Color.FromRgb(107, 38, 56);
     private static readonly Color TongueColor = Color.FromRgb(255, 140, 153);
     private static readonly Color BlushPink = Color.FromRgb(255, 143, 163);
-    private static readonly Color LoveRed = Color.FromRgb(237, 64, 97);
     private static readonly Color Glow = Color.FromRgb(255, 235, 115);
+
+    private readonly Dictionary<int, Brush> _shadowBrushes = [];
 
     private Ink? _ink;
     private ShapeKey? _shapeKey;
     private Geometry? _silhouette;
+    private readonly double[] _radii = new double[KobiiShape.Rays];
+    private bool _traced;
 
     /// <summary>Kobii entero según <paramref name="frame"/>, en píxeles de pantalla.</summary>
     /// <param name="held">Lo que lleva en la mano (se dibuja entre el cuerpo y las manos que lo agarran).</param>
     public void Draw(DrawingContext dc, KobiiFrame frame, Action<DrawingContext>? held = null)
     {
-        var c = frame.Constants;
+        var c = frame.Look;
         var rig = frame.Rig;
         var ink = InkFor(frame.Palette);
         var opacity = Math.Clamp(c.Opacity, 0, 1);
@@ -107,8 +110,8 @@ internal sealed class KobiiPainter
             DrawFeet(dc, rig, ink);
         }
 
-        DrawFrontArm(dc, arms, rig.FrontL, ink);
-        DrawFrontArm(dc, armsR, rig.FrontR, ink);
+        DrawFrontArm(dc, arms, rig.FrontL, silhouette, ink);
+        DrawFrontArm(dc, armsR, rig.FrontR, silhouette, ink);
         dc.Pop();
 
         if (held is not null)
@@ -126,7 +129,7 @@ internal sealed class KobiiPainter
     /// <summary>De unidades de la criatura a píxeles: giro del esqueleto, aplastamiento alrededor de los pies, inclinación y tamaño.</summary>
     public static Matrix BodyMatrix(KobiiFrame frame)
     {
-        var c = frame.Constants;
+        var c = frame.Look;
         var rig = frame.Rig;
         var squash = (double)c.Squash;
         var sx = 1 / Math.Sqrt(Math.Max(squash, 0.3));
@@ -170,7 +173,8 @@ internal sealed class KobiiPainter
         if (_silhouette is null || _shapeKey != key)
         {
             _shapeKey = key;
-            _silhouette = KobiiShape.Silhouette(rig, facing);
+            _silhouette = KobiiShape.Silhouette(rig, facing, _radii, near: _traced);
+            _traced = true;
         }
 
         return _silhouette;
@@ -202,9 +206,9 @@ internal sealed class KobiiPainter
             : new Rect(clip.Position, feet.Y - big, big * 2, big * 2);
     }
 
-    private static void DrawShadow(DrawingContext dc, KobiiFrame frame)
+    private void DrawShadow(DrawingContext dc, KobiiFrame frame)
     {
-        var c = frame.Constants;
+        var c = frame.Look;
         if (c.ShadowDrop > 50 || c.ShadowAlpha <= 0.001)
         {
             return;
@@ -216,13 +220,19 @@ internal sealed class KobiiPainter
         var width = (0.85 + 0.35 * frame.Rig.Melt) * (1 - 0.5 * lift) * c.Unit;
         var height = 0.11 * (1 - 0.4 * lift) * c.Unit;
         var center = new Point(frame.Feet.X, frame.Feet.Y + c.ShadowDrop * c.Unit);
-        var brush = new RadialGradientBrush(
-            new GradientStopCollection
-            {
-                new(Color.FromArgb((byte)(alpha * 255), 0, 0, 0), 0.55),
-                new(Color.FromArgb(0, 0, 0, 0), 1),
-            });
-        brush.Freeze();
+        // Un pincel por nivel de opacidad (se reutiliza: el host no tiene que volver a convertirlo).
+        var level = (int)Math.Round(alpha * 100);
+        if (!_shadowBrushes.TryGetValue(level, out var brush))
+        {
+            var radial = new RadialGradientBrush(
+                new GradientStopCollection
+                {
+                    new(Color.FromArgb((byte)(level * 2.55), 0, 0, 0), 0.55),
+                    new(Color.FromArgb(0, 0, 0, 0), 1),
+                });
+            radial.Freeze();
+            _shadowBrushes[level] = brush = radial;
+        }
         dc.DrawEllipse(brush, null, center, width * 1.15, height * 1.6);
     }
 
@@ -247,7 +257,7 @@ internal sealed class KobiiPainter
 
     private static void DrawSprout(DrawingContext dc, KobiiFrame frame, Ink ink)
     {
-        var c = frame.Constants;
+        var c = frame.Look;
         var rig = frame.Rig;
         dc.PushTransform(new MatrixTransform(HeadMatrix(rig, c.Facing)));
 
@@ -321,7 +331,7 @@ internal sealed class KobiiPainter
 
     private static void DrawFace(DrawingContext dc, KobiiFrame frame, Ink ink)
     {
-        var c = frame.Constants;
+        var c = frame.Look;
         var rig = frame.Rig;
         dc.PushTransform(new MatrixTransform(FaceMatrix(rig, c.Facing)));
         var ex = (Expression)(int)Math.Round(c.Expression);
@@ -336,12 +346,10 @@ internal sealed class KobiiPainter
 
         // Mejillas sonrosadas (más con los mofletes llenos).
         var cheeks = rig.Cheeks;
-        var blush = Math.Clamp(0.30 + 0.45 * c.Blush + (ex is Expression.Love or Expression.Joy ? 0.2 : 0) + 0.25 * cheeks, 0, 1);
+        var blush = Math.Clamp(0.30 + 0.45 * c.Blush + (ex is Expression.Love or Expression.Joy ? 0.2 : 0) + (ex == Expression.Love ? 0.2 : 0) + 0.25 * cheeks, 0, 1);
         var cheekSize = new Vector(0.14 * (1 + 0.45 * cheeks), 0.075 * (1 + 0.9 * cheeks));
         var cheekY = -0.80 - 0.03 * g;
-        var blushBrush = new RadialGradientBrush(BlushPink.WithAlpha(blush), BlushPink.WithAlpha(0));
-        blushBrush.GradientStops.Insert(1, new GradientStop(BlushPink.WithAlpha(blush * 0.8), 0.45));
-        blushBrush.Freeze();
+        var blushBrush = ink.Blush(blush);
         foreach (var side in (ReadOnlySpan<int>)[-1, 1])
         {
             var at = new Point(side * (0.55 + 0.05 * cheeks) + shift * 0.7, cheekY);
@@ -383,15 +391,10 @@ internal sealed class KobiiPainter
                 dc.DrawGeometry(null, Pen(EyeDark, line * 1.25), HalfRing(c + new Vector(0, -0.02), size.X * 0.75, lower: true));
                 return;
 
-            case Expression.Joy or Expression.Eating:
+            case Expression.Joy or Expression.Eating or Expression.Love:
             case Expression.Happy when blink > 0.5:
             case Expression.Wink when side > 0:
                 dc.DrawGeometry(null, stroke, HalfRing(c + new Vector(0, 0.07), size.X * 0.85, lower: false));
-                return;
-
-            case Expression.Love:
-                dc.DrawGeometry(Brush(LoveRed), null, Heart(c + new Vector(0, size.Y * 0.75), size.Y * 1.45));
-                dc.DrawEllipse(Brush(Colors.White.WithAlpha(0.9)), null, c + new Vector(-0.05, -0.04), 0.03, 0.03);
                 return;
 
             case Expression.Pain:
@@ -591,7 +594,11 @@ internal sealed class KobiiPainter
         dc.Pop();
     }
 
-    private static void DrawFrontArm(DrawingContext dc, ArmShape arm, double front, Ink ink)
+    /// <summary>
+    /// Un brazo que cruza por delante del cuerpo: brazo y mano en una sola forma, con una sombra suave sobre la barriga, algo
+    /// más claro hacia la mano (de donde viene la luz) y con contorno salvo donde nace del cuerpo, que así sale de él.
+    /// </summary>
+    private static void DrawFrontArm(DrawingContext dc, ArmShape arm, double front, Geometry silhouette, Ink ink)
     {
         var shown = Smooth((front - 0.05) / 0.7);
         if (shown <= 0.01 || arm.Scale < 0.02)
@@ -604,8 +611,27 @@ internal sealed class KobiiPainter
             dc.PushOpacity(shown);
         }
 
-        arm.Draw(dc, null, ink.OutlinePenThin);
-        arm.Draw(dc, ink.Body, null);
+        var shape = arm.Shape();
+        dc.PushClip(silhouette);
+        dc.PushTransform(new TranslateTransform(0.03, 0.075));
+        dc.DrawGeometry(ink.ArmShadow, null, shape);
+        dc.Pop();
+        dc.Pop();
+
+        dc.PushClip(arm.WithoutShoulder());
+        dc.DrawGeometry(null, ink.OutlinePen, shape);
+        dc.Pop();
+        dc.DrawGeometry(ink.Body, null, shape);
+        var light = new LinearGradientBrush
+        {
+            MappingMode = BrushMappingMode.Absolute,
+            StartPoint = new Point(arm.Shoulder.X, arm.Shoulder.Y),
+            EndPoint = new Point(arm.HandAt.X, arm.HandAt.Y),
+            GradientStops = { new GradientStop(Colors.White.WithAlpha(0), 0.15), new GradientStop(Colors.White.WithAlpha(0.16), 1) },
+        };
+        light.Freeze();
+        dc.DrawGeometry(light, null, shape);
+
         if (shown < 0.99)
         {
             dc.Pop();
@@ -615,7 +641,7 @@ internal sealed class KobiiPainter
     /// <summary>Segunda pasada: las manos que agarran algo, otra vez por encima de lo que llevan (así los dedos lo rodean).</summary>
     private static void DrawHandsOver(DrawingContext dc, KobiiFrame frame, ArmShape left, ArmShape right, Geometry silhouette, Ink ink)
     {
-        var c = frame.Constants;
+        var c = frame.Look;
         if (c.HandOverL < 0.5 && c.HandOverR < 0.5)
         {
             return;
@@ -630,7 +656,8 @@ internal sealed class KobiiPainter
             }
 
             var hand = arm.Hand();
-            dc.DrawGeometry(ink.Body, ink.OutlinePenThin, hand);
+            dc.DrawGeometry(null, ink.OutlinePen, hand);
+            dc.DrawGeometry(ink.Body, null, hand);
         }
 
         dc.Pop();
@@ -643,24 +670,6 @@ internal sealed class KobiiPainter
         {
             s.BeginFigure(center + new Vector(-r, 0), false, false);
             s.ArcTo(center + new Vector(r, 0), new Size(r, r), 0, false, lower ? SweepDirection.Counterclockwise : SweepDirection.Clockwise, true, true);
-        }
-
-        g.Freeze();
-        return g;
-    }
-
-    /// <summary>Corazón con la punta abajo en <paramref name="tip"/> y de alto <paramref name="size"/>.</summary>
-    private static Geometry Heart(Point tip, double size)
-    {
-        var r = Math.Sqrt(2) / 4 * size;
-        Point P(double x, double y) => new(tip.X + x * size, tip.Y - y * size);
-        var g = new StreamGeometry();
-        using (var s = g.Open())
-        {
-            s.BeginFigure(P(0, 0), true, true);
-            s.LineTo(P(-0.5, 0.5), true, true);
-            s.ArcTo(P(0, 1.0), new Size(r, r), 0, true, SweepDirection.Clockwise, true, true);
-            s.ArcTo(P(0.5, 0.5), new Size(r, r), 0, true, SweepDirection.Clockwise, true, true);
         }
 
         g.Freeze();
@@ -745,6 +754,7 @@ internal sealed class KobiiPainter
             Feet = Brush(Scale(body, 0.88));
             OutlinePen = Pen(outline, Outline);
             OutlinePenThin = Pen(outline, Outline * 0.8);
+            ArmShadow = Brush(Color.FromArgb(34, 0, 0, 0));
             SproutOutline = Pen(outline, 0.07 + 0.09);
             SproutOutlineThin = Pen(outline, 0.05);
             Stem = Pen(Scale(body, 0.9), 0.07);
@@ -781,11 +791,31 @@ internal sealed class KobiiPainter
             ShineDot = Brush(Colors.White.WithAlpha(0.6));
         }
 
+        private readonly Dictionary<int, Brush> _blush = [];
+
         public Palette Palette { get; }
+
+        /// <summary>Rubor de las mejillas con esa intensidad (un pincel por centésima, reutilizado).</summary>
+        public Brush Blush(double alpha)
+        {
+            var level = (int)Math.Round(Math.Clamp(alpha, 0, 1) * 100);
+            if (!_blush.TryGetValue(level, out var brush))
+            {
+                var a = level / 100.0;
+                var radial = new RadialGradientBrush(BlushPink.WithAlpha(a), BlushPink.WithAlpha(0));
+                radial.GradientStops.Insert(1, new GradientStop(BlushPink.WithAlpha(a * 0.8), 0.45));
+                radial.Freeze();
+                _blush[level] = brush = radial;
+            }
+
+            return brush;
+        }
 
         public Brush Body { get; }
 
         public Brush Feet { get; }
+
+        public Brush ArmShadow { get; }
 
         public Brush Belly { get; }
 
@@ -824,9 +854,9 @@ internal sealed class KobiiPainter
 /// Un brazo como en el shader: un tubo que sigue una curva del hombro a la mano (más gordito en el hombro) y una manopla
 /// orientada como el antebrazo, con el pulgar hacia arriba; al agarrar algo se cierra en un puño.
 /// </summary>
-internal readonly struct ArmShape
+internal sealed class ArmShape
 {
-    private const int Samples = 12;
+    private const int Samples = 20;
 
     public ArmShape(in Rig rig, double facing, int side)
     {
@@ -886,11 +916,41 @@ internal readonly struct ArmShape
 
     public double Scale { get; }
 
+    private Geometry? _shape;
+
     /// <summary>Dibuja el brazo con el relleno o el contorno indicados.</summary>
-    public void Draw(DrawingContext dc, Brush? fill, Pen? pen)
+    public void Draw(DrawingContext dc, Brush? fill, Pen? pen) => dc.DrawGeometry(fill, pen, Shape());
+
+    /// <summary>
+    /// Brazo y mano juntos (se hace una vez por fotograma). Sin unir las formas, que es caro: el contorno se dibuja antes que
+    /// el relleno, así que lo que queda dentro no se ve.
+    /// </summary>
+    public Geometry Shape()
     {
-        dc.DrawGeometry(fill, pen, Tube());
-        dc.DrawGeometry(fill, pen, Hand());
+        if (_shape is null)
+        {
+            var group = new GeometryGroup { FillRule = FillRule.Nonzero };
+            group.Children.Add(Tube());
+            foreach (var part in ((GeometryGroup)Hand()).Children)
+            {
+                group.Children.Add(part);
+            }
+
+            group.Freeze();
+            _shape = group;
+        }
+
+        return _shape;
+    }
+
+    /// <summary>Todo menos el hombro (un agujero con la regla par-impar): recorta el contorno donde el brazo nace del cuerpo.</summary>
+    public Geometry WithoutShoulder()
+    {
+        var clip = new GeometryGroup { FillRule = FillRule.EvenOdd };
+        clip.Children.Add(new RectangleGeometry(new Rect(-4, -5, 8, 6)));
+        clip.Children.Add(new EllipseGeometry(new Point(Shoulder.X, Shoulder.Y), 0.17 * Scale, 0.17 * Scale));
+        clip.Freeze();
+        return clip;
     }
 
     public Geometry Tube()
@@ -904,9 +964,25 @@ internal readonly struct ArmShape
             var p = Bezier(t);
             var tangent = (Control - Shoulder) * (2 * (1 - t)) + (HandAt - Control) * (2 * t);
             var n = tangent.LengthSquared > 1e-10 ? new Vec2(-tangent.Y, tangent.X).Normalized() : new Vec2(0, 1);
-            var r = (0.12 + (0.085 - 0.12) * t) * Scale;
+            var r = (0.125 + (0.095 - 0.125) * t) * Scale;
             left[i] = new Point(p.X + n.X * r, p.Y + n.Y * r);
             right[i] = new Point(p.X - n.X * r, p.Y - n.Y * r);
+        }
+
+        // Siempre en el sentido de las agujas del reloj en pantalla, como las elipses de la mano: así, juntos en un grupo con
+        // la regla de relleno normal, se rellenan como una sola forma (en sentidos opuestos, lo que se solapa quedaría hueco).
+        var area = 0.0;
+        for (var i = 0; i < Samples; i++)
+        {
+            area += left[i].X * left[i + 1].Y - left[i + 1].X * left[i].Y;
+            area += right[i + 1].X * right[i].Y - right[i].X * right[i + 1].Y;
+        }
+
+        area += left[Samples].X * right[Samples].Y - right[Samples].X * left[Samples].Y;
+        area += right[0].X * left[0].Y - left[0].X * right[0].Y;
+        if (area < 0)
+        {
+            (left, right) = (right, left);
         }
 
         var g = new StreamGeometry();

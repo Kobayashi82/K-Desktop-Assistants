@@ -15,9 +15,6 @@ public enum Pose
     /// <summary>Tumbado sobre la barriga, de cara, con la barbilla en las manos (descansar y la siesta).</summary>
     Lie,
 
-    /// <summary>Derretido como un charco (aburrido, sin ganas): se escurre poco a poco y se rehace al acabar.</summary>
-    Flop,
-
     /// <summary>Acurrucado, hecho una bolita.</summary>
     Curl,
 
@@ -94,7 +91,6 @@ public static class Poses
         new(Pose.Sit, "Sentado", Upright: true, Lively: false),
         new(Pose.SitEdge, "Sentado en el borde", Upright: true, Lively: false),
         new(Pose.Lie, "Tumbado", Upright: false, Lively: false),
-        new(Pose.Flop, "Derretido", Upright: false, Lively: false),
         new(Pose.Curl, "Acurrucado", Upright: false, Lively: false),
         new(Pose.Crouch, "Agachado", Upright: true, Lively: false),
         new(Pose.Tiptoe, "De puntillas", Upright: true, Lively: false),
@@ -174,24 +170,13 @@ public static class Poses
                 // Tumbado sobre la barriga, de cara: medio derretido contra el suelo, con la barbilla apoyada en las manos,
                 // la cabeza un poco ladeada y respirando despacio (el cuerpo sube y baja).
                 var breath = Math.Sin(t * 1.6);
-                r.Melt = 0.40 + 0.025 * breath;
+                r.Melt = 0.40;
+                r.Stretch = 0.015 * breath;
                 r.SetHand(-1, new Vec2(-0.19, -0.42 + 0.01 * breath), c.Form, front: true);
                 r.SetHand(1, new Vec2(0.19, -0.42 + 0.01 * breath), c.Form, front: true);
                 r.HeadTilt = s * 0.10;
                 r.Sprout = s * 0.30;
                 (r.EarL, r.EarR) = (0.20, 0.20);
-                break;
-            }
-
-            case Pose.Flop:
-            {
-                // Se escurre en algo menos de un segundo, se queda temblando como un flan y se rehace al acabar el clip
-                // (el animador vuelve a la postura de pie poco a poco).
-                var m = Smooth(t / 0.9);
-                r.Melt = m * (0.94 + 0.03 * Math.Sin(t * 1.3));
-                r.Sprout = s * 0.35 * m;
-                (r.HandLY, r.HandRY) = (0.25 * m, 0.25 * m);
-                (r.FootLX, r.FootRX) = (-0.25 * m, 0.25 * m);
                 break;
             }
 

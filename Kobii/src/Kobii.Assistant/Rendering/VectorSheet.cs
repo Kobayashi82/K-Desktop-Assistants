@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.IO;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -86,13 +87,13 @@ internal static class VectorSheet
         frame.Update(game, at, game.Time, 0, feet.Y, 1, 1);
         if (scene.Face is { } face)
         {
-            frame.Constants.Expression = (float)face;
+            frame.Look.Expression = (double)face;
         }
 
         if (look is { } x)
         {
-            frame.Constants.LookX = (float)x;
-            frame.Constants.LookY = 0;
+            frame.Look.LookX = x;
+            frame.Look.LookY = 0;
         }
 
         new KobiiPainter().Draw(dc, frame);
@@ -118,5 +119,12 @@ internal static class VectorSheet
     private static FormattedText Text(string text, Typeface typeface, double size, Color color) =>
         new(text, CultureInfo.InvariantCulture, FlowDirection.LeftToRight, typeface, size, new SolidColorBrush(color), 1);
 
-    public static void Save(BitmapSource image, string path) => ArtSheet.Save(image, path);
+    public static void Save(BitmapSource image, string path)
+    {
+        Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(path))!);
+        var encoder = new PngBitmapEncoder();
+        encoder.Frames.Add(BitmapFrame.Create(image));
+        using var stream = File.Create(path);
+        encoder.Save(stream);
+    }
 }

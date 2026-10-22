@@ -166,7 +166,6 @@ public sealed class Autonomy
             new("sentarse", "Sentarse", ChoiceKind.Perform, c => 0.18 + 0.3 * (1 - c.Energy), "sentarse"),
             new("sentarse-mirar", "Sentarse a mirar", ChoiceKind.Perform, c => 0.16, "sentarse-mirar"),
             new("tumbarse", "Tumbarse", ChoiceKind.Perform, c => 0.10 + 0.35 * (1 - c.Energy), "tumbarse"),
-            new("derretirse", "Derretirse", ChoiceKind.Perform, c => Hi(c.Down, 0.35) + Hi(c.Energy < 0.35, 0.2), "derretirse"),
             new("acurrucarse", "Acurrucarse", ChoiceKind.Perform, c => 0.06 + Hi(c.Down, 0.2), "acurrucarse"),
             new("siesta", "Echar una siesta", ChoiceKind.Perform, c => Hi(c.Energy < 0.45, 0.35), "siesta"),
             new("siesta-almohada", "Siesta con almohada", ChoiceKind.Perform, c => Hi(c.Energy < 0.5, 0.3) + Hi(c.Night, 0.2), "siesta-almohada"),
@@ -194,13 +193,11 @@ public sealed class Autonomy
             new("leer", "Leer", ChoiceKind.Perform, c => Hi(!c.Down, 0.2), "leer"),
             new("leer-de-pie", "Leer de pie", ChoiceKind.Perform, c => 0.08, "leer-de-pie"),
             new("leer-gafas", "Leer con gafas", ChoiceKind.Perform, c => 0.06, "leer-gafas"),
-            new("pintar", "Pintar", ChoiceKind.Perform, c => 0.2, "pintar"),
             new("cantar", "Cantar", ChoiceKind.Perform, c => Hi(c.Cheerful, 0.2), "cantar"),
             new("canturrear", "Canturrear", ChoiceKind.Perform, c => Hi(!c.Down, 0.14), "canturrear"),
             new("oler-flor", "Oler una flor", ChoiceKind.Perform, c => 0.14, "oler-flor"),
             new("flor-sentado", "Flor sentado", ChoiceKind.Perform, c => 0.08, "flor-sentado"),
             new("te", "La hora del té", ChoiceKind.Perform, c => 0.12 + Hi(c.Hour is >= 16 and < 19, 0.2), "te"),
-            new("hoja-paraguas", "Hoja como paraguas", ChoiceKind.Perform, c => 0.07, "hoja-paraguas"),
             new("pensar", "Pensar", ChoiceKind.Perform, c => 0.10, "pensar"),
             new("pensar-sentado", "Pensar sentado", ChoiceKind.Perform, c => 0.07, "pensar-sentado"),
             new("mirar-alrededor", "Mirar alrededor", ChoiceKind.Perform, c => 0.16, "mirar-alrededor"),
@@ -215,14 +212,12 @@ public sealed class Autonomy
             new("beso", "Lanzarte un beso", ChoiceKind.Perform, c => Hi(c.CursorNear && c.Cheerful, 0.16), "beso"),
             new("guino", "Guiñarte un ojo", ChoiceKind.Perform, c => Hi(c.CursorNear && c.Cheerful, 0.08), "guino"),
             new("reverencia", "Hacer una reverencia", ChoiceKind.Perform, c => Hi(c.CursorNear, 0.05), "reverencia"),
-            new("senalar", "Señalar algo", ChoiceKind.Perform, c => 0.05, "senalar"),
 
             // Cómo se siente.
             new("rascarse", "Rascarse la cabeza", ChoiceKind.Perform, c => 0.06, "rascarse"),
             new("encogerse", "Encogerse de hombros", ChoiceKind.Perform, c => Hi(c.Down, 0.12) + 0.03, "encogerse"),
             new("abrazarse", "Abrazarse", ChoiceKind.Perform, c => Hi(c.Down, 0.2), "abrazarse"),
             new("suspirar", "Suspirar", ChoiceKind.Perform, c => Hi(c.Down, 0.25), "suspirar"),
-            new("tamborilear", "Tamborilear la barriga", ChoiceKind.Perform, c => 0.05, "tamborilear"),
         ];
     }
 }

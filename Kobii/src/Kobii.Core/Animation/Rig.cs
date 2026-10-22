@@ -55,7 +55,7 @@ public struct Rig
     /// <summary>Encorvado hacia delante (0–1): la postura de los mayores.</summary>
     public double Hunch { get; set; }
 
-    /// <summary>Derretido como un charco (0–1): el cuerpo se escurre hacia los lados y la cara baja con él.</summary>
+    /// <summary>Aplastado contra el suelo (0–1), como un mochi blando: el cuerpo se ensancha y la cara baja con él (tumbado).</summary>
     public double Melt { get; set; }
 
     /// <summary>Desplazamiento de cada mano desde su sitio (L: la de la izquierda de la pantalla).</summary>
