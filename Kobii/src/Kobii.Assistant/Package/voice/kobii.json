@@ -1,0 +1,32 @@
+{
+  "$schema": "../../../../../../docs/assistant/esquemas/voice.schema.json",
+  "name": "Kobii",
+  "engine": {
+    "type": "kokoro",
+    "voice": "default"
+  },
+  "chain": [
+    {
+      "fx": "pitch",
+      "semitones": 4
+    },
+    {
+      "fx": "chorus",
+      "mix": 0.12
+    }
+  ],
+  "moods": {
+    "happy": [
+      {
+        "fx": "pitch",
+        "semitones": 1.5
+      }
+    ],
+    "error": [
+      {
+        "fx": "pitch",
+        "semitones": -1.5
+      }
+    ]
+  }
+}

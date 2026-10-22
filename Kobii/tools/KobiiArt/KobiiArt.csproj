@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Dibuja las imágenes del paquete con el shader de Kobii (icono y galería de colores): «dotnet run» en esta carpeta.
+    Las deja en src\Kobii.Assistant\Package (o en la carpeta que se le pase). Con «sheet <archivo.png>», una hoja con
+    sus posturas para verlas de un vistazo.
+  -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <Platforms>x64</Platforms>
+    <PlatformTarget>x64</PlatformTarget>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Kobii.Assistant\Kobii.Assistant.csproj" />
+    <ProjectReference Include="$(AssistantSdkProject)" />
+  </ItemGroup>
+
+</Project>

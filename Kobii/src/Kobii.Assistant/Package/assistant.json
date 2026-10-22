@@ -1,0 +1,30 @@
+{
+  "$schema": "../../../../../docs/assistant/esquemas/assistant.schema.json",
+  "id": "kobii",
+  "name": "Kobii",
+  "version": "0.1.0",
+  "author": "Kobayashi82",
+  "description": {
+    "es": "Una criatura blandita que pasea por tu barra de tareas y por encima de tus ventanas.",
+    "en": "A squishy little creature that wanders along your taskbar and over your windows.",
+    "fr": "Une petite créature toute douce qui se promène sur ta barre des tâches et sur tes fenêtres.",
+    "de": "Ein weiches kleines Wesen, das über deine Taskleiste und deine Fenster spaziert.",
+    "it": "Una creaturina morbida che passeggia sulla barra delle applicazioni e sopra le tue finestre.",
+    "pt": "Uma criaturinha fofinha que passeia pela sua barra de tarefas e por cima das suas janelas."
+  },
+  "homepage": "https://github.com/Kobayashi82/K-Desktop-Assistants",
+  "license": "MIT",
+  "sdk": "1.5",
+  "entry": "lib/Kobii.Assistant.dll!Kobii.Assistant.KobiiAssistant",
+  "icon": "icon.png",
+  "wakeWord": "Kobii",
+  "voice": "voice/kobii.json",
+  "persona": "persona/{lang}.json",
+  "traits": {
+    "travel": "walk",
+    "travelSpeed": 80,
+    "canMoveWindows": false,
+    "canReachMaximized": false,
+    "gestures": ["communicate", "react"]
+  }
+}

@@ -1,4 +1,11 @@
 <Solution>
+  <Folder Name="/Kobii/">
+    <Project Path="Kobii/src/Kobii.Assistant/Kobii.Assistant.csproj" />
+    <Project Path="Kobii/src/Kobii.Core/Kobii.Core.csproj" />
+    <Project Path="Kobii/tests/Kobii.Assistant.Tests/Kobii.Assistant.Tests.csproj" />
+    <Project Path="Kobii/tests/Kobii.Core.Tests/Kobii.Core.Tests.csproj" />
+    <Project Path="Kobii/tools/KobiiArt/KobiiArt.csproj" />
+  </Folder>
   <Folder Name="/Lander/">
     <Project Path="Lander/src/Lander.Assistant/Lander.Assistant.csproj" />
     <Project Path="Lander/src/Lander.Core/Lander.Core.csproj" />

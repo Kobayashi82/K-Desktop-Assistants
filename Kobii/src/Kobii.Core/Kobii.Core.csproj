@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Lo de Kobii que no depende de Windows: geometría, terreno, cuerpo, animación y comportamiento (sacado de Kobii AI). -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>Kobii.Core</RootNamespace>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Kobii.Core.Tests" />
+  </ItemGroup>
+
+</Project>
