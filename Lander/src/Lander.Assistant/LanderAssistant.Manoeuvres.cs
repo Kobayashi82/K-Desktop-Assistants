@@ -349,7 +349,8 @@ public sealed partial class LanderAssistant
     }
 
     /// <summary>
-    /// Barre la zona con una línea de luz y, ya apagada (que no salga en la captura), hace la foto: el flash llega después.
+    /// Se pone encima de la zona (o escanea desde donde esté si la tiene a tiro) y la barre con un cono de láser que sale
+    /// de él; ya apagado (que no salga en la captura), hace la foto: el flash llega después.
     /// </summary>
     private async Task ScanAsync(PixelRect area, Pace pace, IGestureContext ctx, Action commit, CancellationToken ct)
     {
@@ -361,10 +362,12 @@ public sealed partial class LanderAssistant
 
         var rect = new System.Windows.Rect(area.Left, area.Top, area.Width, area.Height);
         var top = new Vec2(area.Center.X, area.Top);
-        await ApproachAsync(top + new Vec2(0, 2 * _game.Body.Height), top, pace, ctx, pace.Show + 0.5, ct);
-        _effects.Add(new ManoeuvreEffect(EffectKind.Scan, _now, pace.Show, top, top, ShotColor, _game.Body.Scale, rect));
+        var h = _game.Body.Height;
+        var side = _game.Body.Position.X > top.X ? 1 : -1;
+        await ApproachAsync(top + new Vec2(side * 2 * h, -3 * h), top, pace, ctx, pace.Show + 0.5, ct, pace.Range);
+        var beam = _effects.Add(new ManoeuvreEffect(EffectKind.Scan, _now, pace.Show, _game.Body.Position, top, ShotColor, _game.Body.Scale, rect));
         Play(Sound.Scan, 0.8);
-        await DelayAsync(pace.Show, ct);
+        await FollowAsync(beam, pace.Show, fromBody: true, ct);
 
         // Un fotograma sin la línea antes de la foto.
         await NextFrameAsync(ct);

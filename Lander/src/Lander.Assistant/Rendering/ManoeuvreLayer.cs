@@ -21,7 +21,7 @@ internal enum EffectKind
     /// <summary>Ondas en un punto (llamar a una ventana para traerla delante).</summary>
     Ping,
 
-    /// <summary>Una línea que barre una zona de arriba abajo (escanear).</summary>
+    /// <summary>Un cono de láser desde el lander (<see cref="ManoeuvreEffect.From"/>) hasta una línea que barre una zona de arriba abajo (escanear).</summary>
     Scan,
 
     /// <summary>El flash de la cámara sobre una zona.</summary>
@@ -111,9 +111,14 @@ internal sealed class ManoeuvreLayer(IRendering rendering) : IDisposable
         switch (effect.Kind)
         {
             case EffectKind.Scan:
-                // Solo la franja de la línea (la zona puede ser un monitor entero).
+            {
+                // La franja de la línea (la zona puede ser un monitor entero) y el lander, de donde sale el cono.
                 var lineY = effect.Area.Top + effect.Area.Height * t;
-                return new Rect(effect.Area.Left, lineY - 50 * effect.Scale, effect.Area.Width, 54 * effect.Scale);
+                var band = new Rect(effect.Area.Left, lineY - 50 * effect.Scale, effect.Area.Width, 54 * effect.Scale);
+                var emitter = new Rect(effect.From.X - 24 * effect.Scale, effect.From.Y - 24 * effect.Scale, 48 * effect.Scale, 48 * effect.Scale);
+                band.Union(emitter);
+                return band;
+            }
 
             case EffectKind.Flash:
                 return effect.Area;
@@ -222,17 +227,31 @@ internal sealed class ManoeuvreLayer(IRendering rendering) : IDisposable
 
             case EffectKind.Scan:
             {
+                // Un cono de láser desde el lander (esté donde esté) hasta la línea que barre la zona; se enciende y se
+                // apaga con suavidad, con los rayos de los bordes marcados y un brillo en el emisor.
                 var area = e.Area;
+                var level = Math.Min(1, Math.Min(t / 0.08, (1 - t) / 0.08));
                 var lineY = area.Top + area.Height * t;
+                var emitter = new Point(e.From.X, e.From.Y + 6 * s);
+                var left = new Point(area.Left, lineY);
+                var right = new Point(area.Right, lineY);
+                var cone = Gfx.Polygon(emitter.X, emitter.Y, left.X, left.Y, right.X, right.Y);
+                dc.DrawGeometry(Gfx.Gradient(emitter, new Point(area.Left + area.Width / 2, lineY),
+                    (0, e.Color.WithAlpha(0.42 * level)), (1, e.Color.WithAlpha(0.1 * level))), null, cone);
+                var ray = Gfx.Pen(e.Color.WithAlpha(0.7 * level), 1.3 * s);
+                dc.DrawLine(ray, emitter, left);
+                dc.DrawLine(ray, emitter, right);
+
                 var band = 46 * s;
                 var top = Math.Max(area.Top, lineY - band);
                 if (lineY - top > 1)
                 {
-                    dc.DrawRectangle(Gfx.Vertical((0, e.Color.WithAlpha(0)), (1, e.Color.WithAlpha(0.28))), null,
+                    dc.DrawRectangle(Gfx.Vertical((0, e.Color.WithAlpha(0)), (1, e.Color.WithAlpha(0.28 * level))), null,
                         new Rect(area.Left, top, area.Width, lineY - top));
                 }
 
-                dc.DrawLine(Gfx.Pen(e.Color.WithAlpha(0.95), 2.4 * s, round: false), new Point(area.Left, lineY), new Point(area.Right, lineY));
+                dc.DrawLine(Gfx.Pen(e.Color.WithAlpha(0.95 * level), 2.4 * s, round: false), left, right);
+                dc.DrawEllipse(LanderParts.Glow(e.Color, 0.9 * level), null, emitter, 12 * s, 12 * s);
                 break;
             }
 
