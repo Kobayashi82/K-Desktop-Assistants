@@ -127,6 +127,12 @@ public enum Gesture
 
     /// <summary>Estornudar tapándose la boca con la mano (lo que hacen las que ya saben).</summary>
     CoverSneeze,
+
+    /// <summary>Lanzar lo que lleva en la mano: echa el brazo atrás y lo suelta por arriba (en <see cref="Gestures.ThrowReleaseAt"/>).</summary>
+    Throw,
+
+    /// <summary>Teclear deprisa con las dos manos delante.</summary>
+    Type,
 }
 
 /// <summary>Cómo es un gesto.</summary>
@@ -188,6 +194,8 @@ public static class Gestures
         new(Gesture.Push, "Empujar", true, []),
         new(Gesture.Sneeze, "Estornudar", false, []),
         new(Gesture.CoverSneeze, "Estornudar tapándose", true, []),
+        new(Gesture.Throw, "Lanzar", true, [Prop.Ball]),
+        new(Gesture.Type, "Teclear", true, []),
     }.ToDictionary(i => i.Gesture);
 
     /// <summary>Momento del «¡chís!» en los gestos de estornudar (antes coge aire).</summary>
@@ -195,6 +203,12 @@ public static class Gestures
 
     /// <summary>Lo que dura un estornudo, de coger aire a recomponerse.</summary>
     public const double SneezeSeconds = 1.3;
+
+    /// <summary>Momento en que suelta lo que lanza (antes echa el brazo atrás).</summary>
+    public const double ThrowReleaseAt = 0.3;
+
+    /// <summary>Lo que dura el gesto de lanzar, con el brazo acompañando hasta abajo.</summary>
+    public const double ThrowSeconds = 0.62;
 
     /// <summary>Gestos en los que la mano agarra el objeto que lleva (y se cierra sobre él).</summary>
     public static bool Holds(Gesture gesture) => gesture is Gesture.Hold or Gesture.HoldUp or Gesture.HoldBoth or Gesture.Sip
@@ -226,6 +240,8 @@ public static class Gestures
             Gesture.Shrug => RigMask.Hands | RigMask.Head,
             Gesture.Sneeze => RigMask.Face | RigMask.Body | RigMask.Mouth,
             Gesture.CoverSneeze => lead | RigMask.Face | RigMask.Body | RigMask.Mouth,
+            Gesture.Throw => lead | RigMask.Body | RigMask.Head,
+            Gesture.Type => RigMask.Hands | RigMask.Face,
             _ => RigMask.Hands,
         };
     }
@@ -548,6 +564,33 @@ public static class Gestures
                     r.SetHand(s, Vec2.Lerp(Rig.RestHand(s, f), mouth, reach), f, front: true, grip: 0.4 * reach);
                 }
 
+                break;
+            }
+
+            case Gesture.Throw:
+            {
+                // Brazo atrás y arriba (el cuerpo se echa atrás), latigazo hacia delante al soltar y acompaña hasta abajo.
+                var windup = Easing.Segment(t, 0, ThrowReleaseAt, Ease.Out);
+                var swing = Easing.Segment(t, ThrowReleaseAt - 0.04, 0.12, Ease.Out);
+                var settle = Easing.Segment(t, ThrowReleaseAt + 0.12, ThrowSeconds - ThrowReleaseAt - 0.12);
+                var back = new Vec2(-s * 0.55, -1.62);
+                var front = new Vec2(s * 1.30, -1.05);
+                var hand = Vec2.Lerp(Vec2.Lerp(RestOf(s, f), back, windup), front, swing);
+                r.SetHand(s, Vec2.Lerp(hand, RestOf(s, f), settle), f, front: false, grip: 1 - swing);
+                var lean = -0.10 * windup * (1 - swing) + 0.12 * swing * (1 - settle);
+                r.Spin = s * lean;
+                r.HeadTilt = s * 0.5 * lean;
+                break;
+            }
+
+            case Gesture.Type:
+            {
+                // Las manos delante, a la altura de un teclado imaginario, picando teclas a destiempo.
+                var left = Math.Max(0, Math.Sin(t * 23));
+                var right = Math.Max(0, Math.Sin(t * 23 + 2.1));
+                r.SetHand(-1, new Vec2(-0.34 + 0.05 * Math.Sin(t * 5), -0.52 - 0.07 * left), f, front: true, grip: 0.3);
+                r.SetHand(1, new Vec2(0.34 + 0.05 * Math.Sin(t * 5 + 1), -0.52 - 0.07 * right), f, front: true, grip: 0.3);
+                r.FaceY = 0.04;
                 break;
             }
         }

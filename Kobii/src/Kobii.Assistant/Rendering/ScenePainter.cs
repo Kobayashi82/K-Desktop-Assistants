@@ -170,26 +170,44 @@ internal static class ScenePainter
             case Gesture.HoldUp:
                 center = hand - new Vector(0, r * 0.9);
                 break;
+            case Gesture.Throw or Gesture.None:
+                // En una mano (la que la va a lanzar).
+                center = hand - new Vector(0, r * 0.6);
+                break;
             default:
                 center = Mid(hand, other) + new Vector(0, 0.05 * u);
                 break;
         }
 
-        // Pelota de playa: gajos de colores que giran, contorno y un brillo.
+        DrawBallAt(dc, center, r, t * 2);
+    }
+
+    /// <summary>La pelota de playa (gajos de colores, contorno y un brillo) de radio <paramref name="r"/>, girada <paramref name="spin"/> radianes.</summary>
+    public static void DrawBallAt(DrawingContext dc, Point center, double r, double spin, double alpha = 1)
+    {
+        if (alpha < 1)
+        {
+            dc.PushOpacity(alpha);
+        }
+
         var ball = new EllipseGeometry(center, r, r);
         ball.Freeze();
         dc.DrawGeometry(Fill(0xFFFFFF), null, ball);
         dc.PushClip(ball);
         for (var i = 0; i < 3; i++)
         {
-            dc.PushTransform(new RotateTransform(Deg(t * 2 + i * Math.PI / 3), center.X, center.Y));
+            dc.PushTransform(new RotateTransform(Deg(spin + i * Math.PI / 3), center.X, center.Y));
             dc.DrawEllipse(Fill(BallColors[i]), null, center, r * 1.05, r * 0.30);
             dc.Pop();
         }
 
         dc.Pop();
-        dc.DrawGeometry(null, Stroke(0x8A98A3, Math.Max(1, 0.035 * u)), ball);
+        dc.DrawGeometry(null, Stroke(0x8A98A3, Math.Max(1, 0.135 * r)), ball);
         dc.DrawEllipse(Fill(0xFFFFFF, 0.6), null, center - new Vector(r * 0.35, r * 0.4), r * 0.22, r * 0.15);
+        if (alpha < 1)
+        {
+            dc.Pop();
+        }
     }
 
     private static void DrawBook(DrawingContext dc, Point center, double u, double rotation, double t)

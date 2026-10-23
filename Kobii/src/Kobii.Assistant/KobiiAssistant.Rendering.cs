@@ -148,6 +148,7 @@ public sealed partial class KobiiAssistant
     {
         _surface.Hide();
         _effects.Hide();
+        _layer.Clear();
         _effectsShown = false;
         _hit.Hide();
         _hitShown = false;

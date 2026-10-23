@@ -26,6 +26,9 @@ public enum Activity
 
     /// <summary>Dormido (llevas mucho rato sin tocar el PC).</summary>
     Sleep,
+
+    /// <summary>De camino a otro sitio: andando, saltando entre ventanas, trepando o descolgándose.</summary>
+    Travel,
 }
 
 /// <summary>Lo que hace el módulo Asistente (escuchar, pensar, hablar…), dicho sin depender del SDK.</summary>
@@ -111,6 +114,15 @@ public enum GameEventKind
 
     /// <summary>Ha empezado una animación por su cuenta (el texto es su id).</summary>
     Performed,
+
+    /// <summary>Se ha encaramado a lo alto de una ventana.</summary>
+    Climbed,
+
+    /// <summary>Ha llegado adonde iba (el texto: «window» o «ground»).</summary>
+    Arrived,
+
+    /// <summary>No ha encontrado forma de llegar adonde iba.</summary>
+    Lost,
 }
 
 public readonly record struct GameEvent(GameEventKind Kind, Vec2 Position, double Magnitude = 0, string? Text = null);

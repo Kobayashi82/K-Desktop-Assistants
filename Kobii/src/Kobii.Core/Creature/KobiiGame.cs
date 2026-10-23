@@ -31,6 +31,9 @@ public sealed partial class KobiiGame
     /// <summary>Segundos sin hacerle caso (estando tú delante) a partir de los que se aburre.</summary>
     private const double BoredAfterSeconds = 1500;
 
+    /// <summary>Las veces (de cada decisión en el suelo) que sube a ver qué hay en una ventana.</summary>
+    private const double ExploreChance = 0.06;
+
     private readonly IRandom _random;
     private readonly List<GameEvent> _events = [];
     private readonly RubDetector _rub = new();
@@ -98,7 +101,7 @@ public sealed partial class KobiiGame
 
     /// <summary>Hace falta simular y dibujar a la frecuencia alta.</summary>
     public bool NeedsHighFrequency =>
-        Activity is Activity.Walk or Activity.Held or Activity.Fall or Activity.Celebrate
+        Activity is Activity.Walk or Activity.Held or Activity.Fall or Activity.Celebrate or Activity.Travel
         || !Body.IsGrounded || Visual.IsAnimating || _rub.Intensity > 0 || Animator.IsMoving;
 
     /// <summary>
@@ -106,13 +109,13 @@ public sealed partial class KobiiGame
     /// <see cref="NeedsHighFrequency"/> (respirar, los muelles que se asientan) se ve bien a pocos fotogramas por segundo.
     /// </summary>
     public bool NeedsFullRate =>
-        Activity is Activity.Walk or Activity.Held or Activity.Fall or Activity.Celebrate
+        Activity is Activity.Walk or Activity.Held or Activity.Fall or Activity.Celebrate or Activity.Travel
         || !Body.IsGrounded || _rub.Intensity > 0 || Visual.Talking || Visual.Mouth > 0.02 || Visual.IsBouncing || Animator.IsMovingMuch;
 
     /// <summary>Qué le mantiene a la frecuencia alta (diagnóstico).</summary>
     public string BusyReason => string.Join(",", new[]
     {
-        Activity is Activity.Walk or Activity.Held or Activity.Fall or Activity.Celebrate ? Activity.ToString() : null,
+        Activity is Activity.Walk or Activity.Held or Activity.Fall or Activity.Celebrate or Activity.Travel ? Activity.ToString() : null,
         !Body.IsGrounded ? "aire" : null,
         Visual.IsAnimating ? "visual" : null,
         _rub.Intensity > 0 ? "frotar" : null,
@@ -514,6 +517,17 @@ public sealed partial class KobiiGame
             _dropAtEdge = false;
         }
 
+        if (Activity == Activity.Travel && activity != Activity.Travel)
+        {
+            // Le han interrumpido (o ya ha llegado): si estaba trepando, se suelta.
+            _runner?.Abort();
+            _runner = null;
+            if (_travelOutcome == TravelOutcome.Going)
+            {
+                _travelOutcome = TravelOutcome.Failed;
+            }
+        }
+
         Activity = activity;
         _activityTimer = seconds;
     }
@@ -705,6 +719,10 @@ public sealed partial class KobiiGame
                 StepWalk();
                 break;
 
+            case Activity.Travel:
+                StepTravel(dt);
+                break;
+
             default:
                 StepIdle(world, sensors);
                 break;
@@ -742,7 +760,7 @@ public sealed partial class KobiiGame
 
     private void StepIdle(World world, Sensors sensors)
     {
-        if (!Body.IsGrounded)
+        if (!Body.IsGrounded || _errand)
         {
             return;
         }
@@ -766,8 +784,15 @@ public sealed partial class KobiiGame
             return;
         }
 
-        // Lleva mucho rato en lo alto de una ventana: se baja.
-        if (Body.Support is { IsBase: false } && Time - _platformSince > 180 && !_greetPending && TryGoDown())
+        // Lleva mucho rato en lo alto de una ventana: se baja (descolgándose o dejándose caer).
+        if (Body.Support is { IsBase: false } && Time - _platformSince > 180 && !_greetPending && (ComeDown() || TryGoDown()))
+        {
+            return;
+        }
+
+        // De vez en cuando sube a ver qué hay en alguna ventana cercana.
+        if (Body.Support is { IsBase: true } && !_greetPending && !sensors.Quiet && Mood != Mood.Sleepy
+            && _random.Chance(ExploreChance * _options.Liveliness) && Explore())
         {
             return;
         }
@@ -1155,7 +1180,7 @@ public sealed partial class KobiiGame
 
     private void UpdateAnimation(Sensors sensors, double dt)
     {
-        var walking = Activity is Activity.Walk && Math.Abs(Body.WalkVelocity) > 1;
+        var walking = Activity is Activity.Walk or Activity.Travel && Body.IsGrounded && Math.Abs(Body.WalkVelocity) > 1;
         var rolling = Activity is Activity.Perform && Animator.Clip?.Motion == ClipMotion.Roll;
         Visual.Walk = MathUtil.Damp(Visual.Walk, walking ? 1 : 0, 10, dt);
         if (walking)
@@ -1192,8 +1217,9 @@ public sealed partial class KobiiGame
             Activity.Sleep => Pose.Curl,
             Activity.Held => Pose.Dangle,
             Activity.Fall when Body.Velocity.Y > 250 * Body.Scale => Pose.Tumble,
-            Activity.Walk when _running && Visual.Walk > 0.05 => Pose.Run,
-            Activity.Walk when Visual.Walk > 0.05 => Pose.Walk,
+            Activity.Travel when _runner?.Pose is { } travel => travel,
+            Activity.Walk or Activity.Travel when _running && Visual.Walk > 0.05 => Pose.Run,
+            Activity.Walk or Activity.Travel when Visual.Walk > 0.05 => Pose.Walk,
             Activity.Celebrate => Pose.Hop,
             _ => Pose.Stand,
         };
@@ -1204,8 +1230,8 @@ public sealed partial class KobiiGame
             Animator.Side = Visual.FacingTarget < -0.05 ? -1 : Visual.FacingTarget > 0.05 ? 1 : Animator.Side;
         }
 
-        Animator.BaseProp = Prop.None;
-        Animator.BaseWear = Wear.None;
+        Animator.BaseProp = _heldProp;
+        Animator.BaseWear = _heldWear;
 
         // Velocidad real de los pies (andar, caer, la ventana que se mueve): sus sacudidas mueven el brote.
         var velocity = dt > 0 && !double.IsNaN(_lastFeet.X) ? (Body.Feet - _lastFeet) / dt / Math.Max(1, Body.Height / 2) : Vec2.Zero;
@@ -1219,6 +1245,17 @@ public sealed partial class KobiiGame
         {
             Visual.LookTarget = new Vec2(0, 0.3);
             Visual.FacingTarget = 0;
+            return;
+        }
+
+        if (Activity == Activity.Travel)
+        {
+            // Mira hacia donde va (lo pone el recorrido).
+            return;
+        }
+
+        if (LookAtErrand())
+        {
             return;
         }
 

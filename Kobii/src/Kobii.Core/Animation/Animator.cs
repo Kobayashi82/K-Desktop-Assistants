@@ -82,8 +82,9 @@ public sealed class Animator
     /// <summary>Lo que lleva puesto cuando no hay clip.</summary>
     public Wear BaseWear { get; set; }
 
-    /// <summary>Objeto en la mano ahora mismo.</summary>
-    public Prop Prop => _clip is { } clip ? clip.Prop : _gesture == Gesture.None || !Gestures.Info(_gesture).UsesHands ? BaseProp : Prop.None;
+    /// <summary>Objeto en la mano ahora mismo (al lanzar, el que lanza, hasta que lo suelta).</summary>
+    public Prop Prop => _clip is { } clip ? clip.Prop
+        : _gesture == Gesture.None || !Gestures.Info(_gesture).UsesHands || _gesture == Gesture.Throw ? BaseProp : Prop.None;
 
     /// <summary>
     /// Tiene las manos libres: de pie, sin nada en ellas, sin un gesto que las use y sin que una rutina las mueva

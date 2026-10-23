@@ -2,7 +2,7 @@
   "$schema": "../../../../../docs/assistant/esquemas/assistant.schema.json",
   "id": "kobii",
   "name": "Kobii",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": "Kobayashi82",
   "description": {
     "es": "Una criatura blandita que pasea por tu barra de tareas y por encima de tus ventanas.",
@@ -11,6 +11,14 @@
     "de": "Ein weiches kleines Wesen, das über deine Taskleiste und deine Fenster spaziert.",
     "it": "Una creaturina morbida che passeggia sulla barra delle applicazioni e sopra le tue finestre.",
     "pt": "Uma criaturinha fofinha que passeia pela sua barra de tarefas e por cima das suas janelas."
+  },
+  "changes": {
+    "es": "Kobii ya hace las órdenes a su manera: lanza la pelota al botón de la ventana, llama a las ventanas silbando y se sube a ellas, señala, clava una banderita, lee la pantalla con sus gafas y teclea. Además trepa por las ventanas y salta entre ellas, y tiene sus propios sonidos.",
+    "en": "Kobii now carries out orders its own way: it throws its ball at the window button, whistles windows to the front and climbs onto them, points, plants a little flag, reads the screen with its glasses and types. It also climbs windows and jumps between them, and has its own sounds.",
+    "fr": "Kobii exécute désormais les ordres à sa façon : il lance sa balle sur le bouton de la fenêtre, siffle les fenêtres pour les faire venir et grimpe dessus, montre du doigt, plante un petit drapeau, lit l’écran avec ses lunettes et tape au clavier. Il grimpe aussi aux fenêtres, saute de l’une à l’autre et a ses propres sons.",
+    "de": "Kobii führt Befehle jetzt auf seine Art aus: Er wirft seinen Ball auf die Fensterschaltfläche, pfeift Fenster nach vorn und klettert hinauf, zeigt auf Dinge, steckt ein Fähnchen, liest den Bildschirm mit seiner Brille und tippt. Außerdem klettert er an Fenstern hoch, springt zwischen ihnen und hat eigene Geräusche.",
+    "it": "Kobii ora esegue gli ordini a modo suo: lancia la palla sul pulsante della finestra, chiama le finestre con un fischio e ci sale sopra, indica, pianta una bandierina, legge lo schermo con i suoi occhiali e scrive. Inoltre si arrampica sulle finestre, salta dall’una all’altra e ha i suoi suoni.",
+    "pt": "O Kobii agora faz as ordens do jeito dele: joga a bola no botão da janela, chama as janelas assobiando e sobe nelas, aponta, finca uma bandeirinha, lê a tela com os óculos e digita. Ele também escala as janelas, pula de uma para outra e tem seus próprios sons."
   },
   "homepage": "https://github.com/Kobayashi82/K-Desktop-Assistants",
   "license": "MIT",
@@ -25,6 +33,6 @@
     "travelSpeed": 80,
     "canMoveWindows": false,
     "canReachMaximized": false,
-    "gestures": ["communicate", "react"]
+    "gestures": ["communicate", "react", "pressButton", "activateWindow", "pointAt", "goTo", "mark", "scan", "typing", "waitForWindow"]
   }
 }

@@ -1,6 +1,7 @@
 using System.IO;
 using System.Text.Json;
 using KDesktop.Assistant.Sdk;
+using Kobii.Assistant.Audio;
 using Kobii.Assistant.Rendering;
 using Kobii.Core;
 using Kobii.Core.Creature;
@@ -77,6 +78,8 @@ public sealed partial class KobiiAssistant : IAssistant
         _game = new KobiiGame(_settings.ToGameOptions(), new GameRandom());
         _surface = host.Rendering.CreateSurface();
         _effects = host.Rendering.CreateSurface(SurfaceLayer.Front);
+        _layer = new ManoeuvreLayer(host.Rendering);
+        _audio = new KobiiAudio(host.Audio);
         _hit = host.Pointer.CreateHitArea();
         _hit.Cursor = PointerCursor.Hand;
         _host.World.Changed += OnWorldChanged;
@@ -116,6 +119,7 @@ public sealed partial class KobiiAssistant : IAssistant
         var now = tick.Now;
         var elapsed = tick.Elapsed;
         _now = now;
+        ReleaseFrames();
         if (!_game.IsInitialized && !TryStart())
         {
             return 0.25;
@@ -136,6 +140,7 @@ public sealed partial class KobiiAssistant : IAssistant
 
         StepSimulation(elapsed);
         _particles.Update(elapsed);
+        UpdateManoeuvres(now);
         Render(now);
         UpdateHitArea();
         _statTickMs += System.Diagnostics.Stopwatch.GetElapsedTime(tickClock).TotalMilliseconds;
@@ -177,6 +182,13 @@ public sealed partial class KobiiAssistant : IAssistant
 
             UpdateSensors(0);
             _game.Initialize(_world);
+
+            // Solo para pruebas: empezar en otro monitor (KOBII_MONITOR=índice).
+            if (int.TryParse(Environment.GetEnvironmentVariable("KOBII_MONITOR"), out var start) && _world.GroundOf(start) is { } startGround)
+            {
+                _game.Relocate(startGround, startGround.Left + startGround.Width * 0.72);
+            }
+
             _previousFeet = _game.Body.Feet;
             _host.Log.Info($"Kobii en marcha: {_world.Monitors.Count} monitor(es), {_world.Platforms.Count} plataformas.");
             UpdateFullscreen();
@@ -201,7 +213,7 @@ public sealed partial class KobiiAssistant : IAssistant
     private bool IsUserAway() => _sensors.UserIdleSeconds > 60 && !_pressed && !_dragging;
 
     private bool IsActive(double now) =>
-        _game.NeedsFullRate || _pressed || _dragging || _exitStart is not null || now - _fadeStart < FadeInDuration;
+        _game.NeedsFullRate || ManoeuvreActive || _pressed || _dragging || _exitStart is not null || now - _fadeStart < FadeInDuration;
 
     private bool IsAttentive() =>
         _sensors.Cursor is { } cursor && Vec2.Distance(cursor, _game.Body.Center) < _game.Body.Height * 7;
@@ -288,7 +300,19 @@ public sealed partial class KobiiAssistant : IAssistant
             case GameEventKind.FellAsleep:
             case GameEventKind.WokeUp:
             case GameEventKind.Greeted:
+            case GameEventKind.Arrived:
+            case GameEventKind.Lost:
                 _host.Log.Debug($"Kobii: {gameEvent.Kind} {gameEvent.Text}");
+                break;
+            case GameEventKind.Hop:
+                Play(Sound.Boing, 0.35, gameEvent.Position.X);
+                break;
+            case GameEventKind.Landed when gameEvent.Magnitude > 400:
+                Play(Sound.Land, Math.Clamp(gameEvent.Magnitude / 1600, 0.25, 0.8), gameEvent.Position.X);
+                break;
+            case GameEventKind.Climbed:
+                Play(Sound.Chime, 0.4, gameEvent.Position.X);
+                _host.Log.Debug("Kobii: arriba de una ventana");
                 break;
         }
     }
@@ -305,6 +329,7 @@ public sealed partial class KobiiAssistant : IAssistant
     {
         _host.World.Changed -= OnWorldChanged;
         _hit.Dispose();
+        _layer.Dispose();
         _effects.Dispose();
         _surface.Dispose();
     }

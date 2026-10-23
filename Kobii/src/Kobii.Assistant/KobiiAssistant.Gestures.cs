@@ -4,22 +4,40 @@ using Kobii.Core.Creature;
 namespace Kobii.Assistant;
 
 /// <summary>
-/// Gestos que pide el módulo y lo que hace mientras te atiende. Por ahora los dos que sabe todo asistente
-/// (<see cref="Gesture.Communicate"/> y <see cref="Gesture.React"/>); los de las órdenes llegan en la etapa siguiente
-/// (hasta entonces el módulo hace la acción él y lo cuenta en el bocadillo).
+/// Gestos que pide el módulo y lo que hace mientras te atiende: <see cref="Gesture.Communicate"/> y
+/// <see cref="Gesture.React"/>, y los de las órdenes (ver <see cref="ManoeuvreAsync"/>). Mover ventanas aún no: lo hace el
+/// módulo y lo cuenta en el bocadillo.
 /// </summary>
 public sealed partial class KobiiAssistant
 {
     private const double ReactDuration = 1.2;
 
-    public bool CanPerform(Gesture gesture) => gesture.Kind switch
+    public bool CanPerform(Gesture gesture)
     {
-        GestureKind.Communicate or GestureKind.React => _game.IsInitialized && !_hidden && _exitStart is null,
-        _ => false,
-    };
+        switch (gesture.Kind)
+        {
+            case GestureKind.Communicate or GestureKind.React:
+                return _game.IsInitialized && !_hidden && _exitStart is null;
+            case var kind when IsManoeuvre(kind):
+                var can = CanManoeuvre && !OnFullscreen(gesture);
+                if (!can)
+                {
+                    _host.Log.Debug($"Maniobra {kind}: ahora no ({(_hidden ? "escondido" : _dragging || _game.Body.IsHeld ? "cogido" : "pantalla completa")})");
+                }
+
+                return can;
+            default:
+                return false;
+        }
+    }
 
     public async Task<GestureOutcome> PerformAsync(Gesture gesture, IGestureContext ctx, CancellationToken ct)
     {
+        if (IsManoeuvre(gesture.Kind))
+        {
+            return await ManoeuvreAsync(gesture, ctx, ct);
+        }
+
         switch (gesture)
         {
             case Gesture.Communicate:
