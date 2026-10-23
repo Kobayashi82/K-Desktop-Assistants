@@ -222,7 +222,7 @@ public sealed partial class KobiiAssistant : IAssistant
         if (_pendingEntrance is { } how && !_hidden)
         {
             _pendingEntrance = null;
-            if (how is EntranceKind.Startup or EntranceKind.Switched)
+            if (how is EntranceKind.Startup or EntranceKind.Summoned)
             {
                 _game.WalkIn(fromRight: _game.Body.Feet.X > (_game.Body.Support?.CenterX ?? 0));
             }
