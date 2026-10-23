@@ -21,6 +21,11 @@ public sealed partial class KobiiAssistant
             return;
         }
 
+        if (OnFiles(e))
+        {
+            return;
+        }
+
         if (e.Area != _hit.Id)
         {
             OnToyPointer(e);

@@ -35,6 +35,11 @@ public sealed partial class LanderAssistant
             return;
         }
 
+        if (OnFiles(e))
+        {
+            return;
+        }
+
         var at = new Vec2(e.Position.X, e.Position.Y);
         switch (e.Kind)
         {

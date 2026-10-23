@@ -2,7 +2,7 @@
   "$schema": "../../../../../docs/assistant/esquemas/assistant.schema.json",
   "id": "lander",
   "name": "Lander",
-  "version": "0.13.0",
+  "version": "0.14.0",
   "author": "Kobayashi82",
   "description": {
     "es": "Un pequeño módulo lunar que vuela por tus ventanas y aterriza en ellas. Incluye su juego.",
@@ -15,14 +15,14 @@
   "homepage": "https://github.com/Kobayashi82/K-Desktop-Assistants",
   "license": "MIT",
   "changes": {
-    "es": "Ya no se posa encima de otros asistentes: si otro se ha quedado donde iba a aterrizar, elige un sitio al lado o se va a otra parte.",
-    "en": "It no longer lands on top of other assistants: if another one stays where it was about to land, it picks a spot next to it or goes elsewhere.",
-    "fr": "Il ne se pose plus sur les autres assistants : si un autre reste là où il allait atterrir, il choisit une place à côté ou va ailleurs.",
-    "de": "Er landet nicht mehr auf anderen Assistenten: Bleibt einer dort, wo er landen wollte, sucht er sich einen Platz daneben oder fliegt woandershin.",
-    "it": "Non atterra più sopra gli altri assistenti: se un altro resta dove stava per atterrare, sceglie un posto accanto o va altrove.",
-    "pt": "Ele não pousa mais em cima de outros assistentes: se outro fica onde ele ia pousar, escolhe um lugar ao lado ou vai para outro canto."
+    "es": "Nota los archivos que le sueltas encima desde el Explorador: con ellos encima enseña un paquete y al soltarlos lo celebra.",
+    "en": "It notices files you drop on it from File Explorer: while they are over it, it shows a package, and it celebrates when you drop them.",
+    "fr": "Il remarque les fichiers que vous lui déposez dessus depuis l’Explorateur : tant qu’ils sont au-dessus, il montre un colis, et il fête leur arrivée quand vous les lâchez.",
+    "de": "Er bemerkt Dateien, die du aus dem Explorer auf ihm ablegst: Solange sie über ihm sind, zeigt er ein Paket, und beim Loslassen freut er sich.",
+    "it": "Si accorge dei file che gli lasci cadere sopra da Esplora file: finché sono sopra di lui mostra un pacco e, quando li lasci, festeggia.",
+    "pt": "Ele percebe os arquivos que você solta em cima dele pelo Explorador: enquanto estão em cima, mostra um pacote, e comemora quando você os solta."
   },
-  "sdk": "1.11",
+  "sdk": "1.16",
   "common": ["size", "volume", "liveliness", "dragging"],
   "entry": "lib/Lander.Assistant.dll!Lander.Assistant.LanderAssistant",
   "icon": "icon.png",
