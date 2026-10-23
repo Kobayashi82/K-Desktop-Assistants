@@ -255,7 +255,8 @@ public sealed partial class KobiiAssistant : IAssistant
     private bool IsUserAway() => _sensors.UserIdleSeconds > 60 && !_pressed && !_dragging;
 
     private bool IsActive(double now) =>
-        _game.NeedsFullRate || ManoeuvreActive || _pressed || _dragging || ToysMoving || _exitStart is not null || now - _fadeStart < FadeInDuration;
+        _game.NeedsFullRate || ManoeuvreActive || _pressed || _dragging || ToysMoving || _filesHeld is not null || _exitStart is not null
+        || now - _fadeStart < FadeInDuration;
 
     private bool IsAttentive() =>
         _sensors.Cursor is { } cursor && Vec2.Distance(cursor, _game.Body.Center) < _game.Body.Height * 7;

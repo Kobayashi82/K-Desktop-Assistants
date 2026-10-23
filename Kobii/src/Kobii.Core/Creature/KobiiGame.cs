@@ -576,6 +576,16 @@ public sealed partial class KobiiGame
         _activityTimer = seconds;
     }
 
+    /// <summary>Deja esa animación si es la que está haciendo.</summary>
+    public void StopClip(string id)
+    {
+        if (Activity == Activity.Perform && Animator.Clip?.Id == id)
+        {
+            _performance.Clear();
+            StopPerforming();
+        }
+    }
+
     /// <summary>Deja lo que estaba haciendo por su cuenta (si hacía algo).</summary>
     private void StopPerforming()
     {

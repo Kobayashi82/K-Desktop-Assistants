@@ -641,10 +641,12 @@ public sealed partial class LanderAssistant
         if (_hidden || _exitStart is not null)
         {
             _errandMarks.Clear();
+            _carry = null;
             _effects.Clear();
             return;
         }
 
+        PlaceCarry(now);
         _effects.Render(now);
     }
 

@@ -111,6 +111,13 @@ public sealed partial class KobiiAssistant
             Grow(food.Body.Feet.X, food.Body.Feet.Y - food.Body.Height / 2, food.Body.Height * 1.4);
         }
 
+        var carried = CarriedPicture();
+        if (carried is { } picture)
+        {
+            var r = picture.Rect;
+            Grow(r.X + r.Width / 2, r.Y + r.Height / 2, Math.Max(r.Width, r.Height) / 2 + 4);
+        }
+
         if (box is not { } bounds)
         {
             if (_effectsShown)
@@ -130,6 +137,13 @@ public sealed partial class KobiiAssistant
         _effects.Present(SdkRect.FromSize(left, top, width, height), dc =>
         {
             ScenePainter.DrawThings(dc, _game, alpha);
+            if (carried is { } held)
+            {
+                dc.PushOpacity(held.Opacity);
+                dc.DrawImage(held.Image, held.Rect);
+                dc.Pop();
+            }
+
             ScenePainter.DrawParticles(dc, _particles.Items);
         });
     }

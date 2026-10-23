@@ -107,6 +107,9 @@ public static class AnimationCatalog
         new("pelota-botar", "Botar la pelota", Pose.Stand, Gesture.Dribble, Prop.Ball, Seconds: 6, Face: Expression.Happy),
         new("pelota-abrazar", "Abrazar la pelota", Pose.Sit, Gesture.HoldBoth, Prop.Ball, Seconds: 5, Face: Expression.Love, Emote: EmoteKind.Heart),
         new("pelota-arriba", "Levantar la pelota", Pose.Tiptoe, Gesture.HoldUp, Prop.Ball, Seconds: 2.5, Face: Expression.Joy),
+
+        // Levanta lo que le arrastran encima (la imagen de los archivos la dibuja el asistente sobre sus manos).
+        new("sostener-archivos", "Sostener archivos", Pose.Tiptoe, Gesture.HoldUp, Seconds: 30, Face: Expression.Curious, Look: Up),
         new("globo", "Pasear el globo", Pose.Stand, Gesture.HoldUp, Prop.Balloon, Seconds: 8, Face: Expression.Happy),
         new("globo-sentado", "Globo sentado", Pose.Sit, Gesture.HoldUp, Prop.Balloon, Seconds: 8, Face: Expression.Happy),
         new("pompas", "Hacer pompas", Pose.Stand, Gesture.Blow, Prop.Wand, Seconds: 6, Face: Expression.Happy, Emote: EmoteKind.Bubble, EmoteEvery: 0.45, EmoteFrom: EmoteSource.Hand),

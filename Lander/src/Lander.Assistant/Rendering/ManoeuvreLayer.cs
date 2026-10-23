@@ -38,6 +38,13 @@ internal enum EffectKind
     /// (<see cref="ManoeuvreEffect.Area"/>) y chispas que suben de ella hacia la nave (minimizar).
     /// </summary>
     Tractor,
+
+    /// <summary>
+    /// Lo que le arrastran encima (SDK 1.17): la imagen de los archivos (<see cref="ManoeuvreEffect.Picture"/>) en
+    /// <see cref="ManoeuvreEffect.Area"/>, sujeta por el rayo tractor bajo la nave; con <see cref="ManoeuvreEffect.Caught"/>
+    /// sube encogiéndose hasta la nave.
+    /// </summary>
+    Carry,
 }
 
 /// <param name="From">Origen (proyectil, foco); lo mueve el lander mientras vuela.</param>
@@ -50,6 +57,14 @@ internal sealed record ManoeuvreEffect(EffectKind Kind, double Start, double Dur
     public Vec2 From { get; set; } = From;
 
     public Vec2 To { get; set; } = To;
+
+    public Rect Area { get; set; } = Area;
+
+    /// <summary>La imagen que sujeta (<see cref="EffectKind.Carry"/>).</summary>
+    public ImageSource? Picture { get; init; }
+
+    /// <summary>Cuándo la soltaron encima (<see cref="EffectKind.Carry"/>): desde ahí sube a la nave.</summary>
+    public double? Caught { get; set; }
 }
 
 /// <summary>
@@ -130,6 +145,7 @@ internal sealed class ManoeuvreLayer(IRendering rendering) : IDisposable
                 return effect.Area;
 
             case EffectKind.Tractor:
+            case EffectKind.Carry:
             {
                 var all = effect.Area;
                 all.Union(new Rect(effect.From.X - 30 * effect.Scale, effect.From.Y - 30 * effect.Scale, 60 * effect.Scale, 60 * effect.Scale));
@@ -301,6 +317,37 @@ internal sealed class ManoeuvreLayer(IRendering rendering) : IDisposable
                 }
 
                 dc.DrawEllipse(LanderParts.Glow(e.Color, 0.9 * level), null, emitter, 16 * s, 16 * s);
+                break;
+            }
+
+            case EffectKind.Carry when e.Picture is { } picture:
+            {
+                // El haz se enciende en un momento y envuelve la imagen, que se mece un poco; al cogerla, el haz la sube
+                // encogiéndola hasta la nave (el área ya la mueve quien la sujeta).
+                var area = e.Area;
+                var age = now - e.Start;
+                var level = Math.Min(1, age / 0.15);
+                var emitter = new Point(e.From.X, e.From.Y + 8 * s);
+                var cone = Gfx.Polygon(emitter.X - 6 * s, emitter.Y, area.Left, area.Top, area.Left, area.Bottom, area.Right, area.Bottom, area.Right, area.Top, emitter.X + 6 * s, emitter.Y);
+                dc.DrawGeometry(Gfx.Gradient(emitter, new Point(area.Left + area.Width / 2, area.Bottom),
+                    (0, e.Color.WithAlpha(0.35 * level)), (1, e.Color.WithAlpha(0.06 * level))), null, cone);
+                var ray = Gfx.Pen(e.Color.WithAlpha(0.5 * level), 1.2 * s);
+                dc.DrawLine(ray, emitter, new Point(area.Left, area.Top));
+                dc.DrawLine(ray, emitter, new Point(area.Right, area.Top));
+                dc.PushOpacity(0.4 + 0.6 * level);
+                dc.DrawImage(picture, area);
+                dc.Pop();
+                dc.DrawRectangle(Gfx.Brush(e.Color.WithAlpha(0.1 * level)), Gfx.Pen(e.Color.WithAlpha(0.45 * level), 1.2 * s), area);
+                for (var i = 0; i < 12; i++)
+                {
+                    var phase = (now * 0.8 + i * 0.37) % 1;
+                    var startX = area.Left + area.Width * ((i * 0.618) % 1);
+                    var p = new Point(startX + (emitter.X - startX) * Math.Pow(phase, 1.6), area.Top + (emitter.Y - area.Top) * phase);
+                    var size = (2.2 - 1.4 * phase) * s;
+                    dc.DrawEllipse(Gfx.Brush(Colors.White.WithAlpha(0.8 * level * (1 - phase * 0.6))), null, p, size, size);
+                }
+
+                dc.DrawEllipse(LanderParts.Glow(e.Color, 0.8 * level), null, emitter, 14 * s, 14 * s);
                 break;
             }
 
