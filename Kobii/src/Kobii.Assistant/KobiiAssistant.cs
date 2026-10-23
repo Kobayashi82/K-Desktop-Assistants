@@ -142,6 +142,7 @@ public sealed partial class KobiiAssistant : IAssistant
         }
 
         StepSimulation(elapsed);
+        UpdateBrushMode();
         _particles.Update(elapsed);
         UpdateManoeuvres(now);
         Render(now);
@@ -313,6 +314,7 @@ public sealed partial class KobiiAssistant : IAssistant
     private void HandleGameEvent(GameEvent gameEvent)
     {
         HandleGiftEvent(gameEvent);
+        HandleTouchEvent(gameEvent);
         switch (gameEvent.Kind)
         {
             case GameEventKind.Performed:

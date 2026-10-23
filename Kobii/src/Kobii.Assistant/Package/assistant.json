@@ -2,7 +2,7 @@
   "$schema": "../../../../../docs/assistant/esquemas/assistant.schema.json",
   "id": "kobii",
   "name": "Kobii",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "author": "Kobayashi82",
   "description": {
     "es": "Una criatura blandita que pasea por tu barra de tareas y por encima de tus ventanas.",
@@ -13,16 +13,16 @@
     "pt": "Uma criaturinha fofinha que passeia pela sua barra de tarefas e por cima das suas janelas."
   },
   "changes": {
-    "es": "Ya puedes darle cosas a Kobii desde su menú, su panel o tus comandos: comida, bebida, su pelota, un osito de peluche y una camita. Los juguetes se quedan en el escritorio hasta que los guardas (también al reiniciar): abraza el osito y lo pasea, bota en la cama o se sienta en ella, y cuando te vas se lleva el osito a la cama y se duerme acurrucado. Los juguetes se cogen y se lanzan con el ratón; si le lanzas la pelota (o le das un toque), va a por ella y te la trae. Su panel cuenta lo que ha comido, las pelotas que te ha traído y las mariposas que ha atrapado.",
-    "en": "You can now give Kobii things from its menu, its panel or your commands: food, drink, its ball, a teddy bear and a little bed. Toys stay on the desktop until you put them away (even after a restart): it hugs the teddy and carries it around, bounces on the bed or sits on it, and when you leave it takes the teddy to bed and curls up to sleep. Toys can be picked up and thrown with the mouse; throw it the ball (or give it a tap) and it runs after it and brings it back. Its panel counts what it has eaten, the balls it has brought back and the butterflies it has caught.",
-    "fr": "Tu peux maintenant donner des choses à Kobii depuis son menu, son panneau ou tes commandes : à manger, à boire, sa balle, un ourson en peluche et un petit lit. Les jouets restent sur le bureau jusqu’à ce que tu les ranges (même après un redémarrage) : il câline l’ourson et le promène, rebondit sur le lit ou s’y assoit, et quand tu t’en vas il emmène l’ourson au lit et s’endort tout pelotonné. Les jouets se prennent et se lancent avec la souris ; lance-lui la balle (ou donne-lui une pichenette) et il court la chercher et te la rapporte. Son panneau compte ce qu’il a mangé, les balles rapportées et les papillons attrapés.",
-    "de": "Du kannst Kobii jetzt über sein Menü, sein Panel oder deine Befehle etwas geben: Essen, Trinken, seinen Ball, einen Teddybären und ein kleines Bett. Die Spielsachen bleiben auf dem Desktop, bis du sie wegräumst (auch nach einem Neustart): Er knuddelt den Teddy und trägt ihn herum, hüpft auf dem Bett oder setzt sich darauf, und wenn du weg bist, nimmt er den Teddy mit ins Bett und schläft zusammengerollt ein. Spielsachen lassen sich mit der Maus aufheben und werfen; wirf ihm den Ball (oder stups ihn an), und er rennt hinterher und bringt ihn dir zurück. Sein Panel zählt, was er gegessen hat, die zurückgebrachten Bälle und die gefangenen Schmetterlinge.",
-    "it": "Ora puoi dare delle cose a Kobii dal suo menu, dal suo pannello o dai tuoi comandi: da mangiare, da bere, la sua palla, un orsacchiotto di peluche e un lettino. I giochi restano sul desktop finché non li metti via (anche dopo un riavvio): abbraccia l’orsacchiotto e lo porta a spasso, salta sul lettino o ci si siede, e quando te ne vai porta l’orsacchiotto a letto e si addormenta raggomitolato. I giochi si prendono e si lanciano con il mouse; lanciagli la palla (o dagli un colpetto) e lui corre a prenderla e te la riporta. Il suo pannello conta cosa ha mangiato, le palle riportate e le farfalle catturate.",
-    "pt": "Agora você pode dar coisas ao Kobii pelo menu dele, pelo painel ou pelos seus comandos: comida, bebida, a bola dele, um ursinho de pelúcia e uma caminha. Os brinquedos ficam na área de trabalho até você guardá-los (mesmo depois de reiniciar): ele abraça o ursinho e passeia com ele, pula na cama ou senta nela, e quando você sai ele leva o ursinho para a cama e dorme enroladinho. Os brinquedos podem ser pegos e jogados com o mouse; jogue a bola para ele (ou dê um toquinho) e ele corre atrás dela e traz de volta. O painel dele conta o que ele comeu, as bolas que trouxe e as borboletas que pegou."
+    "es": "Juegos con el ratón. Frótale la barriga deprisa y le harás cosquillas: se retuerce de risa, si sigues se cae al suelo pataleando y, si te pasas, te aparta la mano entre risas. Desde su menú, su panel o tus comandos puedes chocar los cinco con él (levanta la mano: tócala con el cursor), darle la mano (llévale el cursor y muévelo arriba y abajo) y cepillarle: el cursor se vuelve un cepillo sobre él, cierra los ojos de gusto, suelta pelusas y al final se sacude. Además le gusta hablar de sus cosas favoritas si sale el tema. Necesita K-Desktop 5.0.163.",
+    "en": "Mouse games. Rub its tummy quickly to tickle it: it squirms with laughter, keep going and it falls over kicking its feet, and if you overdo it, it pushes your hand away, giggling. From its menu, its panel or your commands you can high-five it (it raises its hand: touch it with the cursor), shake hands (bring the cursor to its hand and move it up and down) and brush it: the cursor becomes a brush over it, it closes its eyes in delight, sheds a bit of fluff and shakes itself at the end. It also likes talking about its favourite things when the subject comes up. Needs K-Desktop 5.0.163.",
+    "fr": "Jeux avec la souris. Frotte-lui vite le ventre pour le chatouiller : il se tortille de rire, si tu continues il tombe en gigotant et, si tu exagères, il repousse ta main en riant. Depuis son menu, son panneau ou tes commandes, tu peux lui taper dans la main (il lève la main : touche-la avec le curseur), lui serrer la main (amène le curseur et bouge-le de haut en bas) et le brosser : le curseur devient une brosse sur lui, il ferme les yeux de plaisir, perd quelques poils et se secoue à la fin. Il aime aussi parler de ses choses préférées quand le sujet vient. Nécessite K-Desktop 5.0.163.",
+    "de": "Spiele mit der Maus. Reib ihm schnell den Bauch und du kitzelst ihn: Er windet sich vor Lachen, wenn du weitermachst, fällt er strampelnd um, und wenn du übertreibst, schiebt er kichernd deine Hand weg. Über sein Menü, sein Panel oder deine Befehle kannst du ihm ein High five geben (er hebt die Hand: berühre sie mit dem Mauszeiger), ihm die Hand schütteln (Zeiger an seine Hand und auf und ab bewegen) und ihn bürsten: Der Zeiger wird über ihm zur Bürste, er schließt genüsslich die Augen, verliert ein paar Flusen und schüttelt sich am Ende. Außerdem erzählt er gern von seinen Lieblingssachen, wenn es passt. Braucht K-Desktop 5.0.163.",
+    "it": "Giochi con il mouse. Strofinagli in fretta la pancia e gli farai il solletico: si contorce dalle risate, se continui cade per terra scalciando e, se esageri, ti allontana la mano ridendo. Dal suo menu, dal suo pannello o dai tuoi comandi puoi battergli il cinque (alza la mano: toccala con il cursore), dargli la mano (porta il cursore alla sua mano e muovilo su e giù) e spazzolarlo: sopra di lui il cursore diventa una spazzola, chiude gli occhi beato, perde un po’ di pelucchi e alla fine si scuote. Inoltre gli piace parlare delle sue cose preferite quando capita. Richiede K-Desktop 5.0.163.",
+    "pt": "Brincadeiras com o mouse. Esfregue a barriguinha dele bem rápido para fazer cócegas: ele se contorce de rir, se você continuar ele cai no chão esperneando e, se exagerar, afasta a sua mão rindo. Pelo menu, pelo painel ou pelos seus comandos você pode bater um toca aqui com ele (ele levanta a mão: encoste o cursor nela), apertar a mão dele (leve o cursor até a mão e mexa para cima e para baixo) e escová-lo: o cursor vira uma escova em cima dele, ele fecha os olhos de gosto, solta uns fiapos e no fim se sacode. Ele também gosta de falar das coisas favoritas quando o assunto surge. Precisa do K-Desktop 5.0.163."
   },
   "homepage": "https://github.com/Kobayashi82/K-Desktop-Assistants",
   "license": "MIT",
-  "sdk": "1.7",
+  "sdk": "1.8",
   "entry": "lib/Kobii.Assistant.dll!Kobii.Assistant.KobiiAssistant",
   "icon": "icon.png",
   "wakeWord": "Kobii",
@@ -119,6 +119,54 @@
         "pt": "Guardar os brinquedos"
       },
       "icon": "kd:BoxArrowLeft"
+    },
+    {
+      "id": "kobii.highfive",
+      "name": {
+        "es": "Chocar los cinco",
+        "en": "High five",
+        "fr": "Taper dans la main",
+        "de": "High five",
+        "it": "Batti il cinque",
+        "pt": "Toca aqui"
+      },
+      "icon": "kd:HandWave"
+    },
+    {
+      "id": "kobii.handshake",
+      "name": {
+        "es": "Darle la mano",
+        "en": "Shake hands",
+        "fr": "Lui serrer la main",
+        "de": "Hand geben",
+        "it": "Dargli la mano",
+        "pt": "Apertar a mão"
+      },
+      "icon": "kd:Handshake"
+    },
+    {
+      "id": "kobii.brush",
+      "name": {
+        "es": "Cepillarle",
+        "en": "Brush it",
+        "fr": "Le brosser",
+        "de": "Bürsten",
+        "it": "Spazzolarlo",
+        "pt": "Escovar"
+      },
+      "icon": "kd:PaintBrush"
+    },
+    {
+      "id": "kobii.brush.stop",
+      "name": {
+        "es": "Guardar el cepillo",
+        "en": "Put the brush away",
+        "fr": "Ranger la brosse",
+        "de": "Bürste weglegen",
+        "it": "Mettere via la spazzola",
+        "pt": "Guardar a escova"
+      },
+      "icon": "kd:PaintBrush"
     }
   ]
 }

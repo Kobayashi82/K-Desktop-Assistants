@@ -4,7 +4,7 @@
 
   <PropertyGroup>
     <!-- La versión del asistente es la de Package\assistant.json; esta solo marca los ensamblados. -->
-    <Version>0.5.0</Version>
+    <Version>0.6.0</Version>
     <Product>Kobii</Product>
     <Description>Kobii como asistente de K-Desktop: una criatura que vive sobre tus ventanas.</Description>
   </PropertyGroup>

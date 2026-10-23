@@ -187,6 +187,7 @@ public sealed partial class KobiiGame
         Visual.Remember();
         UpdateScale(world, dt: dt);
         UpdateMood(sensors, dt);
+        _tickleCooldown = Math.Max(0, _tickleCooldown - dt);
         UpdateRub(sensors, dt);
         UpdateReactions(sensors, dt);
         _playground.Step(world, dt);
@@ -1240,6 +1241,11 @@ public sealed partial class KobiiGame
         }
 
         Notice(0.03);
+        if (over is { } point && TouchStroke(point, sensors))
+        {
+            return;
+        }
+
         if (Activity == Activity.Sleep)
         {
             return;

@@ -60,6 +60,18 @@ public enum PlayKind
 
     /// <summary>En su cama (botar, sentarse o dormir).</summary>
     Bed,
+
+    /// <summary>Le haces cosquillas en la barriga.</summary>
+    Tickles,
+
+    /// <summary>Le cepillas.</summary>
+    Brush,
+
+    /// <summary>Chocar los cinco.</summary>
+    HighFive,
+
+    /// <summary>Darse la mano.</summary>
+    Handshake,
 }
 
 /// <summary>Cómo acaba la mariposa (para las pruebas y las vistas previas).</summary>
@@ -222,6 +234,24 @@ public enum GameEventKind
 
     /// <summary>Ha caído en el colchón de su cama (la magnitud: lo fuerte, 0–1).</summary>
     BedBounced,
+
+    /// <summary>Empiezan las cosquillas.</summary>
+    Tickled,
+
+    /// <summary>Una risita (la magnitud: 1 en pleno ataque de risa, por los suelos).</summary>
+    Giggled,
+
+    /// <summary>Una pasada del cepillo.</summary>
+    Brushed,
+
+    /// <summary>Se sacude después de que le cepillen.</summary>
+    Shook,
+
+    /// <summary>Ha chocado los cinco contigo.</summary>
+    HighFive,
+
+    /// <summary>Os habéis dado la mano.</summary>
+    Handshake,
 }
 
 public readonly record struct GameEvent(GameEventKind Kind, Vec2 Position, double Magnitude = 0, string? Text = null);

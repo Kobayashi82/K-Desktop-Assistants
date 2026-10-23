@@ -121,8 +121,13 @@ public sealed partial class KobiiAssistant
                 SaveToys();
                 break;
             default:
-                _host.Log.Warn($"Extra desconocido: {extraId}");
-                return Task.CompletedTask;
+                if (!OnTouchExtra(extraId))
+                {
+                    _host.Log.Warn($"Extra desconocido: {extraId}");
+                    return Task.CompletedTask;
+                }
+
+                break;
         }
 
         _host.Log.Debug($"Kobii: extra {extraId}");
@@ -178,6 +183,7 @@ public sealed partial class KobiiAssistant
         SetExtra(PlushExtra, toys.Contains(ToyKind.Plush) ? ExtraState.Hidden : ExtraState.Shown);
         SetExtra(BedExtra, toys.Contains(ToyKind.Bed) ? ExtraState.Hidden : ExtraState.Shown);
         SetExtra(PutAwayExtra, toys.Count > 0 ? ExtraState.Shown : ExtraState.Hidden);
+        UpdateTouchExtraStates();
     }
 
     private void SetExtra(string id, ExtraState state)

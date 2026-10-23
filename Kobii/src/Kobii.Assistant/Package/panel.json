@@ -116,6 +116,59 @@
           }
         }
       ]
+    },
+    {
+      "type": "buttons",
+      "items": [
+        {
+          "extra": "kobii.highfive",
+          "icon": "kd:HandWave",
+          "label": {
+            "es": "Chocar los cinco",
+            "en": "High five",
+            "fr": "Taper dans la main",
+            "de": "High five",
+            "it": "Batti il cinque",
+            "pt": "Toca aqui"
+          }
+        },
+        {
+          "extra": "kobii.handshake",
+          "icon": "kd:Handshake",
+          "label": {
+            "es": "Darle la mano",
+            "en": "Shake hands",
+            "fr": "Serrer la main",
+            "de": "Hand geben",
+            "it": "Dare la mano",
+            "pt": "Apertar a mão"
+          }
+        },
+        {
+          "extra": "kobii.brush",
+          "icon": "kd:PaintBrush",
+          "label": {
+            "es": "Cepillarle",
+            "en": "Brush",
+            "fr": "Brosser",
+            "de": "Bürsten",
+            "it": "Spazzolare",
+            "pt": "Escovar"
+          }
+        },
+        {
+          "extra": "kobii.brush.stop",
+          "icon": "kd:PaintBrush",
+          "label": {
+            "es": "Guardar el cepillo",
+            "en": "Put brush away",
+            "fr": "Ranger la brosse",
+            "de": "Bürste weg",
+            "it": "Via la spazzola",
+            "pt": "Guardar a escova"
+          }
+        }
+      ]
     }
   ]
 }
