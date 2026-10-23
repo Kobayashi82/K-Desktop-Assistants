@@ -42,7 +42,7 @@ KDesktop.exe --assistant-dev "Lander\src\Lander.Assistant" --data "<carpeta de d
 ```
 
 Carga el paquete recién compilado y lo recarga al recompilar. `KDesktop.exe --assistant --exit --data "<carpeta>"`
-lo cierra. La guía para crear uno nuevo está en `docs/assistant/crear-un-asistente.md` de K-Desktop.
+lo cierra. La guía para crear uno nuevo está en `docs/assistant/creating-an-assistant.md` de K-Desktop.
 
 ## Licencia
 

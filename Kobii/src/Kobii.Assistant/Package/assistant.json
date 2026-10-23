@@ -1,5 +1,5 @@
 {
-  "$schema": "../../../../../docs/assistant/esquemas/assistant.schema.json",
+  "$schema": "../../../../../docs/assistant/schemas/assistant.schema.json",
   "id": "kobii",
   "name": "Kobii",
   "version": "0.11.0",

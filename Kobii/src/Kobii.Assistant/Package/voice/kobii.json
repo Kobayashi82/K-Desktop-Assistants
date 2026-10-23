@@ -1,5 +1,5 @@
 {
-  "$schema": "../../../../../../docs/assistant/esquemas/voice.schema.json",
+  "$schema": "../../../../../../docs/assistant/schemas/voice.schema.json",
   "name": "Kobii",
   "engine": {
     "type": "kokoro",

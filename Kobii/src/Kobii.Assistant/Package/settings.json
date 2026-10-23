@@ -1,5 +1,5 @@
 {
-  "$schema": "../../../../../docs/assistant/esquemas/settings.schema.json",
+  "$schema": "../../../../../docs/assistant/schemas/settings.schema.json",
   "pages": [
     {
       "title": { "es": "General", "en": "General", "fr": "Général", "de": "Allgemein", "it": "Generale", "pt": "Geral" },
