@@ -47,6 +47,40 @@ public enum BubbleIcon
 
     /// <summary>Mano que saluda.</summary>
     Hello,
+
+    // Lo que hace el asistente mientras atiende una orden (estados de K-Desktop con detalle).
+
+    /// <summary>Internet: buscar o abrir una web.</summary>
+    Globe,
+
+    /// <summary>Una página o un documento que lee.</summary>
+    Page,
+
+    Folder,
+
+    /// <summary>Una nota con su lápiz.</summary>
+    Note,
+
+    /// <summary>Sol con nube: el tiempo.</summary>
+    Weather,
+
+    /// <summary>Corchea: música.</summary>
+    Music,
+
+    /// <summary>Ojo: mirar la pantalla o vigilar algo.</summary>
+    Eye,
+
+    /// <summary>Lápiz: escribir o dictar.</summary>
+    Pencil,
+
+    /// <summary>Cuentas: calcular, convertir, fechas.</summary>
+    Sums,
+
+    /// <summary>Engranajes que giran: el PC, programas, pensar a fondo.</summary>
+    Gears,
+
+    /// <summary>Puntos que giran: cargando.</summary>
+    Loading,
 }
 
 /// <param name="Icon">Icono principal.</param>

@@ -1037,6 +1037,51 @@ public sealed class LanderGame
         Autopilot.Resume(_context);
     }
 
+    /// <summary>
+    /// Pone el lander posado en <paramref name="ground"/> cerca de <paramref name="x"/> (en un sitio libre), visible del todo
+    /// si <paramref name="visible"/>: la vuelta de una recarga (donde estaba) o una entrada que aparece junto al cursor.
+    /// </summary>
+    public void PlaceOn(Platform ground, double x, bool visible)
+    {
+        if (!_initialized)
+        {
+            return;
+        }
+
+        var margin = DestinationPicker.LandingMargin(Body);
+        x = Math.Clamp(x, ground.Left + margin, Math.Max(ground.Left + margin, ground.Right - margin));
+        x = DestinationPicker.FreeX(Body, ground, x, Occupied) ?? x;
+        Body.Velocity = Vec2.Zero;
+        Body.AngularVelocity = 0;
+        Body.PlaceOn(ground, x, World.Timestamp);
+        UpdateScale();
+        Body.PlaceOn(ground, x, World.Timestamp);
+        Visual.Opacity = visible ? 1 : 0;
+        PrepareContext(Sensors, TimeStep);
+        Autopilot.Resume(_context);
+    }
+
+    /// <summary>
+    /// Pone el lander en el aire en <paramref name="position"/> con esa velocidad (una entrada desde lo alto): el piloto
+    /// se recupera y se posa en lo que tenga debajo.
+    /// </summary>
+    public void PlaceInAir(Vec2 position, Vec2 velocity)
+    {
+        if (!_initialized)
+        {
+            return;
+        }
+
+        Body.Position = position;
+        Body.Angle = 0;
+        Body.AngularVelocity = 0;
+        Body.LegsDeploy = 1;
+        Body.Fly(velocity);
+        UpdateScale();
+        PrepareContext(Sensors, TimeStep);
+        Autopilot.Resume(_context);
+    }
+
     private void PlaceAtBase()
     {
         var ground = World.PrimaryGround ?? (World.Platforms.Count > 0 ? World.Platforms[0] : null);

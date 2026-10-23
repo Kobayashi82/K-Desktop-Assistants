@@ -31,9 +31,6 @@ public sealed partial class KobiiAssistant : IAssistant
     private const double ParticleInterval = 1.0 / 30;
     private const int MaxStepsPerTick = 20;
 
-    /// <summary>Lo que tarda en desvanecerse al salir (el host espera a <see cref="ExitAsync"/>).</summary>
-    private const double ExitDuration = 0.5;
-
     /// <summary>Lo que tarda en aparecer al volver (tras esconderse o con una pantalla completa).</summary>
     private const double FadeInDuration = 0.35;
 
@@ -119,34 +116,8 @@ public sealed partial class KobiiAssistant : IAssistant
         _hit.Cursor = PointerCursor.Hand;
         _host.World.Changed += OnWorldChanged;
         AttachGifts();
+        LoadMoments();
         _host.Log.Info($"Kobii {typeof(KobiiAssistant).Assembly.GetName().Version?.ToString(3)}: color {_settings.Color}.");
-    }
-
-    public void Enter(EntranceKind how)
-    {
-        _pendingEntrance = how;
-        TryStart();
-        _host.RequestTick();
-    }
-
-    public async Task ExitAsync(ExitKind why, CancellationToken ct)
-    {
-        EndPress();
-        _exitStart = _now;
-        if (_game.IsInitialized && !_hidden)
-        {
-            _game.PlayClip("saludar");
-        }
-
-        _host.RequestTick();
-        try
-        {
-            await Task.Delay(TimeSpan.FromSeconds(ExitDuration), ct).ConfigureAwait(true);
-        }
-        catch (OperationCanceledException)
-        {
-            // El host tiene prisa: se va tal cual.
-        }
     }
 
     public double Tick(TickInfo tick)
@@ -186,6 +157,7 @@ public sealed partial class KobiiAssistant : IAssistant
         UpdateToyHits();
         _statTickMs += System.Diagnostics.Stopwatch.GetElapsedTime(tickClock).TotalMilliseconds;
         Stats(now);
+        SaveMoments();
 
         if (_exitStart is not null)
         {
@@ -209,7 +181,7 @@ public sealed partial class KobiiAssistant : IAssistant
 
     /// <summary>
     /// Pone a Kobii en el suelo del monitor principal en cuanto hay monitores (al cargarlo el mundo puede estar aún
-    /// vacío) y hace la entrada: al arrancar entra andando desde el borde; si solo vuelve, aparece donde estaba.
+    /// vacío) y hace la entrada que toca (ver <see cref="PerformEntrance"/>).
     /// </summary>
     private bool TryStart()
     {
@@ -239,13 +211,7 @@ public sealed partial class KobiiAssistant : IAssistant
         if (_pendingEntrance is { } how && !_hidden)
         {
             _pendingEntrance = null;
-            if (how is EntranceKind.Startup or EntranceKind.Summoned)
-            {
-                _game.WalkIn(fromRight: _game.Body.Feet.X > (_game.Body.Support?.CenterX ?? 0));
-            }
-
-            _fadeStart = _now;
-            _forceRender = true;
+            PerformEntrance(how);
         }
 
         return true;

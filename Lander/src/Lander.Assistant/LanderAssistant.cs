@@ -30,9 +30,6 @@ public sealed partial class LanderAssistant : IAssistant
     private const double AwayInterval = 0.5;
     private const int MaxStepsPerTick = 20;
 
-    /// <summary>Lo que tarda en desvanecerse al salir (el host espera a <see cref="ExitAsync"/>).</summary>
-    private const double ExitDuration = 0.6;
-
     private readonly List<GameEvent> _events = [];
     private readonly Sensors _sensors = new();
     private readonly LanderScene _scene = new();
@@ -85,6 +82,7 @@ public sealed partial class LanderAssistant : IAssistant
         Texts.Language = host.Language;
         _settings = ReadSettings(host.Settings, host.Common);
         _progress = LoadProgress();
+        LoadMoments();
         _audio = new LanderAudio(host.Audio);
         _markers = new MarkerLayer(host.Rendering);
         _effects = new ManoeuvreLayer(host.Rendering);
@@ -100,38 +98,6 @@ public sealed partial class LanderAssistant : IAssistant
         ApplyAudio();
         UpdateExtraStates();
         _host.Log.Info($"Lander {typeof(LanderAssistant).Assembly.GetName().Version?.ToString(3)}: nivel {_progress.Level}, {_progress.TotalPoints} puntos.");
-    }
-
-    public void Enter(EntranceKind how)
-    {
-        _pendingEntrance = how;
-        PublishPanel();
-        TryStart();
-        _host.RequestTick();
-    }
-
-    public async Task ExitAsync(ExitKind why, CancellationToken ct)
-    {
-        // Se desvanece con un haz, como al reaparecer; el progreso se guarda al soltarlo (Dispose).
-        if (_game.IsInitialized && !_hidden && _game.Body.State != BodyState.Destroyed)
-        {
-            var body = _game.Body;
-            _particles.Beam(body.Position, body.Scale);
-            Play(Sound.Respawn, 0.7);
-        }
-
-        EndPress();
-        ReleaseGameKeys();
-        _exitStart = _now;
-        _host.RequestTick();
-        try
-        {
-            await Task.Delay(TimeSpan.FromSeconds(ExitDuration), ct).ConfigureAwait(true);
-        }
-        catch (OperationCanceledException)
-        {
-            // El host tiene prisa: se va tal cual.
-        }
     }
 
     public double Tick(TickInfo tick)
@@ -178,6 +144,8 @@ public sealed partial class LanderAssistant : IAssistant
         UpdateFloors(now);
         UpdateExtraStates();
         SaveProgress(now);
+        SaveMoments();
+        UpdateGreeting(now);
 
         if (_exitStart is not null)
         {
@@ -209,7 +177,7 @@ public sealed partial class LanderAssistant : IAssistant
 
     /// <summary>
     /// Pone el lander en su base en cuanto hay monitores (al cargarlo el mundo puede estar aún vacío) y hace la
-    /// entrada: aparece con el haz de reaparecer.
+    /// entrada que toca (ver <see cref="PerformEntrance"/>).
     /// </summary>
     private bool TryStart()
     {
@@ -238,14 +206,10 @@ public sealed partial class LanderAssistant : IAssistant
             UpdateFullscreen();
         }
 
-        if (_pendingEntrance is not null && !_hidden)
+        if (_pendingEntrance is { } entrance && !_hidden)
         {
             _pendingEntrance = null;
-            var body = _game.Body;
-            _particles.Beam(body.Position, body.Scale);
-            _particles.Sparkles(body.Position, 30 * body.Scale, Gfx.Rgb(0x7DE3FF), 16, body.Scale);
-            Play(Sound.Respawn, 0.7);
-            _forceRender = true;
+            PerformEntrance(entrance);
         }
 
         if (_pendingExtra is { } extra)

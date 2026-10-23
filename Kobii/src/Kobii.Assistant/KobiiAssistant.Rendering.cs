@@ -152,7 +152,7 @@ public sealed partial class KobiiAssistant
     private double Opacity(double now)
     {
         var fadeIn = Math.Clamp((now - _fadeStart) / FadeInDuration, 0, 1);
-        var fadeOut = _exitStart is { } start ? 1 - Math.Clamp((now - start) / ExitDuration, 0, 1) : 1;
+        var fadeOut = FadeOutAt(now);
         return fadeIn * fadeOut;
     }
 

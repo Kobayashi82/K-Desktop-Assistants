@@ -81,7 +81,8 @@ public sealed partial class KobiiAssistant
     }
 
     private static bool IsManoeuvre(GestureKind kind) => kind is GestureKind.PressButton or GestureKind.ActivateWindow or GestureKind.PointAt
-        or GestureKind.GoTo or GestureKind.MoveWindow or GestureKind.Mark or GestureKind.Scan or GestureKind.Typing or GestureKind.WaitForWindow;
+        or GestureKind.GoTo or GestureKind.MoveWindow or GestureKind.Mark or GestureKind.Scan or GestureKind.Typing or GestureKind.WaitForWindow
+        or GestureKind.Announce;
 
     /// <summary>Lo que se le pide está en un monitor con algo a pantalla completa: sin maniobras (lo hace el módulo).</summary>
     private bool OnFullscreen(SdkGesture gesture)
@@ -149,6 +150,10 @@ public sealed partial class KobiiAssistant
                     break;
                 case SdkGesture.WaitForWindow wait:
                     await WaitForWindowAsync(wait.Process, pace, Commit, ct);
+                    break;
+                case SdkGesture.Announce announce:
+                    await AnnounceAsync(announce, pace, ctx, ct);
+                    outcome = GestureOutcome.Committed;
                     break;
             }
 

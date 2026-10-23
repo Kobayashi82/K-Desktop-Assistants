@@ -65,7 +65,7 @@ public sealed partial class LanderAssistant
         var blink = BlinkAt(now);
 
         // Al salir se desvanece; al reaccionar a una orden, un destello de color (ver Gestures).
-        var exit = _exitStart is { } start ? Math.Clamp((now - start) / ExitDuration, 0, 1) : 0;
+        var exit = FadeAt(now);
 
         _scene.Position = position;
         _scene.Angle = angle;

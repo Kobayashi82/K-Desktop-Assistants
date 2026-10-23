@@ -143,7 +143,205 @@ internal static class Icons
             case BubbleIcon.Hello:
                 DrawWavingHand(dc, time);
                 break;
+
+            case BubbleIcon.Globe:
+                DrawGlobe(dc, Accent(dark), time);
+                break;
+
+            case BubbleIcon.Page:
+                DrawPage(dc, ink, dark, time);
+                break;
+
+            case BubbleIcon.Folder:
+                dc.DrawGeometry(Gfx.Brush(0xE0A100), null, FolderBack);
+                dc.DrawGeometry(Gfx.Vertical((0, Gfx.Rgb(0xFFD866)), (1, Gfx.Rgb(0xF5B301))), Gfx.Pen(0xB97A00, 0.5), FolderFront);
+                break;
+
+            case BubbleIcon.Note:
+                DrawNote(dc, dark, time);
+                break;
+
+            case BubbleIcon.Weather:
+                DrawWeather(dc, dark, time);
+                break;
+
+            case BubbleIcon.Music:
+            {
+                var bob = Math.Sin(time * 5) * 0.8;
+                dc.PushTransform(new TranslateTransform(0, bob));
+                dc.DrawGeometry(Gfx.Brush(Accent(dark)), null, MusicNote);
+                dc.Pop();
+                break;
+            }
+
+            case BubbleIcon.Eye:
+                DrawEye(dc, ink, dark, time);
+                break;
+
+            case BubbleIcon.Pencil:
+                DrawPencil(dc, ink, time);
+                break;
+
+            case BubbleIcon.Sums:
+                DrawSums(dc, Accent(dark), ink);
+                break;
+
+            case BubbleIcon.Gears:
+                DrawGear(dc, ink, new Point(-2.2, 1.6), 4.6, time * 90);
+                DrawGear(dc, Accent(dark), new Point(4, -3.6), 3.2, -time * 128 + 22);
+                break;
+
+            case BubbleIcon.Loading:
+                for (var i = 0; i < 8; i++)
+                {
+                    var angle = i * Math.PI / 4;
+                    var lit = ((time * 8 - i) % 8 + 8) % 8;
+                    var alpha = Math.Max(0.18, 1 - lit / 6);
+                    dc.DrawEllipse(Gfx.Brush(Accent(dark).WithAlpha(alpha)), null, new Point(Math.Cos(angle) * 5.2, Math.Sin(angle) * 5.2), 1.35, 1.35);
+                }
+
+                break;
         }
+    }
+
+    private static readonly Geometry FolderBack = Gfx.RoundedPolygon(0.8, -7, -5, -2, -5, -0.6, -3.4, 7, -3.4, 7, 5.5, -7, 5.5);
+    private static readonly Geometry FolderFront = Gfx.RoundedPolygon(0.8, -7, -1.4, 7, -1.4, 7, 5.5, -7, 5.5);
+    private static readonly Geometry MusicNote = Path(
+        "M -1.5,4.2 C -1.5,6.6 -6.6,7.2 -6.6,4.8 C -6.6,2.9 -3.6,2.3 -2.6,3 L -2.6,-6.4 L 6,-7.8 L 6,2.6 " +
+        "C 6,5 0.9,5.6 0.9,3.2 C 0.9,1.3 3.9,0.7 4.9,1.4 L 4.9,-4.6 L -1.5,-3.6 Z");
+
+    /// <summary>Un globo terráqueo con los meridianos girando.</summary>
+    private static void DrawGlobe(DrawingContext dc, Color accent, double time)
+    {
+        dc.DrawEllipse(Gfx.Brush(accent.WithAlpha(0.18)), Gfx.Pen(accent, 1.3), new Point(0, 0), 6.6, 6.6);
+        var pen = Gfx.Pen(accent, 0.8);
+        dc.DrawLine(pen, new Point(-6.6, 0), new Point(6.6, 0));
+        dc.DrawLine(pen, new Point(-5.6, -3.4), new Point(5.6, -3.4));
+        dc.DrawLine(pen, new Point(-5.6, 3.4), new Point(5.6, 3.4));
+        var turn = time * 1.6 % 1;
+        for (var i = 0; i < 2; i++)
+        {
+            var phase = (turn + i * 0.5) % 1;
+            var width = Math.Abs(Math.Cos(phase * Math.PI)) * 6.6;
+            dc.DrawEllipse(null, pen, new Point(0, 0), Math.Max(0.4, width), 6.6);
+        }
+    }
+
+    /// <summary>Una hoja con renglones; uno se va «leyendo».</summary>
+    private static void DrawPage(DrawingContext dc, Color ink, bool dark, double time)
+    {
+        dc.DrawRoundedRectangle(Gfx.Brush(dark ? Gfx.Rgb(0x2C2C2C) : Colors.White), Gfx.Pen(ink, 1.1), new Rect(-5.2, -7, 10.4, 14), 1.2, 1.2);
+        var lines = Gfx.Pen(ink.WithAlpha(0.55), 0.9);
+        var reading = (int)(time * 2.5) % 4;
+        for (var i = 0; i < 4; i++)
+        {
+            var y = -4 + i * 2.6;
+            var right = i == 3 ? 0.6 : 3;
+            dc.DrawLine(i == reading ? Gfx.Pen(Accent(dark), 1.2) : lines, new Point(-3, y), new Point(right, y));
+        }
+    }
+
+    /// <summary>Un papelito con renglones y un lápiz que escribe.</summary>
+    private static void DrawNote(DrawingContext dc, bool dark, double time)
+    {
+        dc.DrawRoundedRectangle(Gfx.Brush(0xFFF1A8), Gfx.Pen(0xC9A227, 0.6), new Rect(-6.5, -6.5, 11, 12), 1, 1);
+        var lines = Gfx.Pen(Gfx.Rgb(0xC9A227).WithAlpha(0.8), 0.7);
+        for (var i = 0; i < 3; i++)
+        {
+            dc.DrawLine(lines, new Point(-4.6, -3.2 + i * 2.8), new Point(2.4, -3.2 + i * 2.8));
+        }
+
+        dc.PushTransform(new TranslateTransform(Math.Sin(time * 7) * 0.8, 0));
+        DrawPencil(dc, dark ? Gfx.Rgb(0xE6E6E6) : Gfx.Rgb(0x2B2F36), 0, 0.75, new Point(3, 1.5));
+        dc.Pop();
+    }
+
+    /// <summary>Sol con una nube delante.</summary>
+    private static void DrawWeather(DrawingContext dc, bool dark, double time)
+    {
+        var sun = new Point(2.4, -2.4);
+        dc.PushTransform(new RotateTransform(time * 20, sun.X, sun.Y));
+        var ray = Gfx.Pen(Gfx.Rgb(0xF5B301), 1);
+        for (var i = 0; i < 8; i++)
+        {
+            var angle = i * Math.PI / 4;
+            var direction = new Vector(Math.Cos(angle), Math.Sin(angle));
+            dc.DrawLine(ray, sun + direction * 4.2, sun + direction * 5.6);
+        }
+
+        dc.Pop();
+        dc.DrawEllipse(Gfx.Brush(0xFFC21A), null, sun, 3.2, 3.2);
+        var cloud = Gfx.Brush(dark ? Gfx.Rgb(0xDDE3EA) : Gfx.Rgb(0xF4F6F9));
+        var edge = Gfx.Pen(dark ? 0x9AA4B1u : 0x8A94A3u, 0.6);
+        dc.DrawGeometry(cloud, edge, Cloud);
+    }
+
+    private static readonly Geometry Cloud = Path(
+        "M -5.6,6 C -8,6 -8,2.4 -5.6,2.2 C -5.6,-0.6 -1.4,-1.4 -0.4,1 C 0.8,-0.6 4,0 3.8,2.6 C 6,2.6 6,6 3.8,6 Z");
+
+    /// <summary>Un ojo que mira a un lado y a otro y parpadea.</summary>
+    private static void DrawEye(DrawingContext dc, Color ink, bool dark, double time)
+    {
+        var blink = (time % 3.2) < 0.15 ? 0.15 : 1;
+        dc.PushTransform(new ScaleTransform(1, blink));
+        dc.DrawGeometry(Gfx.Brush(dark ? Gfx.Rgb(0x2C2C2C) : Colors.White), Gfx.Pen(ink, 1.2), EyeShape);
+        var look = Math.Sin(time * 1.7) * 2;
+        dc.DrawEllipse(Gfx.Brush(Accent(dark)), null, new Point(look, 0), 2.6, 2.6);
+        dc.DrawEllipse(Gfx.Brush(ink), null, new Point(look, 0), 1.2, 1.2);
+        dc.DrawEllipse(Gfx.Brush(Colors.White.WithAlpha(0.8)), null, new Point(look - 0.8, -0.8), 0.5, 0.5);
+        dc.Pop();
+    }
+
+    private static readonly Geometry EyeShape = Path("M -7,0 C -4,-5 4,-5 7,0 C 4,5 -4,5 -7,0 Z");
+
+    private static void DrawPencil(DrawingContext dc, Color ink, double time) =>
+        DrawPencil(dc, ink, Math.Sin(time * 8) * 6, 1, new Point(Math.Sin(time * 4) * 1.2, 0));
+
+    /// <summary>Un lápiz inclinado; <paramref name="tip"/> es donde queda su punta.</summary>
+    private static void DrawPencil(DrawingContext dc, Color ink, double wobble, double scale, Point tip)
+    {
+        dc.PushTransform(new TranslateTransform(tip.X, tip.Y));
+        dc.PushTransform(new RotateTransform(-40 + wobble));
+        dc.PushTransform(new ScaleTransform(scale, scale));
+        dc.DrawRectangle(Gfx.Vertical((0, Gfx.Rgb(0xFFD866)), (1, Gfx.Rgb(0xF5B301))), null, new Rect(-1.6, -9.6, 3.2, 7));
+        dc.DrawRectangle(Gfx.Brush(0xF08A8A), null, new Rect(-1.6, -11.2, 3.2, 1.6));
+        dc.DrawGeometry(Gfx.Brush(0xF3DDB0), null, Gfx.Polygon(-1.6, -2.6, 1.6, -2.6, 0, 1.2));
+        dc.DrawGeometry(Gfx.Brush(ink), null, Gfx.Polygon(-0.55, -0.1, 0.55, -0.1, 0, 1.2));
+        dc.Pop();
+        dc.Pop();
+        dc.Pop();
+    }
+
+    /// <summary>Más, menos, por e igual en una cuadrícula, como las teclas de una calculadora.</summary>
+    private static void DrawSums(DrawingContext dc, Color accent, Color ink)
+    {
+        var pen = Gfx.Pen(ink, 1.3);
+        dc.DrawRoundedRectangle(Gfx.Brush(accent.WithAlpha(0.16)), Gfx.Pen(accent, 1), new Rect(-7, -7, 14, 14), 2.2, 2.2);
+        dc.DrawLine(pen, new Point(-5, -3), new Point(-1.4, -3));
+        dc.DrawLine(pen, new Point(-3.2, -4.8), new Point(-3.2, -1.2));
+        dc.DrawLine(pen, new Point(1.4, -3), new Point(5, -3));
+        dc.DrawLine(pen, new Point(-4.6, 1.6), new Point(-1.8, 4.4));
+        dc.DrawLine(pen, new Point(-1.8, 1.6), new Point(-4.6, 4.4));
+        var equal = Gfx.Pen(accent, 1.3);
+        dc.DrawLine(equal, new Point(1.4, 2), new Point(5, 2));
+        dc.DrawLine(equal, new Point(1.4, 4.2), new Point(5, 4.2));
+    }
+
+    /// <summary>Una rueda dentada girando.</summary>
+    private static void DrawGear(DrawingContext dc, Color color, Point center, double radius, double degrees)
+    {
+        dc.PushTransform(new RotateTransform(degrees, center.X, center.Y));
+        var teeth = Gfx.Pen(color, radius * 0.42, round: false);
+        for (var i = 0; i < 4; i++)
+        {
+            var angle = i * Math.PI / 4;
+            var direction = new Vector(Math.Cos(angle), Math.Sin(angle)) * radius;
+            dc.DrawLine(teeth, center - direction, center + direction);
+        }
+
+        dc.DrawEllipse(Gfx.Brush(color), null, center, radius * 0.78, radius * 0.78);
+        dc.DrawEllipse(Gfx.Brush(Colors.White.WithAlpha(0.9)), null, center, radius * 0.3, radius * 0.3);
+        dc.Pop();
     }
 
     /// <summary>Despertador con campanas que tiembla como si sonara.</summary>

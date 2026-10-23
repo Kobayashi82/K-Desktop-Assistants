@@ -420,15 +420,19 @@ public sealed partial class KobiiGame
         }
     }
 
-    /// <summary>Reacciona a cómo ha ido una orden: asiente, señala, se encoge de hombros o salta de alegría.</summary>
-    public void React(ReactionKind reaction)
+    /// <summary>
+    /// Reacciona a cómo ha ido una orden: por defecto asiente, señala, se encoge de hombros o salta de alegría; con
+    /// <paramref name="clip"/>, otra animación del catálogo (las elige el asistente para no hacer siempre lo mismo), con su
+    /// cara. <paramref name="emote"/> y <paramref name="emotes"/> cambian lo que le sale de la cabeza.
+    /// </summary>
+    public void React(ReactionKind reaction, string? clip = null, EmoteKind? emote = null, int emotes = 0)
     {
         if (Activity == Activity.Sleep)
         {
             WakeUp();
         }
 
-        var (clip, face, emote, count) = reaction switch
+        var (fallback, face, defaultEmote, count) = reaction switch
         {
             ReactionKind.Success => ("asentir", Expression.Happy, EmoteKind.Sparkle, 3),
             ReactionKind.Warning => ("senalar", Expression.Surprised, EmoteKind.Exclamation, 1),
@@ -436,15 +440,32 @@ public sealed partial class KobiiGame
             _ => ("brazos-arriba", Expression.Joy, EmoteKind.Confetti, 24),
         };
 
-        Visual.SetExpression(face, 1.8);
-        Visual.AddEmote(emote, HeadPoint, Body.Scale, count);
+        var chosen = clip is not null && AnimationCatalog.Find(clip) is { } found ? found : AnimationCatalog.Get(fallback);
+        Visual.SetExpression(chosen.Face ?? face, 1.8);
+        Visual.AddEmote(emote ?? defaultEmote, HeadPoint, Body.Scale, emotes > 0 ? emotes : count);
         if (Body.IsGrounded && Activity is not (Activity.Held or Activity.Fall))
         {
-            Perform([AnimationCatalog.Get(clip)]);
+            Perform([chosen]);
         }
 
         Raise(GameEventKind.Reacted, text: reaction.ToString());
     }
+
+    /// <summary>
+    /// Entra cayendo: aparece en el aire en (<paramref name="x"/>, <paramref name="y"/>) y cae en lo que haya debajo; si
+    /// <paramref name="greet"/>, al rato de aterrizar te saluda.
+    /// </summary>
+    public void DropIn(double x, double y, bool greet)
+    {
+        Body.Feet = new Vec2(x, y);
+        Body.Launch(new Vec2(0, 0));
+        SetActivity(Activity.Fall, 0);
+        _greetPending = greet;
+        Visual.SetExpression(Expression.Joy, 1.5);
+    }
+
+    /// <summary>En cuanto esté a lo suyo, te saluda (lo has puesto tú en el escritorio).</summary>
+    public void Greet() => _greetPending = true;
 
     /// <summary>Hace una animación ahora mismo.</summary>
     public bool PlayClip(string id)

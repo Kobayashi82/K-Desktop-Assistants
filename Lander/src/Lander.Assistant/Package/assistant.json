@@ -2,7 +2,7 @@
   "$schema": "../../../../../docs/assistant/schemas/assistant.schema.json",
   "id": "lander",
   "name": "Lander",
-  "version": "0.15.1",
+  "version": "0.16.0",
   "author": "Kobayashi82",
   "description": {
     "es": "Un pequeño módulo lunar que vuela por tus ventanas y aterriza en ellas. Incluye su juego.",
@@ -15,14 +15,14 @@
   "homepage": "https://github.com/Kobayashi82/K-Desktop-Assistants",
   "license": "MIT",
   "changes": {
-    "es": "Nota los archivos que le arrastras desde el Explorador: sujeta su imagen con el rayo tractor bajo la nave (sobre ella si está posado abajo del todo, para que no se salga de la pantalla) y, al soltarlos, la sube a bordo y lo celebra.",
-    "en": "It notices files you drag onto it from File Explorer: it holds their picture in its tractor beam under the ship (above it when it sits at the very bottom, so it stays on screen) and, when you drop them, pulls it on board and celebrates.",
-    "fr": "Il remarque les fichiers que vous glissez sur lui depuis l’Explorateur : il tient leur image dans son rayon tracteur sous le vaisseau (au-dessus s’il est posé tout en bas, pour qu’elle reste à l’écran) et, quand vous les lâchez, la monte à bord et fête ça.",
-    "de": "Er bemerkt Dateien, die du aus dem Explorer auf ihn ziehst: Er hält ihr Bild mit dem Traktorstrahl unter dem Schiff (darüber, wenn es ganz unten steht, damit es auf dem Bildschirm bleibt) und holt es an Bord, wenn du sie loslässt, und freut sich.",
-    "it": "Si accorge dei file che gli trascini sopra da Esplora file: tiene la loro immagine nel raggio traente sotto la navicella (sopra, se è posata in fondo allo schermo, perché non esca) e, quando li lasci, la porta a bordo e festeggia.",
-    "pt": "Ele percebe os arquivos que você arrasta para ele pelo Explorador: segura a imagem deles no raio trator embaixo da nave (em cima, se ela estiver pousada lá embaixo, para não sair da tela) e, quando você os solta, puxa para bordo e comemora."
+    "es": "Más variado: entra de tres maneras (con el haz, cayendo del cielo o de un salto entre destellos) y, si lo pones tú, aparece junto al cursor y te saluda; al recargarse vuelve donde estaba. Se despide de varias maneras, y al quitarlo, con un corazón. Las reacciones cambian cada vez y según de dónde vienen (la tercera seguida, la primera del día, un «gracias»). Enseña en un bocadillo lo que está haciendo (internet, archivos, música, el tiempo…), pone cara de concentración al pensar a fondo y se encoge de hombros sin cerebro. Antes de avisarte de algo vuela junto al cursor. Y sus animaciones, en la pestaña «Probar».",
+    "en": "More varied: it comes in three ways (with its beam, dropping from the sky or popping in among sparkles) and, when you put it there, it appears by the cursor and waves; when reloaded it comes back where it was. It says goodbye in several ways, and with a heart when removed. Its reactions change every time and with where they come from (the third in a row, the first of the day, a «thanks»). A bubble shows what it is doing (the internet, files, music, the weather…), it looks focused when thinking hard and shrugs without a brain. Before telling you something it flies next to the cursor. And its animations, in the «Try» tab.",
+    "fr": "Plus varié : il arrive de trois façons (avec son rayon, en tombant du ciel ou d’un bond parmi les étincelles) et, si c’est vous qui le placez, il apparaît près du curseur et vous salue ; rechargé, il revient où il était. Il dit au revoir de plusieurs façons, et avec un cœur quand on le retire. Ses réactions changent à chaque fois et selon leur origine (la troisième d’affilée, la première du jour, un « merci »). Une bulle montre ce qu’il fait (Internet, fichiers, musique, météo…), il se concentre quand il réfléchit à fond et hausse les épaules sans cerveau. Avant de vous prévenir, il vole près du curseur. Et ses animations, dans l’onglet « Essayer ».",
+    "de": "Abwechslungsreicher: Er kommt auf drei Arten (mit seinem Strahl, vom Himmel fallend oder mit einem Sprung zwischen Funken) und, wenn du ihn holst, erscheint er beim Mauszeiger und winkt; neu geladen kehrt er an seinen Platz zurück. Er verabschiedet sich auf verschiedene Weise, und mit einem Herz, wenn er entfernt wird. Seine Reaktionen ändern sich jedes Mal und je nach Anlass (die dritte in Folge, die erste des Tages, ein „Danke“). Eine Sprechblase zeigt, was er tut (Internet, Dateien, Musik, Wetter…), beim gründlichen Nachdenken schaut er konzentriert, ohne Gehirn zuckt er mit den Schultern. Bevor er dir etwas sagt, fliegt er zum Mauszeiger. Und seine Animationen im Tab „Ausprobieren“.",
+    "it": "Più vario: arriva in tre modi (con il raggio, cadendo dal cielo o con un salto tra le scintille) e, se lo metti tu, appare vicino al cursore e ti saluta; quando si ricarica torna dov’era. Si congeda in vari modi, e con un cuore quando lo rimuovi. Le reazioni cambiano ogni volta e a seconda di dove vengono (la terza di fila, la prima del giorno, un «grazie»). Un fumetto mostra cosa sta facendo (internet, file, musica, meteo…), si concentra quando pensa a fondo e alza le spalle senza cervello. Prima di avvisarti di qualcosa vola vicino al cursore. E le sue animazioni, nella scheda «Prova».",
+    "pt": "Mais variado: entra de três jeitos (com o raio, caindo do céu ou de um salto entre brilhos) e, se você o colocar, aparece perto do cursor e acena; ao recarregar volta para onde estava. Despede-se de vários jeitos, e com um coração quando é removido. As reações mudam a cada vez e conforme a origem (a terceira seguida, a primeira do dia, um «obrigado»). Um balão mostra o que está fazendo (internet, arquivos, música, o tempo…), fica concentrado quando pensa a fundo e dá de ombros sem cérebro. Antes de avisar algo, voa até perto do cursor. E suas animações, na aba «Testar»."
   },
-  "sdk": "1.17",
+  "sdk": "1.18",
   "common": ["size", "volume", "liveliness", "dragging"],
   "entry": "lib/Lander.Assistant.dll!Lander.Assistant.LanderAssistant",
   "icon": "icon.png",
@@ -35,7 +35,7 @@
     "travelSpeed": 900,
     "canMoveWindows": true,
     "canReachMaximized": true,
-    "gestures": ["communicate", "react", "pressButton", "activateWindow", "pointAt", "goTo", "mark", "scan", "typing", "waitForWindow", "moveWindow"]
+    "gestures": ["communicate", "react", "pressButton", "activateWindow", "pointAt", "goTo", "mark", "scan", "typing", "waitForWindow", "moveWindow", "announce"]
   },
   "extras": [
     {
