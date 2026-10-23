@@ -27,7 +27,12 @@ public sealed partial class KobiiAssistant
     private void OnWorldChanged(WorldSnapshot snapshot)
     {
         _terrainDirty = true;
-        _host.RequestTick();
+
+        // Activo ya va a cada fotograma (y encima de una ventana el escritorio se repasa a cada uno): no hace falta otro ciclo.
+        if (!IsActive(_now))
+        {
+            _host.RequestTick();
+        }
     }
 
     /// <summary>Vuelve a construir el terreno si el host ha hecho una foto nueva del escritorio.</summary>

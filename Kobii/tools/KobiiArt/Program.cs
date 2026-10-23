@@ -73,8 +73,8 @@ static void VectorBench()
 
 static List<(string, IReadOnlyList<SheetScene>)> VectorGroups()
 {
-    static SheetScene S(string name, Action<KobiiGame> setup, double seconds, Expression? face = null, string? color = null) =>
-        new(name, setup, seconds, face, color);
+    static SheetScene S(string name, Action<KobiiGame> setup, double seconds, Expression? face = null, string? color = null, int hour = 12, ToyKind[]? toys = null) =>
+        new(name, setup, seconds, face, color, hour, toys);
 
     var colors = Species.Palettes.Select(p => S(p.Id, _ => { }, 0.5, Expression.Happy, p.Id)).ToList();
     var faces = Enum.GetValues<Expression>().Select(e => S(e.ToString(), _ => { }, 0.5, e)).ToList();
@@ -127,6 +127,19 @@ static List<(string, IReadOnlyList<SheetScene>)> VectorGroups()
             S("Bailar", g => g.StartDance(), 1.3),
             S("Bailar (2)", g => g.StartDance(), 5.2),
             S("Notificación", g => g.NoticeNotification(new Kobii.Core.Geometry.Vec2(3800, 2800)), 1.0),
+        ]),
+        ("Etapa 5 y ropa", [
+            S("Pijama", g => g.PlayClip("mirar-alrededor"), 1.2, hour: 23),
+            S("Pijama sentado", g => g.PlayClip("sentarse"), 1.5, hour: 23),
+            S("Siesta con gorro", g => g.PlayClip("siesta"), 1.5, hour: 23),
+            S("Cama: sentado", g => g.PlayWith(ToyKind.Bed, alternative: true), 4.5, toys: [ToyKind.Bed]),
+            S("Cama: botando", g => g.PlayWith(ToyKind.Bed), 3.6, toys: [ToyKind.Bed]),
+            S("Osito", g => g.PlayWith(ToyKind.Plush), 4.2, toys: [ToyKind.Plush]),
+            S("Osito de noche", g => g.PlayWith(ToyKind.Plush), 4.2, hour: 23, toys: [ToyKind.Plush]),
+            S("Juguetes", _ => { }, 0.5, toys: [ToyKind.Ball, ToyKind.Plush, ToyKind.Bed]),
+            S("Recién cepillado", g => g.Visual.Shine = 1, 0.62),
+            S("Chocar los cinco", g => g.OfferHighFive(), 0.8),
+            S("Darse la mano", g => g.OfferHandshake(), 0.8),
         ]),
         ("Descansar (nuevo)", [
             S("Tumbado", g => g.PlayClip("tumbarse"), 1.5),

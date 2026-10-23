@@ -79,6 +79,12 @@ internal struct KobiiLook
 
     /// <summary>La mano de cada lado agarra algo y va por encima de ello.</summary>
     public double HandOverL, HandOverR;
+
+    /// <summary>Pijama y gorro de dormir puestos (0–1; el gorro baja desde arriba al ponérselo).</summary>
+    public double Pajamas, Nightcap;
+
+    /// <summary>Pelo brillante tras cepillarle (0–1).</summary>
+    public double Shine;
 }
 
 /// <summary>Todo lo necesario para dibujar a Kobii en un fotograma.</summary>
@@ -150,6 +156,9 @@ internal sealed class KobiiFrame
         c.Facing = pose.Facing;
         c.Opacity = Math.Clamp(opacity, 0, 1);
         c.Antenna = visual.Antenna;
+        c.Pajamas = visual.Pajamas;
+        c.Nightcap = visual.Nightcap;
+        c.Shine = visual.Shine;
         c.ShadowDrop = groundBelow is { } ground ? Math.Max(0, (ground - feet.Y) / unit) : 99;
         c.ShadowAlpha = (Dark ? 0.34 : 0.22) * Math.Clamp(opacity, 0, 1);
 
@@ -260,9 +269,9 @@ internal sealed class KobiiFrame
             right = Props.Side > 0 || both;
         }
 
-        if (Held.Any)
+        if (Held.Any && Held.Toy != ToyKind.Plush)
         {
-            // Lo que lleva en las manos va por detrás de las que lo agarran.
+            // Lo que lleva en las manos va por detrás de las que lo agarran (el osito abrazado no: le taparían la cara).
             left = right = true;
         }
 

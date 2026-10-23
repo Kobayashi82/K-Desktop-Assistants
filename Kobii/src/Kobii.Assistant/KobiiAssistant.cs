@@ -70,7 +70,24 @@ public sealed partial class KobiiAssistant : IAssistant
             ? new System.Windows.Point(game.HeadPoint.X, game.HeadPoint.Y - game.Body.Height * 0.1)
             : null;
 
-    private double FrameInterval => _host.World.System.PowerSaver ? 1.0 / 30 : Math.Min(1.0 / 60, _host.Rendering.FrameInterval);
+    /// <summary>
+    /// Cada cuánto se dibuja cuando se mueve: unos 60 fotogramas por segundo, en un número entero de refrescos de la
+    /// pantalla (a 144 Hz, uno de cada dos; a 155–165 Hz, uno de cada tres) para que el paso sea regular. Kobii va despacio:
+    /// dibujarlo al ritmo de un monitor rápido costaba el doble o el triple sin que se notara.
+    /// </summary>
+    private double FrameInterval
+    {
+        get
+        {
+            if (_host.World.System.PowerSaver)
+            {
+                return 1.0 / 30;
+            }
+
+            var refresh = _host.Rendering.FrameInterval;
+            return refresh <= 0 ? 1.0 / 60 : refresh * Math.Max(1, Math.Round(1 / (60 * refresh)));
+        }
+    }
 
     public void Attach(IAssistantHost host)
     {

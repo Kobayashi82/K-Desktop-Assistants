@@ -12,7 +12,7 @@ using Kobii.Core.Terrain;
 namespace Kobii.Assistant.Rendering;
 
 /// <summary>Una escena de la hoja: lo que hace y cuánto tiempo se deja correr antes de la foto.</summary>
-internal sealed record SheetScene(string Name, Action<KobiiGame> Setup, double Seconds, Expression? Face = null, string? Color = null);
+internal sealed record SheetScene(string Name, Action<KobiiGame> Setup, double Seconds, Expression? Face = null, string? Color = null, int Hour = 12, ToyKind[]? Toys = null);
 
 /// <summary>
 /// Hojas con el dibujo vectorial de Kobii (el mismo que en el escritorio) para revisar de un vistazo colores, caras y
@@ -79,7 +79,7 @@ internal static class VectorSheet
 
     private static void Draw(DrawingContext dc, SheetScene scene, Vec2 feet, double heightPx, bool dark, double? look = null)
     {
-        var (game, world) = Stage(heightPx / Species.HeightDip, scene.Setup, scene.Seconds);
+        var (game, world) = Stage(heightPx / Species.HeightDip, scene.Setup, scene.Seconds, scene.Hour, scene.Toys);
         var frame = new KobiiFrame { Palette = Species.Palette(scene.Color), Dark = dark };
         var body = game.Body;
         var ground = body.IsGrounded ? body.Feet.Y : world.PlatformBelow(body.Feet.X, body.Feet.Y)?.Y ?? body.Feet.Y;
@@ -98,7 +98,18 @@ internal static class VectorSheet
 
         var props = frame.Props;
         var held = frame.Held;
-        new KobiiPainter().Draw(dc, frame, frame.HasExtras ? d => ScenePainter.DrawExtras(d, props, held) : null);
+        var bed = frame.BedFront is { } b ? b with { Feet = b.Feet + (at - body.Feet) } : (BedPose?)null;
+
+        // Los juguetes sueltos van por detrás (de la cama en la que está, solo lo de detrás; el borde, con él).
+        dc.PushTransform(new TranslateTransform(at.X - body.Feet.X, at.Y - body.Feet.Y));
+        foreach (var toy in game.Playground.Toys.Where(t => !t.Held).OrderBy(t => t.Kind == ToyKind.Bed ? 0 : 1))
+        {
+            ScenePainter.DrawToy(dc, toy.Kind, new Point(toy.Body.Feet.X, toy.Body.Feet.Y - toy.Radius), toy.Radius, toy.Spin, toy.Squash, toy.Body.IsGrounded, 1,
+                game.Bed == toy ? ToyPart.Back : ToyPart.All);
+        }
+
+        dc.Pop();
+        new KobiiPainter().Draw(dc, frame, frame.HasExtras ? d => ScenePainter.DrawExtras(d, props, held, bed) : null);
 
         // Lo que hay alrededor (la pelota, la comida, la mariposa) va en coordenadas del mundo de la escena.
         dc.PushTransform(new TranslateTransform(at.X - body.Feet.X, at.Y - body.Feet.Y));
@@ -107,13 +118,27 @@ internal static class VectorSheet
     }
 
     /// <summary>Un escritorio de un monitor y Kobii en su suelo, tras <paramref name="seconds"/> de simulación.</summary>
-    private static (KobiiGame Game, World World) Stage(double size, Action<KobiiGame> setup, double seconds)
+    private static (KobiiGame Game, World World) Stage(double size, Action<KobiiGame> setup, double seconds, int hour = 12, ToyKind[]? toys = null)
     {
         var monitor = new MonitorInfo(0, new Core.Geometry.PixelRect(0, 0, 4000, 3000), new Core.Geometry.PixelRect(0, 0, 4000, 3000), 1, true);
         var world = TerrainBuilder.Build([monitor], [], new TerrainOptions { CreatureHeightDip = Species.HeightDip * size });
         var game = new KobiiGame(new GameOptions { Size = size, Liveliness = 0.0001, FollowCursor = false }, new GameRandom(7));
         game.Initialize(world, 0.5);
-        var sensors = new Sensors { LocalTime = new DateTime(2026, 10, 22, 12, 0, 0), UserIdleSeconds = 1 };
+        var sensors = new Sensors { LocalTime = new DateTime(2026, 10, 22, hour, 0, 0), UserIdleSeconds = 1 };
+        if (toys is not null)
+        {
+            // Los juguetes primero, y que caigan.
+            foreach (var kind in toys)
+            {
+                game.GiveToy(kind, world);
+            }
+
+            for (var t = 0.0; t < 2.5; t += KobiiGame.TimeStep)
+            {
+                game.Step(world, sensors);
+            }
+        }
+
         setup(game);
         for (var t = 0.0; t < seconds; t += KobiiGame.TimeStep)
         {

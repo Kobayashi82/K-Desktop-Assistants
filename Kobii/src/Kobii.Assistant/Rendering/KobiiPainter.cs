@@ -17,7 +17,7 @@ namespace Kobii.Assistant.Rendering;
 /// relleno, de modo que las piezas se funden en una sola silueta; el sombreado y la barriga recortados al cuerpo; la cara;
 /// los pies de delante y los brazos que cruzan por delante, con su propio contorno.
 /// </remarks>
-internal sealed class KobiiPainter
+internal sealed partial class KobiiPainter
 {
     /// <summary>Grosor del contorno (unidades): la mitad queda fuera de la silueta.</summary>
     private const double Outline = 0.10;
@@ -94,24 +94,29 @@ internal sealed class KobiiPainter
         if (sideL)
         {
             arms.Draw(dc, ink.Body, null);
+            DrawSleeve(dc, arms, c, ink, frame.Palette);
         }
 
         if (sideR)
         {
             armsR.Draw(dc, ink.Body, null);
+            DrawSleeve(dc, armsR, c, ink, frame.Palette);
         }
 
         dc.DrawGeometry(ink.Body, null, silhouette);
         DrawShading(dc, silhouette, rig, facing, ink);
+        DrawPajamas(dc, silhouette, c, ink, frame.Palette);
+        DrawGlints(dc, silhouette, c);
         DrawFace(dc, frame, ink);
+        DrawNightcap(dc, frame, frame.Palette);
 
         if (rig.FeetFront >= 0.5)
         {
             DrawFeet(dc, rig, ink);
         }
 
-        DrawFrontArm(dc, arms, rig.FrontL, silhouette, ink);
-        DrawFrontArm(dc, armsR, rig.FrontR, silhouette, ink);
+        DrawFrontArm(dc, arms, rig.FrontL, silhouette, ink, c, frame.Palette);
+        DrawFrontArm(dc, armsR, rig.FrontR, silhouette, ink, c, frame.Palette);
         dc.Pop();
 
         if (held is not null)
@@ -598,7 +603,7 @@ internal sealed class KobiiPainter
     /// Un brazo que cruza por delante del cuerpo: brazo y mano en una sola forma, con una sombra suave sobre la barriga, algo
     /// más claro hacia la mano (de donde viene la luz) y con contorno salvo donde nace del cuerpo, que así sale de él.
     /// </summary>
-    private static void DrawFrontArm(DrawingContext dc, ArmShape arm, double front, Geometry silhouette, Ink ink)
+    private void DrawFrontArm(DrawingContext dc, ArmShape arm, double front, Geometry silhouette, Ink ink, in KobiiLook look, Palette palette)
     {
         var shown = Smooth((front - 0.05) / 0.7);
         if (shown <= 0.01 || arm.Scale < 0.02)
@@ -622,6 +627,7 @@ internal sealed class KobiiPainter
         dc.DrawGeometry(null, ink.OutlinePen, shape);
         dc.Pop();
         dc.DrawGeometry(ink.Body, null, shape);
+        DrawSleeve(dc, arm, look, ink, palette);
         var light = new LinearGradientBrush
         {
             MappingMode = BrushMappingMode.Absolute,
