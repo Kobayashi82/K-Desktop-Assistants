@@ -47,8 +47,38 @@ public sealed partial class KobiiAssistant
 
         _snapshot = snapshot;
         _windows = snapshot.Windows.Select(w => new CoreWindow(w.Handle, ToCore(w.Bounds), w.IsMaximized, w.AppId)).ToList();
+        Carried(snapshot);
         _world = TerrainBuilder.Build(_monitors, _windows, new TerrainOptions { CreatureHeightDip = Species.HeightDip * _settings.Size }, _now);
         _terrainDirty = false;
+    }
+
+    /// <summary>
+    /// La ventana que arrastra va donde la ha dejado él y por delante de todas (que no se le escurra de debajo de los pies
+    /// al pasar por detrás de otra); al acabar, hasta que el mundo del host la vea en su sitio o pase un momento.
+    /// </summary>
+    private void Carried(WorldSnapshot snapshot)
+    {
+        if (_carried is not { } carried)
+        {
+            return;
+        }
+
+        var seen = snapshot.Windows.FirstOrDefault(w => w.Handle == carried.Handle);
+        if (_now > carried.Until || (double.IsFinite(carried.Until) && seen?.Bounds == carried.Bounds))
+        {
+            _carried = null;
+            return;
+        }
+
+        var index = _windows.FindIndex(w => w.Handle == carried.Handle);
+        if (index < 0)
+        {
+            return;
+        }
+
+        var window = _windows[index] with { Bounds = ToCore(carried.Bounds) };
+        _windows.RemoveAt(index);
+        _windows.Insert(0, window);
     }
 
     private void UpdateSensors(double elapsed)

@@ -57,6 +57,64 @@ public sealed class TravelTests
     }
 
     [Fact]
+    public void Climbs_faster_on_an_errand_in_a_hurry()
+    {
+        var window = new WindowInfo(1, new PixelRect(400, 520, 1100, 1040));
+        double Climb(bool run)
+        {
+            var world = Desk(window);
+            var (game, sensors) = Start(world, fraction: 0.8);
+            game.BeginErrand();
+            Assert.True(game.GoToWindow(1, run: run, errand: true));
+            var t = 0.0;
+            for (; t < 25 && game.Travel == TravelOutcome.Going && game.Body.SupportId != 1; t += KobiiGame.TimeStep)
+            {
+                game.Step(world, sensors);
+            }
+
+            Assert.Equal(1, game.Body.SupportId);
+            return t;
+        }
+
+        Assert.True(Climb(run: true) < Climb(run: false) * 0.8);
+    }
+
+    [Fact]
+    public void Rides_a_window_dragged_a_little_each_step_and_can_jump_off()
+    {
+        var bounds = new PixelRect(400, 700, 1100, 1040);
+        var world = Desk(new WindowInfo(1, bounds));
+        var (game, sensors) = Start(world, fraction: 0.8);
+        game.Relocate(world.Platforms.First(p => p.OwnerId == 1), 700);
+        game.BeginErrand();
+        for (var i = 0; i < 30; i++)
+        {
+            game.Step(world, sensors);
+        }
+
+        // La ventana sube y va a la izquierda 6 px por paso (lo que hace al arrastrarla): él va encima.
+        var x = game.Body.Feet.X;
+        for (var i = 1; i <= 40; i++)
+        {
+            world = Desk(new WindowInfo(1, new PixelRect(400 - 6 * i, 700 - 6 * i, 1100 - 6 * i, 1040 - 6 * i)));
+            game.Step(world, sensors);
+            Assert.Equal(1, game.Body.SupportId);
+        }
+
+        Assert.Equal(700 - 240, game.Body.Feet.Y, 1);
+        Assert.Equal(x - 240, game.Body.Feet.X, 1);
+
+        game.JumpOff(new Vec2(-260, -520));
+        Assert.False(game.Body.IsGrounded);
+        for (var t = 0.0; t < 3 && !game.Body.IsGrounded; t += KobiiGame.TimeStep)
+        {
+            game.Step(world, sensors);
+        }
+
+        Assert.True(game.Body.IsGrounded);
+    }
+
+    [Fact]
     public void Comes_down_from_a_window_back_to_the_taskbar()
     {
         var window = new WindowInfo(1, new PixelRect(400, 520, 1100, 1040));

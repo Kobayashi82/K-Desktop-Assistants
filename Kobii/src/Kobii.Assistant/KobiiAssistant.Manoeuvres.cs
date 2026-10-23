@@ -81,7 +81,7 @@ public sealed partial class KobiiAssistant
     }
 
     private static bool IsManoeuvre(GestureKind kind) => kind is GestureKind.PressButton or GestureKind.ActivateWindow or GestureKind.PointAt
-        or GestureKind.GoTo or GestureKind.Mark or GestureKind.Scan or GestureKind.Typing or GestureKind.WaitForWindow;
+        or GestureKind.GoTo or GestureKind.MoveWindow or GestureKind.Mark or GestureKind.Scan or GestureKind.Typing or GestureKind.WaitForWindow;
 
     /// <summary>Lo que se le pide está en un monitor con algo a pantalla completa: sin maniobras (lo hace el módulo).</summary>
     private bool OnFullscreen(SdkGesture gesture)
@@ -90,6 +90,7 @@ public sealed partial class KobiiAssistant
         {
             SdkGesture.PressButton p => p.ButtonBounds.Center,
             SdkGesture.ActivateWindow a when !a.Window.Bounds.IsEmpty => a.Window.Bounds.Center,
+            SdkGesture.MoveWindow m when !m.Window.Bounds.IsEmpty => m.Window.Bounds.Center,
             SdkGesture.Typing { Window: { } w } => w.Bounds.Center,
             SdkGesture.Scan s => s.Area.Center,
             SdkGesture.PointAt p => PlaceCenter(p.Target),
@@ -108,6 +109,7 @@ public sealed partial class KobiiAssistant
         _game.BeginErrand();
         var pace = PaceOf(ctx.Speed);
         var committed = false;
+        GestureOutcome? outcome = null;
         void Commit()
         {
             committed = true;
@@ -142,12 +144,15 @@ public sealed partial class KobiiAssistant
                 case SdkGesture.Typing typing:
                     await TypeAsync(typing.Window, pace, Commit, ct);
                     break;
+                case SdkGesture.MoveWindow move:
+                    outcome = await DragWindowAsync(move, pace, ctx, Commit, ct);
+                    break;
                 case SdkGesture.WaitForWindow wait:
                     await WaitForWindowAsync(wait.Process, pace, Commit, ct);
                     break;
             }
 
-            return committed ? GestureOutcome.Committed : GestureOutcome.NotPerformed;
+            return outcome ?? (committed ? GestureOutcome.Committed : GestureOutcome.NotPerformed);
         }
         catch (OperationCanceledException)
         {

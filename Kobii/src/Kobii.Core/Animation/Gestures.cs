@@ -133,6 +133,13 @@ public enum Gesture
 
     /// <summary>Teclear deprisa con las dos manos delante.</summary>
     Type,
+
+    /// <summary>
+    /// Agachado y agarrado con las dos manos al borde en el que está (la barra de título de una ventana que arrastra):
+    /// dos tirones echándose atrás (en <see cref="Gestures.HaulTugs"/>) y luego, mientras la ventana se desliza, inclinado
+    /// hacia donde va, bien agarrado y temblando del esfuerzo.
+    /// </summary>
+    Haul,
 }
 
 /// <summary>Cómo es un gesto.</summary>
@@ -196,6 +203,7 @@ public static class Gestures
         new(Gesture.CoverSneeze, "Estornudar tapándose", true, []),
         new(Gesture.Throw, "Lanzar", true, [Prop.Ball]),
         new(Gesture.Type, "Teclear", true, []),
+        new(Gesture.Haul, "Arrastrar agarrado", true, []),
     }.ToDictionary(i => i.Gesture);
 
     /// <summary>Momento del «¡chís!» en los gestos de estornudar (antes coge aire).</summary>
@@ -209,6 +217,12 @@ public static class Gestures
 
     /// <summary>Lo que dura el gesto de lanzar, con el brazo acompañando hasta abajo.</summary>
     public const double ThrowSeconds = 0.62;
+
+    /// <summary>Momentos de los dos tirones al empezar a arrastrar (antes de que la ventana se deslice del todo).</summary>
+    public static readonly double[] HaulTugs = [0.22, 0.52];
+
+    /// <summary>Lo que duran los tirones: después la ventana ya se desliza.</summary>
+    public const double HaulTugSeconds = 0.7;
 
     /// <summary>Gestos en los que la mano agarra el objeto que lleva (y se cierra sobre él).</summary>
     public static bool Holds(Gesture gesture) => gesture is Gesture.Hold or Gesture.HoldUp or Gesture.HoldBoth or Gesture.Sip
@@ -242,6 +256,7 @@ public static class Gestures
             Gesture.CoverSneeze => lead | RigMask.Face | RigMask.Body | RigMask.Mouth,
             Gesture.Throw => lead | RigMask.Body | RigMask.Head,
             Gesture.Type => RigMask.Hands | RigMask.Face,
+            Gesture.Haul => RigMask.Hands | RigMask.Body | RigMask.Head | RigMask.Face,
             _ => RigMask.Hands,
         };
     }
@@ -591,6 +606,30 @@ public static class Gestures
                 r.SetHand(-1, new Vec2(-0.34 + 0.05 * Math.Sin(t * 5), -0.52 - 0.07 * left), f, front: true, grip: 0.3);
                 r.SetHand(1, new Vec2(0.34 + 0.05 * Math.Sin(t * 5 + 1), -0.52 - 0.07 * right), f, front: true, grip: 0.3);
                 r.FaceY = 0.04;
+                break;
+            }
+
+            case Gesture.Haul:
+            {
+                // Se agacha y se agarra al borde delante de los pies; en cada tirón se echa atrás de golpe; luego, mientras
+                // se desliza, se inclina hacia donde va con las manos bien cerradas y un temblor de esfuerzo.
+                var tug = 0.0;
+                foreach (var at in HaulTugs)
+                {
+                    tug = Math.Max(tug, Easing.Pulse(t - at + 0.06, 0.06, 0.2));
+                }
+
+                var ride = Easing.Segment(t, HaulTugSeconds - 0.1, 0.3);
+                var shake = 0.012 * Math.Sin(t * 47) * ride;
+                var grip = new Vec2(s * (1.02 - 0.10 * tug), -0.20 - 0.04 * tug);
+                r.SetHand(-1, grip + new Vec2(-0.16 + shake, 0), f, front: s > 0, grip: 1);
+                r.SetHand(1, grip + new Vec2(0.16 - shake, 0.02), f, front: s < 0, grip: 1);
+                r.Stretch = -0.16 + 0.05 * tug;
+                r.OffsetY = 0.06;
+                r.Spin = s * (0.16 * ride - 0.20 * tug) + shake;
+                r.HeadTilt = -s * (0.06 + 0.10 * tug);
+                r.FaceX = s * 0.04;
+                r.FaceY = 0.02;
                 break;
             }
         }

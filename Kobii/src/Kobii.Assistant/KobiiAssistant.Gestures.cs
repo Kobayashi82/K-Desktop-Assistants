@@ -5,8 +5,8 @@ namespace Kobii.Assistant;
 
 /// <summary>
 /// Gestos que pide el módulo y lo que hace mientras te atiende: <see cref="Gesture.Communicate"/> y
-/// <see cref="Gesture.React"/>, y los de las órdenes (ver <see cref="ManoeuvreAsync"/>). Mover ventanas aún no: lo hace el
-/// módulo y lo cuenta en el bocadillo.
+/// <see cref="Gesture.React"/>, y los de las órdenes (ver <see cref="ManoeuvreAsync"/>; mover ventanas, en
+/// <see cref="DragWindowAsync"/>).
 /// </summary>
 public sealed partial class KobiiAssistant
 {

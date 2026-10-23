@@ -109,6 +109,23 @@ public sealed partial class KobiiGame
         }
     }
 
+    /// <summary>
+    /// Salta de donde está con esa velocidad (se suelta de la ventana que arrastra cuando va a quedar pegada arriba, donde no
+    /// cabe de pie): cae y aterriza como siempre.
+    /// </summary>
+    public void JumpOff(Vec2 velocity)
+    {
+        if (!Body.IsGrounded)
+        {
+            return;
+        }
+
+        Body.Launch(velocity);
+        Visual.Bounce(-2.5);
+        Visual.SetExpression(Expression.Joy, 1);
+        Raise(GameEventKind.Hop);
+    }
+
     /// <summary>Si hay un encargo mirando a un sitio, la mirada y el cuerpo van hacia él.</summary>
     private bool LookAtErrand()
     {

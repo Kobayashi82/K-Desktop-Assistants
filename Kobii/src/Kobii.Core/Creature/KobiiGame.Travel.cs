@@ -303,6 +303,9 @@ public sealed partial class KobiiGame
         private double _hangX;
         private bool _dangling;
 
+        /// <summary>Con prisa (una orden que corre): trepa y se encarama más deprisa.</summary>
+        private double Hurry => _run && _game._travelErrand ? 1.8 : 1;
+
         public RouteRunner(KobiiGame game, Platform target, double x, List<RouteStep> route, bool run)
         {
             _game = game;
@@ -800,8 +803,8 @@ public sealed partial class KobiiGame
                 return;
             }
 
-            var speed = h * 1.25;
-            const double rate = 1.78;
+            var speed = h * 1.25 * Hurry;
+            var rate = 1.78 * Hurry;
             var pulse = 1 + 0.55 * Math.Cos(Math.Tau * 2 * (_phi - ReachShare - 0.1));
             _depth -= speed * pulse * dt;
             _phi += rate * dt;
@@ -920,7 +923,7 @@ public sealed partial class KobiiGame
                 return;
             }
 
-            const double duration = 0.85;
+            var duration = 0.85 / Hurry;
             var u = Math.Min(1, _t / duration);
             var wallX = edge - _side * body.HalfWidth * Navigation.ClimbOffset;
             var endX = edge + (step.EndX - step.EdgeX);
