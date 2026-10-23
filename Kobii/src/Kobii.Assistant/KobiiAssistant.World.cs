@@ -101,8 +101,22 @@ public sealed partial class KobiiAssistant
         }
 
         _sensors.UserIdleSeconds = system.UserIdleSeconds;
+        _sensors.CursorVelocity = new Vec2(system.CursorVelocity.X, system.CursorVelocity.Y);
+        _sensors.OnBattery = system.OnBattery;
+        _sensors.BatteryLow = system.BatteryLow;
         _sensors.LocalTime = system.LocalTime == default ? DateTime.Now : system.LocalTime;
         _sensors.Quiet = system.QuietMode;
+
+        // Escucha el ritmo de lo que suena solo mientras se le ve (el medidor no gasta nada parado).
+        var listen = !_hidden && !system.QuietMode;
+        if (listen != _listening)
+        {
+            _listening = listen;
+            _host.World.ListenToMusic(listen);
+        }
+
+        var music = _host.World.Music;
+        _sensors.Music = new MusicState(music.Playing, music.Bpm, music.BeatAt(_now));
     }
 
     /// <summary>
@@ -182,7 +196,15 @@ public sealed partial class KobiiAssistant
                 _terrainDirty = true;
                 _forceRender = true;
                 break;
+            case Sdk.SystemEvent.NotificationShown n when !_hidden && !_sensors.Quiet && _manoeuvres == 0:
+                _game.NoticeNotification(new Vec2(n.Bounds.Center.X, n.Bounds.Center.Y));
+                break;
+            case Sdk.SystemEvent.RecycleBinEmptied when !_hidden && _manoeuvres == 0:
+                _game.RecycleBinEmptied();
+                break;
         }
+
+        DrainGameEvents();
 
         _host.RequestTick();
     }

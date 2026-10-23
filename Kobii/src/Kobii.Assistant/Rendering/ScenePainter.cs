@@ -11,7 +11,7 @@ namespace Kobii.Assistant.Rendering;
 /// Lo que va con Kobii además de su cuerpo: lo que lleva en la mano o puesto y las partículas (corazones, notas, confeti…).
 /// Todo con la API de dibujo de WPF y en píxeles de pantalla (los bocadillos los pone el host).
 /// </summary>
-internal static class ScenePainter
+internal static partial class ScenePainter
 {
     private static readonly uint[] BallColors = [0xEF5350, 0xFFCA28, 0x42A5F5, 0xFFFFFF];
     private static readonly Geometry HeartShape = Frozen("M0,0.9 C-1.3,0 -1,-1.2 0,-0.5 C1,-1.2 1.3,0 0,0.9 Z");

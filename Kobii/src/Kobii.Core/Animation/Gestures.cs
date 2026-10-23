@@ -621,9 +621,10 @@ public static class Gestures
 
                 var ride = Easing.Segment(t, HaulTugSeconds - 0.1, 0.3);
                 var shake = 0.012 * Math.Sin(t * 47) * ride;
-                var grip = new Vec2(s * (1.02 - 0.10 * tug), -0.20 - 0.04 * tug);
-                r.SetHand(-1, grip + new Vec2(-0.16 + shake, 0), f, front: s > 0, grip: 1);
-                r.SetHand(1, grip + new Vec2(0.16 - shake, 0.02), f, front: s < 0, grip: 1);
+                // Las dos manos en el borde, delante de los pies; la de atrás, detrás del cuerpo (no lo cruza).
+                var grip = new Vec2(s * (0.92 - 0.10 * tug), -0.26 - 0.04 * tug);
+                r.SetHand(s, grip + new Vec2(s * 0.06 + shake, 0.02), f, front: false, grip: 1);
+                r.SetHand(-s, grip + new Vec2(-s * 0.16 - shake, 0), f, front: false, grip: 1);
                 r.Stretch = -0.16 + 0.05 * tug;
                 r.OffsetY = 0.06;
                 r.Spin = s * (0.16 * ride - 0.20 * tug) + shake;

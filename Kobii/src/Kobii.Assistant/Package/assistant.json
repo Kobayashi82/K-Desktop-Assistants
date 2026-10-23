@@ -2,7 +2,7 @@
   "$schema": "../../../../../docs/assistant/esquemas/assistant.schema.json",
   "id": "kobii",
   "name": "Kobii",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "author": "Kobayashi82",
   "description": {
     "es": "Una criatura blandita que pasea por tu barra de tareas y por encima de tus ventanas.",
@@ -13,16 +13,16 @@
     "pt": "Uma criaturinha fofinha que passeia pela sua barra de tarefas e por cima das suas janelas."
   },
   "changes": {
-    "es": "Kobii ya mueve ventanas: sube a la barra de título, se agarra con las dos manos, da un par de tirones y la arrastra hasta su sitio subido encima. Si la ventana va a quedar pegada arriba, salta antes de llegar; y si no le da tiempo a subir, señala adónde va y la mueve K-Desktop. Además trepa más deprisa cuando tiene prisa.",
-    "en": "Kobii now moves windows: it climbs onto the title bar, grabs it with both hands, gives it a couple of tugs and drags it into place riding on top. If the window will end up against the top of the screen, it jumps off before it gets there; and if there is no time to climb up, it points to where it goes and K-Desktop moves it. It also climbs faster when it is in a hurry.",
-    "fr": "Kobii déplace désormais les fenêtres : il monte sur la barre de titre, l’agrippe à deux mains, donne deux petits coups et la traîne jusqu’à sa place, perché dessus. Si la fenêtre va finir collée en haut de l’écran, il saute avant d’arriver ; et s’il n’a pas le temps de monter, il montre où elle va et K-Desktop la déplace. Il grimpe aussi plus vite quand il est pressé.",
-    "de": "Kobii verschiebt jetzt Fenster: Er klettert auf die Titelleiste, packt sie mit beiden Händen, zieht ein paarmal kräftig und schleppt sie obendrauf sitzend an ihren Platz. Landet das Fenster ganz oben am Bildschirmrand, springt er vorher ab; reicht die Zeit zum Hochklettern nicht, zeigt er, wohin es geht, und K-Desktop verschiebt es. Außerdem klettert er schneller, wenn er es eilig hat.",
-    "it": "Kobii ora sposta le finestre: sale sulla barra del titolo, la afferra con tutte e due le mani, dà un paio di strattoni e la trascina al suo posto stando sopra. Se la finestra finirà attaccata in cima allo schermo, salta giù prima di arrivare; e se non fa in tempo a salire, indica dove va e la sposta K-Desktop. Inoltre si arrampica più in fretta quando ha fretta.",
-    "pt": "O Kobii agora move janelas: sobe na barra de título, agarra com as duas mãos, dá uns puxões e arrasta até o lugar indo em cima dela. Se a janela vai ficar encostada no topo da tela, ele pula antes de chegar; e se não dá tempo de subir, aponta para onde ela vai e o K-Desktop a move. Ele também escala mais rápido quando está com pressa."
+    "es": "Kobii tiene vida propia: persigue mariposas (casi siempre se le escapan), saca su pelota de detrás de la espalda, juega con ella y la guarda, y de vez en cuando merienda una manzana, unas bayas o una galleta, o se toma un zumo, leche o agua. Reacciona a lo que pasa en el PC: te señala las notificaciones, baila al compás de la música que suena (o lleva el ritmo con el pie), barre con una escobita cuando vacías la papelera y bosteza con la batería baja. Necesita K-Desktop 5.0.162.",
+    "en": "Kobii has a life of its own: it chases butterflies (they nearly always get away), takes its ball out from behind its back, plays with it and puts it away, and now and then snacks on an apple, some berries or a cookie, or drinks juice, milk or water. It reacts to what happens on the PC: it points at your notifications, dances to the beat of the music that is playing (or taps its foot), sweeps with a little broom when you empty the recycle bin and yawns when the battery is low. Needs K-Desktop 5.0.162.",
+    "fr": "Kobii a sa propre vie : il poursuit les papillons (ils lui échappent presque toujours), sort sa balle de derrière son dos, joue avec puis la range, et de temps en temps grignote une pomme, des baies ou un biscuit, ou boit un jus, du lait ou de l’eau. Il réagit à ce qui se passe sur le PC : il te montre les notifications, danse au rythme de la musique (ou bat la mesure du pied), balaie avec un petit balai quand tu vides la corbeille et bâille quand la batterie est faible. Nécessite K-Desktop 5.0.162.",
+    "de": "Kobii hat ein eigenes Leben: Er jagt Schmetterlinge (die ihm fast immer entwischen), holt seinen Ball hinter dem Rücken hervor, spielt damit und räumt ihn wieder weg, und ab und zu nascht er einen Apfel, ein paar Beeren oder einen Keks oder trinkt Saft, Milch oder Wasser. Er reagiert auf das, was am PC passiert: Er zeigt auf deine Benachrichtigungen, tanzt im Takt der Musik (oder wippt mit dem Fuß), fegt mit einem kleinen Besen, wenn du den Papierkorb leerst, und gähnt bei schwachem Akku. Braucht K-Desktop 5.0.162.",
+    "it": "Kobii ha una vita tutta sua: insegue le farfalle (quasi sempre gli sfuggono), tira fuori la palla da dietro la schiena, ci gioca e poi la mette via, e ogni tanto fa merenda con una mela, qualche bacca o un biscotto, oppure beve un succo, del latte o dell’acqua. Reagisce a quello che succede sul PC: ti indica le notifiche, balla a tempo con la musica (o batte il piede), spazza con una scopetta quando svuoti il cestino e sbadiglia quando la batteria è scarica. Richiede K-Desktop 5.0.162.",
+    "pt": "O Kobii tem vida própria: persegue borboletas (elas quase sempre escapam), tira a bola de trás das costas, brinca com ela e guarda, e de vez em quando lancha uma maçã, umas frutinhas ou um biscoito, ou toma suco, leite ou água. Ele reage ao que acontece no PC: aponta as suas notificações, dança no ritmo da música que está tocando (ou bate o pé), varre com uma vassourinha quando você esvazia a lixeira e boceja quando a bateria está fraca. Precisa do K-Desktop 5.0.162."
   },
   "homepage": "https://github.com/Kobayashi82/K-Desktop-Assistants",
   "license": "MIT",
-  "sdk": "1.5",
+  "sdk": "1.7",
   "entry": "lib/Kobii.Assistant.dll!Kobii.Assistant.KobiiAssistant",
   "icon": "icon.png",
   "wakeWord": "Kobii",

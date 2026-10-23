@@ -50,6 +50,8 @@ public sealed partial class KobiiAssistant : IAssistant
     private double _accumulator;
     private Vec2 _previousFeet;
     private bool _hidden;
+    private bool _listening;
+    private PlayKind? _lastPlaying;
     private EntranceKind? _pendingEntrance;
     private double? _exitStart;
     private double _fadeStart = double.NegativeInfinity;
@@ -290,6 +292,15 @@ public sealed partial class KobiiAssistant : IAssistant
         {
             _particles.Spawn(emote, palette.Shell);
         }
+
+        if (_game.Playing != _lastPlaying)
+        {
+            _lastPlaying = _game.Playing;
+            if (_lastPlaying is { } playing)
+            {
+                _host.Log.Debug($"Kobii: se pone con {playing}");
+            }
+        }
     }
 
     private void HandleGameEvent(GameEvent gameEvent)
@@ -313,6 +324,38 @@ public sealed partial class KobiiAssistant : IAssistant
             case GameEventKind.Climbed:
                 Play(Sound.Chime, 0.4, gameEvent.Position.X);
                 _host.Log.Debug("Kobii: arriba de una ventana");
+                break;
+            case GameEventKind.Pulled:
+                Play(Sound.Pop, 0.55, gameEvent.Position.X);
+                break;
+            case GameEventKind.Chomp:
+                Play(Sound.Munch, 0.6, gameEvent.Position.X);
+                break;
+            case GameEventKind.Gulp:
+                Play(Sound.Gulp, 0.45, gameEvent.Position.X);
+                break;
+            case GameEventKind.Ate:
+                Play(Sound.Chime, 0.3, gameEvent.Position.X);
+                _host.Log.Debug($"Kobii: se ha comido {gameEvent.Text}");
+                break;
+            case GameEventKind.Kicked:
+                Play(Sound.Kick, 0.7, gameEvent.Position.X);
+                break;
+            case GameEventKind.BallBounced:
+                Play(Sound.Bounce, Math.Clamp(gameEvent.Magnitude / 1200, 0.15, 0.6), gameEvent.Position.X);
+                break;
+            case GameEventKind.Clapped:
+                Play(Sound.Clap, 0.6, gameEvent.Position.X);
+                break;
+            case GameEventKind.Sneezed:
+                Play(Sound.Sneeze, 0.6, gameEvent.Position.X);
+                break;
+            case GameEventKind.Swept:
+                Play(Sound.Swish, 0.35, gameEvent.Position.X);
+                break;
+            case GameEventKind.Dressed:
+                Play(Sound.Chime, 0.35, gameEvent.Position.X);
+                _host.Log.Debug($"Kobii: pijama {gameEvent.Text}");
                 break;
         }
     }

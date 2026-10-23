@@ -96,7 +96,14 @@ internal static class VectorSheet
             frame.Look.LookY = 0;
         }
 
-        new KobiiPainter().Draw(dc, frame);
+        var props = frame.Props;
+        var held = frame.Held;
+        new KobiiPainter().Draw(dc, frame, frame.HasExtras ? d => ScenePainter.DrawExtras(d, props, held) : null);
+
+        // Lo que hay alrededor (la pelota, la comida, la mariposa) va en coordenadas del mundo de la escena.
+        dc.PushTransform(new TranslateTransform(at.X - body.Feet.X, at.Y - body.Feet.Y));
+        ScenePainter.DrawThings(dc, game, 1);
+        dc.Pop();
     }
 
     /// <summary>Un escritorio de un monitor y Kobii en su suelo, tras <paramref name="seconds"/> de simulación.</summary>

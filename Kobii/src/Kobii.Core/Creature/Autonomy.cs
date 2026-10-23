@@ -19,6 +19,9 @@ public enum ChoiceKind
 
     /// <summary>Hacer los clips aquí mismo.</summary>
     Perform,
+
+    /// <summary>Algo que se hace paso a paso (la mariposa, la pelota, merendar): el id dice qué.</summary>
+    Play,
 }
 
 /// <summary>Cómo está de ánimo (sale del trato y de la hora; no hay hambre, ni sueño de verdad, ni enfermedades).</summary>
@@ -61,6 +64,12 @@ public sealed class AutonomyContext
 
     /// <summary>Su plataforma es lo bastante ancha para rodar o correr.</summary>
     public bool RoomToRun { get; init; }
+
+    /// <summary>Pasa una mariposa (no son de cada rato).</summary>
+    public bool ButterflyPassing { get; init; }
+
+    /// <summary>Hora de comer algo (media mañana, comida o merienda).</summary>
+    public bool SnackTime => Hour is 11 or 14 or 17;
 
     public bool Cheerful => Mood == Mood.Happy;
 
@@ -188,6 +197,8 @@ public sealed class Autonomy
             new("globo-sentado", "Globo sentado", ChoiceKind.Perform, c => 0.08, "globo-sentado"),
             new("pompas", "Hacer pompas", ChoiceKind.Perform, c => 0.12 + Hi(c.Down, 0.1), "pompas"),
             new("pompas-sentado", "Pompas sentado", ChoiceKind.Perform, c => 0.08, "pompas-sentado"),
+            new("mariposa", "Perseguir una mariposa", ChoiceKind.Play, c => Hi(c.ButterflyPassing && c.RoomToRun, 0.9)),
+            new("pelota", "Jugar con la pelota", ChoiceKind.Play, c => Hi(c.RoomToRun, 0.16 + Hi(c.Cheerful, 0.1))),
 
             // Aficiones y calma.
             new("leer", "Leer", ChoiceKind.Perform, c => Hi(!c.Down, 0.2), "leer"),
@@ -198,6 +209,8 @@ public sealed class Autonomy
             new("oler-flor", "Oler una flor", ChoiceKind.Perform, c => 0.14, "oler-flor"),
             new("flor-sentado", "Flor sentado", ChoiceKind.Perform, c => 0.08, "flor-sentado"),
             new("te", "La hora del té", ChoiceKind.Perform, c => 0.12 + Hi(c.Hour is >= 16 and < 19, 0.2), "te"),
+            new("merendar", "Comer algo", ChoiceKind.Play, c => 0.08 + Hi(c.SnackTime, 0.3)),
+            new("beber", "Beber algo", ChoiceKind.Play, c => 0.09),
             new("pensar", "Pensar", ChoiceKind.Perform, c => 0.10, "pensar"),
             new("pensar-sentado", "Pensar sentado", ChoiceKind.Perform, c => 0.07, "pensar-sentado"),
             new("mirar-alrededor", "Mirar alrededor", ChoiceKind.Perform, c => 0.16, "mirar-alrededor"),

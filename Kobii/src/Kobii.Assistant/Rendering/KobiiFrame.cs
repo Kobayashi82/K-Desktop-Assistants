@@ -22,6 +22,16 @@ namespace Kobii.Assistant.Rendering;
 /// <param name="OtherGrip">Lo cerrada que está la otra mano (si suelta un objeto de dos manos, lo lleva solo con una).</param>
 internal readonly record struct PropPose(Prop Prop, Wear Wear, Gesture Gesture, Vec2 Hand, Vec2 OtherHand, Vec2 EyeL, Vec2 EyeR, Vec2 Forehead, double Rotation, double Side, double Time, double Unit, double GroundY, double OtherGrip = 1);
 
+/// <summary>Lo que tiene en las manos además del objeto de la animación: algo de comer o un juguete.</summary>
+/// <param name="Food">Lo que come o bebe (null si es un juguete o no hay nada).</param>
+/// <param name="Toy">El juguete (si no es comida).</param>
+/// <param name="Center">Su centro, en el mundo.</param>
+/// <param name="Rotation">Giro (el del cuerpo y, al beber, la inclinación del vaso).</param>
+internal readonly record struct HeldThing(FoodKind? Food, int Bites, double BiteSide, double Remaining, ToyKind? Toy, Vec2 Center, double Rotation, double Spin, double Scale)
+{
+    public bool Any => Food is not null || Toy is not null;
+}
+
 /// <summary>Lo que se ve de Kobii en un fotograma, aparte del esqueleto (cara, rebote, sombra…).</summary>
 [StructLayout(LayoutKind.Sequential)]
 internal struct KobiiLook
@@ -88,8 +98,11 @@ internal sealed class KobiiFrame
     /// <summary>Lo que lleva en la mano o puesto (nada si no lleva nada).</summary>
     public PropPose Props { get; set; }
 
+    /// <summary>Lo que tiene en las manos (comida o un juguete).</summary>
+    public HeldThing Held { get; private set; }
+
     /// <summary>Hay algo más que la criatura que dibujar (lo que lleva en la mano o puesto).</summary>
-    public bool HasExtras => Props.Prop != Prop.None || Props.Wear != Wear.None;
+    public bool HasExtras => Props.Prop != Prop.None || Props.Wear != Wear.None || Held.Any;
 
     /// <summary>Línea detrás de la que está escondido (en el mundo), si lo está.</summary>
     public ClipLine? Clip { get; private set; }
@@ -142,6 +155,7 @@ internal sealed class KobiiFrame
         }
 
         Props = PoseProps(animator.Prop, animator.Wear, animator.Clip?.Gesture ?? Gesture.None, animator.PropSide, animator.Time);
+        Held = HeldNow(game, alpha);
         UpdateHandsOver();
     }
 
@@ -181,6 +195,34 @@ internal sealed class KobiiFrame
             rig.Grip(-side));
     }
 
+    /// <summary>Un punto del cuerpo (en unidades de la criatura) en el mundo, con la postura de este fotograma.</summary>
+    public Vec2 ToWorld(Vec2 local) => CreatureSpace.ToWorld(local, Rig, Feet, Look.Unit, Look.Squash, Look.Lean);
+
+    /// <summary>La comida o el juguete que tiene en las manos ahora (entre el paso anterior y este).</summary>
+    private HeldThing HeldNow(KobiiGame game, double alpha)
+    {
+        var turn = Look.Lean + Rig.Spin;
+        foreach (var food in game.FoodItems)
+        {
+            if (food.Held)
+            {
+                var local = Vec2.Lerp(food.PreviousHeldLocal, food.HeldLocal, alpha);
+                return new HeldThing(food.Kind, food.Bites, food.BiteSide, food.Remaining, null, ToWorld(local), turn + food.Tilt, 0, game.Body.Scale);
+            }
+        }
+
+        foreach (var toy in game.Playground.Toys)
+        {
+            if (toy.Held)
+            {
+                var local = Vec2.Lerp(toy.PreviousHeldLocal, toy.HeldLocal, alpha);
+                return new HeldThing(null, 0, 0, 1, toy.Kind, ToWorld(local), turn + toy.HeldTilt, toy.Spin, toy.Body.Scale);
+            }
+        }
+
+        return default;
+    }
+
     /// <summary>Huella de todo lo que se ve (para no repetir un fotograma idéntico).</summary>
     public int Signature()
     {
@@ -191,6 +233,7 @@ internal sealed class KobiiFrame
         hash.AddBytes(MemoryMarshal.AsBytes(new ReadOnlySpan<Rig>(in rig)));
         hash.Add(Feet);
         hash.Add(Props);
+        hash.Add(Held);
         hash.Add(Palette);
         hash.Add(Clip);
         return hash.ToHashCode();
@@ -207,6 +250,12 @@ internal sealed class KobiiFrame
             var both = Props.Prop.TwoHanded() || Props.Gesture is Gesture.HoldBoth or Gesture.Carry or Gesture.Hug;
             left = Props.Side < 0 || both;
             right = Props.Side > 0 || both;
+        }
+
+        if (Held.Any)
+        {
+            // Lo que lleva en las manos va por detrás de las que lo agarran.
+            left = right = true;
         }
 
         c.HandOverL = left && Rig.GripL > 0.5 ? 1 : 0;

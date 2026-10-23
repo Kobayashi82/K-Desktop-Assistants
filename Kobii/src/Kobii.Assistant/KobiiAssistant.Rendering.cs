@@ -74,7 +74,8 @@ public sealed partial class KobiiAssistant
             {
                 var drawClock = System.Diagnostics.Stopwatch.GetTimestamp();
                 var props = _frame.Props;
-                _painter.Draw(dc, _frame, _frame.HasExtras ? d => ScenePainter.DrawProps(d, props) : null);
+                var held = _frame.Held;
+                _painter.Draw(dc, _frame, _frame.HasExtras ? d => ScenePainter.DrawExtras(d, props, held) : null);
                 _statDrawMs += System.Diagnostics.Stopwatch.GetElapsedTime(drawClock).TotalMilliseconds;
             });
             _statPresentMs += System.Diagnostics.Stopwatch.GetElapsedTime(presentClock).TotalMilliseconds;
@@ -84,10 +85,39 @@ public sealed partial class KobiiAssistant
         RenderEffects();
     }
 
-    /// <summary>Las partículas, en su superficie del tamaño de lo que ocupan.</summary>
+    /// <summary>
+    /// Lo que va por delante de Kobii, en su superficie del tamaño de lo que ocupa: las partículas, la mariposa, la comida
+    /// que hay por el escritorio y la pelota que rueda.
+    /// </summary>
     private void RenderEffects()
     {
-        if (_particles.Bounds() is not { } bounds)
+        var alpha = Math.Clamp(_accumulator / KobiiGame.TimeStep, 0, 1);
+        var butterfly = _game.Butterfly is { Visible: true } b ? ButterflyPose.Of(b, alpha) : (ButterflyPose?)null;
+        var foods = _game.FoodItems.Where(f => !f.Held && !f.Eaten).ToList();
+        var toys = _game.Playground.Toys.Where(t => !t.Held).ToList();
+        var box = _particles.Bounds();
+        void Grow(double x, double y, double r)
+        {
+            box = box is { } a ? (Math.Min(a.Left, x - r), Math.Min(a.Top, y - r), Math.Max(a.Right, x + r), Math.Max(a.Bottom, y + r)) : (x - r, y - r, x + r, y + r);
+        }
+
+        if (butterfly is { } bp)
+        {
+            Grow(bp.Position.X, bp.Position.Y, bp.Box / 2);
+        }
+
+        foreach (var food in foods)
+        {
+            Grow(food.Body.Feet.X, food.Body.Feet.Y - food.Body.Height / 2, food.Body.Height * 1.4);
+        }
+
+        foreach (var toy in toys)
+        {
+            var feet = Vec2.Lerp(toy.PreviousFeet, toy.Body.Feet, alpha);
+            Grow(feet.X, feet.Y - toy.Radius, toy.Radius * 1.6);
+        }
+
+        if (box is not { } bounds)
         {
             if (_effectsShown)
             {
@@ -103,7 +133,11 @@ public sealed partial class KobiiAssistant
         var width = Math.Clamp((int)Math.Ceiling(bounds.Right) - left, 1, 4096);
         var height = Math.Clamp((int)Math.Ceiling(bounds.Bottom) - top, 1, 4096);
         _effectsShown = true;
-        _effects.Present(SdkRect.FromSize(left, top, width, height), dc => ScenePainter.DrawParticles(dc, _particles.Items));
+        _effects.Present(SdkRect.FromSize(left, top, width, height), dc =>
+        {
+            ScenePainter.DrawThings(dc, _game, alpha);
+            ScenePainter.DrawParticles(dc, _particles.Items);
+        });
     }
 
     /// <summary>Aparece al entrar o volver y se desvanece al salir.</summary>

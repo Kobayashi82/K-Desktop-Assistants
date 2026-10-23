@@ -29,7 +29,48 @@ public enum Activity
 
     /// <summary>De camino a otro sitio: andando, saltando entre ventanas, trepando o descolgándose.</summary>
     Travel,
+
+    /// <summary>
+    /// Jugando o haciendo algo paso a paso (una rutina): la mariposa, la pelota, comer, barrer, bailar, cambiarse de
+    /// ropa… La rutina mueve a mano las partes del cuerpo que necesita.
+    /// </summary>
+    Play,
 }
+
+/// <summary>A qué está jugando (o qué está haciendo paso a paso).</summary>
+public enum PlayKind
+{
+    Butterfly,
+    Ball,
+
+    /// <summary>Saca la pelota de detrás de la espalda (o la guarda).</summary>
+    TakeOut,
+
+    Meal,
+    Notification,
+    Dance,
+    Sweep,
+    Dress,
+}
+
+/// <summary>Cómo acaba la mariposa (para las pruebas y las vistas previas).</summary>
+public enum ButterflyEnding
+{
+    /// <summary>La atrapa entre las manos, se asoma y la suelta.</summary>
+    Catch,
+
+    /// <summary>Se le posa en el brote.</summary>
+    Perch,
+
+    /// <summary>Se le escapa y se va.</summary>
+    Escape,
+}
+
+/// <summary>La música que suena (lo que oye el host por la salida de audio).</summary>
+/// <param name="Playing">Algo suena y tiene ritmo.</param>
+/// <param name="Bpm">Pulsos por minuto (0 si aún no lo sabe).</param>
+/// <param name="Beat">Pulso en el que va ahora (crece de uno en uno; la parte decimal es la fase).</param>
+public readonly record struct MusicState(bool Playing, double Bpm, double Beat);
 
 /// <summary>Lo que hace el módulo Asistente (escuchar, pensar, hablar…), dicho sin depender del SDK.</summary>
 public enum Attention
@@ -69,6 +110,16 @@ public sealed class Sensors
 
     /// <summary>«No molestar»: quieto y callado.</summary>
     public bool Quiet { get; set; }
+
+    /// <summary>Velocidad del cursor (píxeles por segundo, suavizada): uno que pasa deprisa asusta a la mariposa.</summary>
+    public Vec2 CursorVelocity { get; set; }
+
+    public MusicState Music { get; set; }
+
+    /// <summary>Va con batería (desenchufado).</summary>
+    public bool OnBattery { get; set; }
+
+    public bool BatteryLow { get; set; }
 }
 
 public sealed record GameOptions
@@ -123,6 +174,36 @@ public enum GameEventKind
 
     /// <summary>No ha encontrado forma de llegar adonde iba.</summary>
     Lost,
+
+    /// <summary>Saca algo de detrás de la espalda (o lo guarda): ¡puf! (el texto: «out» o «in»).</summary>
+    Pulled,
+
+    /// <summary>Un mordisco.</summary>
+    Chomp,
+
+    /// <summary>Un trago.</summary>
+    Gulp,
+
+    /// <summary>Se ha acabado lo que comía o bebía (el texto: qué era).</summary>
+    Ate,
+
+    /// <summary>Una patada a la pelota (la magnitud: lo fuerte que sale).</summary>
+    Kicked,
+
+    /// <summary>La pelota ha botado (la magnitud: lo deprisa que llegaba).</summary>
+    BallBounced,
+
+    /// <summary>Una palmada con las manos ahuecadas (la mariposa); el texto «caught» si la ha atrapado.</summary>
+    Clapped,
+
+    /// <summary>¡Achís!</summary>
+    Sneezed,
+
+    /// <summary>Una pasada de la escoba.</summary>
+    Swept,
+
+    /// <summary>Se ha puesto o quitado el pijama (el texto: «on» o «off»).</summary>
+    Dressed,
 }
 
 public readonly record struct GameEvent(GameEventKind Kind, Vec2 Position, double Magnitude = 0, string? Text = null);

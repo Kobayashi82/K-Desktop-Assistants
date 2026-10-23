@@ -39,6 +39,7 @@ public sealed partial class KobiiGame
     private readonly RubDetector _rub = new();
     private readonly Autonomy _autonomy = new();
     private readonly Queue<AnimationClip> _performance = new();
+    private readonly List<ToyEvent> _toyEvents = [];
 
     private GameOptions _options;
     private World _world = World.Empty;
@@ -101,21 +102,23 @@ public sealed partial class KobiiGame
 
     /// <summary>Hace falta simular y dibujar a la frecuencia alta.</summary>
     public bool NeedsHighFrequency =>
-        Activity is Activity.Walk or Activity.Held or Activity.Fall or Activity.Celebrate or Activity.Travel
-        || !Body.IsGrounded || Visual.IsAnimating || _rub.Intensity > 0 || Animator.IsMoving;
+        Activity is Activity.Walk or Activity.Held or Activity.Fall or Activity.Celebrate or Activity.Travel or Activity.Play
+        || _butterfly is not null || _playground.IsMoving || !Body.IsGrounded || Visual.IsAnimating || _rub.Intensity > 0 || Animator.IsMoving;
 
     /// <summary>
     /// Se mueve tanto que hay que dibujarlo a cada fotograma (andar, caer, un gesto, hablar). Lo demás que pide
     /// <see cref="NeedsHighFrequency"/> (respirar, los muelles que se asientan) se ve bien a pocos fotogramas por segundo.
     /// </summary>
     public bool NeedsFullRate =>
-        Activity is Activity.Walk or Activity.Held or Activity.Fall or Activity.Celebrate or Activity.Travel
-        || !Body.IsGrounded || _rub.Intensity > 0 || Visual.Talking || Visual.Mouth > 0.02 || Visual.IsBouncing || Animator.IsMovingMuch;
+        Activity is Activity.Walk or Activity.Held or Activity.Fall or Activity.Celebrate or Activity.Travel or Activity.Play
+        || _butterfly is not null || _playground.IsMoving || _foods.Any(f => !f.Held && !f.Body.IsGrounded) || !Body.IsGrounded || _rub.Intensity > 0 || Visual.Talking || Visual.Mouth > 0.02 || Visual.IsBouncing || Animator.IsMovingMuch;
 
     /// <summary>Qué le mantiene a la frecuencia alta (diagnóstico).</summary>
     public string BusyReason => string.Join(",", new[]
     {
-        Activity is Activity.Walk or Activity.Held or Activity.Fall or Activity.Celebrate or Activity.Travel ? Activity.ToString() : null,
+        Activity is Activity.Walk or Activity.Held or Activity.Fall or Activity.Celebrate or Activity.Travel or Activity.Play ? Activity.ToString() : null,
+        _butterfly is not null ? "mariposa" : null,
+        _playground.IsMoving ? "juguetes" : null,
         !Body.IsGrounded ? "aire" : null,
         Visual.IsAnimating ? "visual" : null,
         _rub.Intensity > 0 ? "frotar" : null,
@@ -185,6 +188,11 @@ public sealed partial class KobiiGame
         UpdateScale(world, dt: dt);
         UpdateMood(sensors, dt);
         UpdateRub(sensors, dt);
+        UpdateReactions(sensors, dt);
+        _playground.Step(world, dt);
+        DrainToyEvents();
+        StepFoods(world, dt);
+        UpdateToys();
         UpdateBehavior(world, sensors, dt);
 
         var landing = Body.Step(world, dt);
@@ -195,6 +203,7 @@ public sealed partial class KobiiGame
 
         TrackPlatform();
         UpdateAnimation(sensors, dt);
+        StepButterfly(world, sensors, dt);
     }
 
     public void DrainEvents(List<GameEvent> target)
@@ -226,6 +235,11 @@ public sealed partial class KobiiGame
             WakeUp();
             Visual.SetExpression(Expression.Surprised, 1.2);
             SetActivity(Activity.Idle, 2);
+        }
+        else if (Activity == Activity.Play && _routine?.Click() == true)
+        {
+            // La rutina lo usa (no es una caricia).
+            return;
         }
         else if (Activity == Activity.Attend)
         {
@@ -345,7 +359,7 @@ public sealed partial class KobiiGame
             WakeUp();
         }
 
-        if (Activity is Activity.Idle or Activity.Walk or Activity.Perform)
+        if (Activity is Activity.Idle or Activity.Walk or Activity.Perform or Activity.Play)
         {
             SetActivity(Activity.Attend, 0);
         }
@@ -396,7 +410,7 @@ public sealed partial class KobiiGame
         }
 
         Visual.SetExpression(Expression.Happy, 1.5);
-        if (Activity is Activity.Idle or Activity.Walk or Activity.Perform)
+        if (Activity is Activity.Idle or Activity.Walk or Activity.Perform or Activity.Play)
         {
             SetActivity(Activity.Attend, 0);
             _attendTimer = 0;
@@ -463,6 +477,21 @@ public sealed partial class KobiiGame
     private void Raise(GameEventKind kind, double magnitude = 0, string? text = null) =>
         _events.Add(new GameEvent(kind, Body.Feet, magnitude, text));
 
+    /// <summary>Los botes de los juguetes, como sucesos (para que suenen).</summary>
+    private void DrainToyEvents()
+    {
+        _toyEvents.Clear();
+        _playground.DrainEvents(_toyEvents);
+        foreach (var toy in _toyEvents)
+        {
+            var speed = toy.Landing.Speed / Math.Max(0.1, toy.Toy.Body.Scale);
+            if (speed > 120)
+            {
+                _events.Add(new GameEvent(GameEventKind.BallBounced, toy.Landing.Point, speed, toy.Toy.Kind.ToString()));
+            }
+        }
+    }
+
     /// <summary>Le has hecho caso (una caricia, hablarle): se alegra un poco y deja de aburrirse.</summary>
     private void Notice(double cheer)
     {
@@ -515,6 +544,12 @@ public sealed partial class KobiiGame
         {
             _pendingAtEdge = null;
             _dropAtEdge = false;
+        }
+
+        if (Activity == Activity.Play && activity != Activity.Play)
+        {
+            // Lo deja a medias (o ya ha acabado): la rutina suelta lo que tuviera.
+            LeavePlay();
         }
 
         if (Activity == Activity.Travel && activity != Activity.Travel)
@@ -723,6 +758,10 @@ public sealed partial class KobiiGame
                 StepTravel(dt);
                 break;
 
+            case Activity.Play:
+                StepPlay(world, sensors, dt);
+                break;
+
             default:
                 StepIdle(world, sensors);
                 break;
@@ -741,8 +780,9 @@ public sealed partial class KobiiGame
             _ownHopUntil = Time + 0.6;
         }
 
-        hopping |= Time < _ownHopUntil && Activity is Activity.Idle or Activity.Perform;
-        if (!Body.IsGrounded && !hopping && _dropSide == 0 && Activity is Activity.Idle or Activity.Walk or Activity.Attend or Activity.Sleep or Activity.Perform)
+        hopping |= Time < _ownHopUntil && Activity is Activity.Idle or Activity.Perform or Activity.Play;
+        hopping |= Activity == Activity.Play && _routine?.AllowsAirborne == true;
+        if (!Body.IsGrounded && !hopping && _dropSide == 0 && Activity is Activity.Idle or Activity.Walk or Activity.Attend or Activity.Sleep or Activity.Perform or Activity.Play)
         {
             if (Activity == Activity.Sleep)
             {
@@ -865,6 +905,9 @@ public sealed partial class KobiiGame
             case ChoiceKind.Perform:
                 Perform(clips);
                 return;
+
+            case ChoiceKind.Play when StartPlay(action.Id):
+                return;
         }
 
         // Quedarse un rato mirando (o no ha podido hacer lo que quería).
@@ -888,8 +931,19 @@ public sealed partial class KobiiGame
             OnWindow = Body.Support is { IsBase: false } window && window.Width > Body.Height * 3,
             SecondsSinceWake = Time - _wokeAt,
             RoomToRun = Body.Support is { } support && support.Width > Body.Height * 4,
+            ButterflyPassing = ButterflyPassing,
         };
     }
+
+    /// <summary>Lo que ha decidido hacer por su cuenta paso a paso (ver <see cref="ChoiceKind.Play"/>).</summary>
+    private bool StartPlay(string id) => id switch
+    {
+        "mariposa" => ChaseButterfly(),
+        "pelota" => PlayWithBall(),
+        "merendar" => Eat(own: _random.Pick([FoodKind.Apple, FoodKind.Berries, FoodKind.Cookie])),
+        "beber" => Eat(own: _random.Pick([FoodKind.Juice, FoodKind.Milk, FoodKind.Water])),
+        _ => false,
+    };
 
     /// <summary>Lleva la cuenta de desde cuándo está en la plataforma en la que está.</summary>
     private void TrackPlatform()
@@ -1180,7 +1234,7 @@ public sealed partial class KobiiGame
 
     private void UpdateAnimation(Sensors sensors, double dt)
     {
-        var walking = Activity is Activity.Walk or Activity.Travel && Body.IsGrounded && Math.Abs(Body.WalkVelocity) > 1;
+        var walking = Activity is Activity.Walk or Activity.Travel or Activity.Play && Body.IsGrounded && Math.Abs(Body.WalkVelocity) > 1;
         var rolling = Activity is Activity.Perform && Animator.Clip?.Motion == ClipMotion.Roll;
         Visual.Walk = MathUtil.Damp(Visual.Walk, walking ? 1 : 0, 10, dt);
         if (walking)
@@ -1218,19 +1272,20 @@ public sealed partial class KobiiGame
             Activity.Held => Pose.Dangle,
             Activity.Fall when Body.Velocity.Y > 250 * Body.Scale => Pose.Tumble,
             Activity.Travel when _runner?.Pose is { } travel => travel,
-            Activity.Walk or Activity.Travel when _running && Visual.Walk > 0.05 => Pose.Run,
-            Activity.Walk or Activity.Travel when Visual.Walk > 0.05 => Pose.Walk,
+            Activity.Play when _routine?.Pose is { } playing => playing,
+            Activity.Walk or Activity.Travel or Activity.Play when _running && Visual.Walk > 0.05 => Pose.Run,
+            Activity.Walk or Activity.Travel or Activity.Play when Visual.Walk > 0.05 => Pose.Walk,
             Activity.Celebrate => Pose.Hop,
             _ => Pose.Stand,
         };
 
         Animator.SetBasePose(pose);
-        if (Activity is not Activity.Perform and not Activity.Sleep)
+        if (Activity is not Activity.Perform and not Activity.Sleep and not Activity.Play)
         {
             Animator.Side = Visual.FacingTarget < -0.05 ? -1 : Visual.FacingTarget > 0.05 ? 1 : Animator.Side;
         }
 
-        Animator.BaseProp = _heldProp;
+        Animator.BaseProp = Activity == Activity.Play && _routine?.Prop is { } routineProp ? routineProp : _heldProp;
         Animator.BaseWear = _heldWear;
 
         // Velocidad real de los pies (andar, caer, la ventana que se mueve): sus sacudidas mueven el brote.
@@ -1248,9 +1303,9 @@ public sealed partial class KobiiGame
             return;
         }
 
-        if (Activity == Activity.Travel)
+        if (Activity == Activity.Travel || (Activity == Activity.Play && _routine?.ControlsLook == true))
         {
-            // Mira hacia donde va (lo pone el recorrido).
+            // Mira hacia donde va (lo pone el recorrido) o adonde le dice lo que está haciendo.
             return;
         }
 

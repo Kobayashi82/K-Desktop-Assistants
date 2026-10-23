@@ -48,7 +48,7 @@ public sealed partial class KobiiGame
             WakeUp();
         }
 
-        if (Activity is Activity.Perform or Activity.Celebrate or Activity.Attend || (Activity == Activity.Travel && !IsClimbing))
+        if (Activity is Activity.Perform or Activity.Celebrate or Activity.Attend or Activity.Play || (Activity == Activity.Travel && !IsClimbing))
         {
             SetActivity(Activity.Idle, 1);
         }

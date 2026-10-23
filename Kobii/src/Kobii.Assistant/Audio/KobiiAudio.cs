@@ -37,6 +37,27 @@ internal enum Sound
 
     /// <summary>La ventana que arrastra se desliza.</summary>
     Slide,
+
+    /// <summary>Un mordisco crujiente.</summary>
+    Munch,
+
+    /// <summary>Un trago («glup»).</summary>
+    Gulp,
+
+    /// <summary>Una patada a la pelota.</summary>
+    Kick,
+
+    /// <summary>La pelota bota.</summary>
+    Bounce,
+
+    /// <summary>Una palmada con las manos ahuecadas.</summary>
+    Clap,
+
+    /// <summary>¡Achís!</summary>
+    Sneeze,
+
+    /// <summary>Una pasada de la escoba.</summary>
+    Swish,
 }
 
 /// <summary>
@@ -64,6 +85,13 @@ internal sealed class KobiiAudio
         _sounds[Sound.Land] = Load(Sweep(0.09, 150, 80, 0.6, decay: 35));
         _sounds[Sound.Tug] = Load(Mix(Sweep(0.12, 210, 130, 0.55, decay: 20), Noise(random, 0.05, 900, 500, 0.003, 0.25)));
         _sounds[Sound.Slide] = Load(Noise(random, 0.45, 350, 1100, 0.12, 0.3));
+        _sounds[Sound.Munch] = Load(Mix(Noise(random, 0.05, 2800, 1800, 0.002, 0.4), Delay(Noise(random, 0.04, 2200, 1500, 0.002, 0.3), 0.06)));
+        _sounds[Sound.Gulp] = Load(Sweep(0.12, 180, 420, 0.4, decay: 14));
+        _sounds[Sound.Kick] = Load(Mix(Sweep(0.1, 260, 110, 0.6, decay: 28), Noise(random, 0.03, 1800, 900, 0.002, 0.3)));
+        _sounds[Sound.Bounce] = Load(Sweep(0.08, 340, 200, 0.45, decay: 30));
+        _sounds[Sound.Clap] = Load(Noise(random, 0.06, 1600, 1100, 0.001, 0.55));
+        _sounds[Sound.Sneeze] = Load(Mix(Sweep(0.18, 520, 900, 0.12, decay: 6), Delay(Noise(random, 0.22, 4200, 1600, 0.004, 0.5), 0.16)));
+        _sounds[Sound.Swish] = Load(Noise(random, 0.18, 900, 2600, 0.05, 0.25));
         _sounds[Sound.Chime] = Load(Mix(Tone(0.35, 1046, 0.32, decay: 9), Delay(Tone(0.4, 1568, 0.3, decay: 8), 0.09)));
     }
 
