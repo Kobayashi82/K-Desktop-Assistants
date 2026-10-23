@@ -1,0 +1,121 @@
+{
+  "$schema": "../../../../../docs/assistant/esquemas/panel.schema.json",
+  "cards": [
+    {
+      "type": "stat",
+      "bind": "stats.meals",
+      "icon": "kd:FoodApple",
+      "label": {
+        "es": "Cosas que ha comido",
+        "en": "Things it has eaten",
+        "fr": "Choses qu’il a mangées",
+        "de": "Gegessene Sachen",
+        "it": "Cose che ha mangiato",
+        "pt": "Coisas que comeu"
+      }
+    },
+    {
+      "type": "stat",
+      "bind": "stats.fetched",
+      "icon": "kd:SportSoccer",
+      "label": {
+        "es": "Pelotas traídas",
+        "en": "Balls fetched",
+        "fr": "Balles rapportées",
+        "de": "Gebrachte Bälle",
+        "it": "Palle riportate",
+        "pt": "Bolas trazidas"
+      }
+    },
+    {
+      "type": "stat",
+      "bind": "stats.butterflies",
+      "icon": "kd:Sparkle",
+      "label": {
+        "es": "Mariposas atrapadas",
+        "en": "Butterflies caught",
+        "fr": "Papillons attrapés",
+        "de": "Gefangene Schmetterlinge",
+        "it": "Farfalle catturate",
+        "pt": "Borboletas pegas"
+      }
+    },
+    {
+      "type": "buttons",
+      "items": [
+        {
+          "extra": "kobii.feed",
+          "icon": "kd:FoodApple",
+          "label": {
+            "es": "Comida",
+            "en": "Food",
+            "fr": "Manger",
+            "de": "Essen",
+            "it": "Cibo",
+            "pt": "Comida"
+          }
+        },
+        {
+          "extra": "kobii.drink",
+          "icon": "kd:DrinkToGo",
+          "label": {
+            "es": "Bebida",
+            "en": "Drink",
+            "fr": "Boire",
+            "de": "Trinken",
+            "it": "Bere",
+            "pt": "Bebida"
+          }
+        },
+        {
+          "extra": "kobii.ball",
+          "icon": "kd:SportSoccer",
+          "label": {
+            "es": "Pelota",
+            "en": "Ball",
+            "fr": "Balle",
+            "de": "Ball",
+            "it": "Palla",
+            "pt": "Bola"
+          }
+        },
+        {
+          "extra": "kobii.plush",
+          "icon": "kd:AnimalRabbit",
+          "label": {
+            "es": "Peluche",
+            "en": "Teddy",
+            "fr": "Peluche",
+            "de": "Kuscheltier",
+            "it": "Peluche",
+            "pt": "Ursinho"
+          }
+        },
+        {
+          "extra": "kobii.bed",
+          "icon": "kd:Bed",
+          "label": {
+            "es": "Cama",
+            "en": "Bed",
+            "fr": "Lit",
+            "de": "Bett",
+            "it": "Lettino",
+            "pt": "Caminha"
+          }
+        },
+        {
+          "extra": "kobii.toys.away",
+          "icon": "kd:BoxArrowLeft",
+          "label": {
+            "es": "Guardar juguetes",
+            "en": "Put toys away",
+            "fr": "Ranger les jouets",
+            "de": "Wegräumen",
+            "it": "Metti via i giochi",
+            "pt": "Guardar brinquedos"
+          }
+        }
+      ]
+    }
+  ]
+}

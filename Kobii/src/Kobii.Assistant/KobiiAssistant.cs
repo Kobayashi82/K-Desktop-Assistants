@@ -85,6 +85,7 @@ public sealed partial class KobiiAssistant : IAssistant
         _hit = host.Pointer.CreateHitArea();
         _hit.Cursor = PointerCursor.Hand;
         _host.World.Changed += OnWorldChanged;
+        AttachGifts();
         _host.Log.Info($"Kobii {typeof(KobiiAssistant).Assembly.GetName().Version?.ToString(3)}: color {_settings.Color}.");
     }
 
@@ -144,7 +145,10 @@ public sealed partial class KobiiAssistant : IAssistant
         _particles.Update(elapsed);
         UpdateManoeuvres(now);
         Render(now);
+        SyncToyHits();
+        RenderToys(Math.Clamp(_accumulator / KobiiGame.TimeStep, 0, 1));
         UpdateHitArea();
+        UpdateToyHits();
         _statTickMs += System.Diagnostics.Stopwatch.GetElapsedTime(tickClock).TotalMilliseconds;
         Stats(now);
 
@@ -192,6 +196,7 @@ public sealed partial class KobiiAssistant : IAssistant
             }
 
             _previousFeet = _game.Body.Feet;
+            RestoreToys();
             _host.Log.Info($"Kobii en marcha: {_world.Monitors.Count} monitor(es), {_world.Platforms.Count} plataformas.");
             UpdateFullscreen();
         }
@@ -215,7 +220,7 @@ public sealed partial class KobiiAssistant : IAssistant
     private bool IsUserAway() => _sensors.UserIdleSeconds > 60 && !_pressed && !_dragging;
 
     private bool IsActive(double now) =>
-        _game.NeedsFullRate || ManoeuvreActive || _pressed || _dragging || _exitStart is not null || now - _fadeStart < FadeInDuration;
+        _game.NeedsFullRate || ManoeuvreActive || _pressed || _dragging || ToysMoving || _exitStart is not null || now - _fadeStart < FadeInDuration;
 
     private bool IsAttentive() =>
         _sensors.Cursor is { } cursor && Vec2.Distance(cursor, _game.Body.Center) < _game.Body.Height * 7;
@@ -231,6 +236,8 @@ public sealed partial class KobiiAssistant : IAssistant
             {
                 _game.Drag(cursor);
             }
+
+            DragToys();
 
             _game.Step(_world, _sensors);
             _accumulator -= KobiiGame.TimeStep;
@@ -260,7 +267,7 @@ public sealed partial class KobiiAssistant : IAssistant
         var seconds = now - _statsStart;
         if (_statsStart > 0)
         {
-            var line = FormattableString.Invariant($"Kobii: {_statTicks / seconds:0.0} ciclos/s, {_statSteps / seconds:0.0} pasos/s, {_statFrames / seconds:0.0} fotogramas/s, {_statTickMs / Math.Max(1, _statTicks):0.00} ms por ciclo, {_statPresentMs / Math.Max(1, _statFrames):0.00} ms por fotograma (dibujo {_statDrawMs / Math.Max(1, _statFrames):0.00}) ({_game.Activity}; {_game.BusyReason}; partículas {_particles.Count}, cursor cerca {IsAttentive()})");
+            var line = FormattableString.Invariant($"Kobii: {_statTicks / seconds:0.0} ciclos/s, {_statSteps / seconds:0.0} pasos/s, {_statFrames / seconds:0.0} fotogramas/s, {_statTickMs / Math.Max(1, _statTicks):0.00} ms por ciclo, {_statPresentMs / Math.Max(1, _statFrames):0.00} ms por fotograma (dibujo {_statDrawMs / Math.Max(1, _statFrames):0.00}) ({_game.Activity}; {_game.BusyReason}; partículas {_particles.Count}, cursor cerca {IsAttentive()}; pies {_game.Body.Feet.X:0},{_game.Body.Feet.Y:0}{ToysForLog()})");
             if (StatsAlways)
             {
                 _host.Log.Info(line);
@@ -305,6 +312,7 @@ public sealed partial class KobiiAssistant : IAssistant
 
     private void HandleGameEvent(GameEvent gameEvent)
     {
+        HandleGiftEvent(gameEvent);
         switch (gameEvent.Kind)
         {
             case GameEventKind.Performed:
@@ -371,6 +379,7 @@ public sealed partial class KobiiAssistant : IAssistant
     public void Dispose()
     {
         _host.World.Changed -= OnWorldChanged;
+        DisposeGifts();
         _hit.Dispose();
         _layer.Dispose();
         _effects.Dispose();

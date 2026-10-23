@@ -75,7 +75,8 @@ public sealed partial class KobiiAssistant
                 var drawClock = System.Diagnostics.Stopwatch.GetTimestamp();
                 var props = _frame.Props;
                 var held = _frame.Held;
-                _painter.Draw(dc, _frame, _frame.HasExtras ? d => ScenePainter.DrawExtras(d, props, held) : null);
+                var bed = _frame.BedFront;
+                _painter.Draw(dc, _frame, _frame.HasExtras ? d => ScenePainter.DrawExtras(d, props, held, bed) : null);
                 _statDrawMs += System.Diagnostics.Stopwatch.GetElapsedTime(drawClock).TotalMilliseconds;
             });
             _statPresentMs += System.Diagnostics.Stopwatch.GetElapsedTime(presentClock).TotalMilliseconds;
@@ -86,15 +87,14 @@ public sealed partial class KobiiAssistant
     }
 
     /// <summary>
-    /// Lo que va por delante de Kobii, en su superficie del tamaño de lo que ocupa: las partículas, la mariposa, la comida
-    /// que hay por el escritorio y la pelota que rueda.
+    /// Lo que va por delante de Kobii, en su superficie del tamaño de lo que ocupa: las partículas, la mariposa y la comida
+    /// que hay por el escritorio (los juguetes van por detrás, en la suya).
     /// </summary>
     private void RenderEffects()
     {
         var alpha = Math.Clamp(_accumulator / KobiiGame.TimeStep, 0, 1);
         var butterfly = _game.Butterfly is { Visible: true } b ? ButterflyPose.Of(b, alpha) : (ButterflyPose?)null;
         var foods = _game.FoodItems.Where(f => !f.Held && !f.Eaten).ToList();
-        var toys = _game.Playground.Toys.Where(t => !t.Held).ToList();
         var box = _particles.Bounds();
         void Grow(double x, double y, double r)
         {
@@ -109,12 +109,6 @@ public sealed partial class KobiiAssistant
         foreach (var food in foods)
         {
             Grow(food.Body.Feet.X, food.Body.Feet.Y - food.Body.Height / 2, food.Body.Height * 1.4);
-        }
-
-        foreach (var toy in toys)
-        {
-            var feet = Vec2.Lerp(toy.PreviousFeet, toy.Body.Feet, alpha);
-            Grow(feet.X, feet.Y - toy.Radius, toy.Radius * 1.6);
         }
 
         if (box is not { } bounds)
@@ -182,6 +176,7 @@ public sealed partial class KobiiAssistant
     {
         _surface.Hide();
         _effects.Hide();
+        HideToys();
         _layer.Clear();
         _effectsShown = false;
         _hit.Hide();

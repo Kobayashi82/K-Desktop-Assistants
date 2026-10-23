@@ -193,6 +193,7 @@ public sealed partial class KobiiGame
         DrainToyEvents();
         StepFoods(world, dt);
         UpdateToys();
+        UpdateGifts();
         UpdateBehavior(world, sensors, dt);
 
         var landing = Body.Step(world, dt);
@@ -552,6 +553,12 @@ public sealed partial class KobiiGame
             LeavePlay();
         }
 
+        if (Activity == Activity.Sleep && activity != Activity.Sleep)
+        {
+            // Al despertarse deja el peluche a su lado.
+            PutDownCuddled();
+        }
+
         if (Activity == Activity.Travel && activity != Activity.Travel)
         {
             // Le han interrumpido (o ya ha llegado): si estaba trepando, se suelta.
@@ -820,7 +827,12 @@ public sealed partial class KobiiGame
         var night = sensors.LocalTime.Hour is >= 23 or < 7;
         if (!sensors.Quiet && sensors.UserIdleSeconds > (night ? NightSleepAfterSeconds : SleepAfterSeconds))
         {
-            FallAsleep();
+            // Si tiene cerca el peluche o la cama, va a por ellos antes de dormirse.
+            if (!GoToSleepWithToys())
+            {
+                FallAsleep();
+            }
+
             return;
         }
 
@@ -859,6 +871,13 @@ public sealed partial class KobiiGame
     /// <summary>Hace lo que ha decidido (o lo que le toca por rutina, como desperezarse).</summary>
     private void Execute(AutonomyAction action, Sensors sensors)
     {
+        if (_bed is not null && action.Kind is ChoiceKind.Wander or ChoiceKind.ApproachCursor or ChoiceKind.ToEdge && HopOutOfBed())
+        {
+            // Para ir a algún sitio, primero sale de la cama de un saltito (y luego vuelve a decidir).
+            SetActivity(Activity.Celebrate, 0.4);
+            return;
+        }
+
         _autonomy.Remember(action, Time);
         var clips = action.Clips.Select(AnimationCatalog.Get).ToList();
         switch (action.Kind)
@@ -932,6 +951,9 @@ public sealed partial class KobiiGame
             SecondsSinceWake = Time - _wokeAt,
             RoomToRun = Body.Support is { } support && support.Width > Body.Height * 4,
             ButterflyPassing = ButterflyPassing,
+            BallNear = ReachableToy(ToyKind.Ball) is { Ephemeral: false },
+            PlushNear = ReachableToy(ToyKind.Plush) is not null,
+            BedNear = ReachableToy(ToyKind.Bed) is not null && _bed is null,
         };
     }
 
@@ -942,7 +964,7 @@ public sealed partial class KobiiGame
         "pelota" => PlayWithBall(),
         "merendar" => Eat(own: _random.Pick([FoodKind.Apple, FoodKind.Berries, FoodKind.Cookie])),
         "beber" => Eat(own: _random.Pick([FoodKind.Juice, FoodKind.Milk, FoodKind.Water])),
-        _ => false,
+        _ => PlayWithGift(id),
     };
 
     /// <summary>Lleva la cuenta de desde cuándo está en la plataforma en la que está.</summary>
@@ -1280,6 +1302,12 @@ public sealed partial class KobiiGame
         };
 
         Animator.SetBasePose(pose);
+        UpdateBedLift(dt);
+        if (Activity == Activity.Sleep)
+        {
+            HugWhileAsleep();
+        }
+
         if (Activity is not Activity.Perform and not Activity.Sleep and not Activity.Play)
         {
             Animator.Side = Visual.FacingTarget < -0.05 ? -1 : Visual.FacingTarget > 0.05 ? 1 : Animator.Side;

@@ -21,6 +21,12 @@ public sealed partial class KobiiAssistant
             return;
         }
 
+        if (e.Area != _hit.Id)
+        {
+            OnToyPointer(e);
+            return;
+        }
+
         var at = new Vec2(e.Position.X, e.Position.Y);
         switch (e.Kind)
         {
@@ -69,11 +75,5 @@ public sealed partial class KobiiAssistant
         _dragging = false;
         _pressed = false;
         _dragCursor = null;
-    }
-
-    public Task OnExtraAsync(string extraId, CancellationToken ct)
-    {
-        _host.Log.Warn($"Extra desconocido: {extraId}");
-        return Task.CompletedTask;
     }
 }

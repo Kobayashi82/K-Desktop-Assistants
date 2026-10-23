@@ -55,7 +55,7 @@ internal static partial class ScenePainter
     private static readonly Geometry Antennae = Frozen("M0.015,-0.18 Q0.02,-0.32 0.12,-0.37 M-0.015,-0.18 Q-0.02,-0.32 -0.12,-0.37");
 
     /// <summary>Lo que lleva en la mano o puesto y lo que tiene en las manos (comida o un juguete), por delante del cuerpo.</summary>
-    public static void DrawExtras(DrawingContext dc, in PropPose props, in HeldThing held)
+    public static void DrawExtras(DrawingContext dc, in PropPose props, in HeldThing held, BedPose? bed = null)
     {
         DrawProps(dc, props);
         if (held.Food is { } food)
@@ -64,25 +64,22 @@ internal static partial class ScenePainter
         }
         else if (held.Toy is { } toy)
         {
-            DrawToy(dc, toy, new Point(held.Center.X, held.Center.Y), Toy.BallDiameterDip / 2 * held.Scale, held.Spin, 1, grounded: false);
+            var center = new Point(held.Center.X, held.Center.Y);
+            dc.PushTransform(new RotateTransform(Deg(held.Rotation), center.X, center.Y));
+            DrawToy(dc, toy, center, ToyRadius(toy, held.Scale), toy == ToyKind.Ball ? held.Spin : 0, 1, grounded: false);
+            dc.Pop();
+        }
+
+        // El borde de la cama en la que está, por delante de él.
+        if (bed is { } b)
+        {
+            DrawToy(dc, ToyKind.Bed, new Point(b.Feet.X, b.Feet.Y - b.Radius), b.Radius, 0, b.Squash, grounded: true, 1, ToyPart.Front);
         }
     }
 
-    /// <summary>Lo que hay por el escritorio (la pelota, la comida, la mariposa), entre el paso anterior (0) y el actual (1).</summary>
+    /// <summary>Lo que hay por el escritorio delante de él (la comida, la mariposa), entre el paso anterior (0) y el actual (1).</summary>
     public static void DrawThings(DrawingContext dc, KobiiGame game, double alpha)
     {
-        foreach (var toy in game.Playground.Toys)
-        {
-            if (toy.Held)
-            {
-                continue;
-            }
-
-            var feet = Vec2.Lerp(toy.PreviousFeet, toy.Body.Feet, alpha);
-            var spin = toy.PreviousSpin + (toy.Spin - toy.PreviousSpin) * alpha;
-            DrawToy(dc, toy.Kind, new Point(feet.X, feet.Y - toy.Radius), toy.Radius, spin, toy.Squash, toy.Body.IsGrounded);
-        }
-
         foreach (var food in game.FoodItems)
         {
             if (!food.Held && !food.Eaten)
@@ -328,23 +325,160 @@ internal static partial class ScenePainter
 
     // Los juguetes sueltos -----------------------------------------------------------------------------
 
-    /// <summary>Un juguete en el suelo o por el aire (aplastado al botar), con su sombra si está en el suelo.</summary>
-    public static void DrawToy(DrawingContext dc, ToyKind kind, Point center, double radius, double spin, double squash, bool grounded, double alpha = 1)
+    private const uint BearFur = 0xC98F5A;
+    private const uint BearDark = 0x7A4E2C;
+    private const uint BearCream = 0xF4DDBE;
+    private const uint BedRim = 0x8FB3E8;
+    private const uint BedRimDark = 0x557AB8;
+    private const uint BedCushion = 0xFFF4E4;
+
+    /// <summary>
+    /// Un juguete en el suelo o por el aire (aplastado al botar), con su sombra si está en el suelo. <paramref name="center"/>
+    /// es el centro de su caja y <paramref name="radius"/>, la mitad de su alto. De la cama se puede dibujar solo lo de detrás
+    /// (el respaldo y el colchón) o solo el borde delantero, que tapa un poco a Kobii cuando está dentro.
+    /// </summary>
+    public static void DrawToy(DrawingContext dc, ToyKind kind, Point center, double radius, double spin, double squash, bool grounded, double alpha = 1, ToyPart part = ToyPart.All)
     {
-        if (grounded)
+        var feet = center + new Vector(0, radius);
+        if (grounded && kind != ToyKind.Bed)
         {
-            dc.DrawEllipse(Fill(0x000000, 0.16 * alpha), null, center + new Vector(0, radius), radius * 0.85, radius * 0.22);
+            dc.DrawEllipse(Fill(0x000000, 0.16 * alpha), null, feet, radius * 0.85, radius * 0.22);
         }
 
+        // Se aplasta desde el suelo: más bajo y más ancho.
         var stretch = Math.Clamp(squash, 0.6, 1.4);
-        dc.PushTransform(new ScaleTransform(1 / Math.Sqrt(stretch), stretch, center.X, center.Y + radius));
+        dc.PushTransform(new ScaleTransform(1 / Math.Sqrt(stretch), stretch, feet.X, feet.Y));
+        if (alpha < 1)
+        {
+            dc.PushOpacity(alpha);
+        }
+
         switch (kind)
         {
-            default:
-                DrawBallAt(dc, center, radius, spin, alpha);
+            case ToyKind.Plush:
+                DrawBear(dc, feet, radius * 2, spin);
                 break;
+            case ToyKind.Bed:
+                DrawBed(dc, feet, radius * 2, part);
+                break;
+            default:
+                DrawBallAt(dc, center, radius, spin);
+                break;
+        }
+
+        if (alpha < 1)
+        {
+            dc.Pop();
         }
 
         dc.Pop();
     }
+
+    /// <summary>La mitad del alto de un juguete de ese tipo con la escala dada (en las manos de Kobii).</summary>
+    public static double ToyRadius(ToyKind kind, double scale) => kind switch
+    {
+        ToyKind.Plush => Toy.PlushHeightDip / 2 * scale,
+        ToyKind.Bed => Toy.BedHeightDip / 2 * scale,
+        _ => Toy.BallDiameterDip / 2 * scale,
+    };
+
+    /// <summary>Osito de peluche sentado, de alto <paramref name="h"/>: cabeza grande, orejas redondas, hocico claro y un corazón en la barriga.</summary>
+    private static void DrawBear(DrawingContext dc, Point feet, double h, double spin)
+    {
+        var c = feet - new Vector(0, h / 2);
+        dc.PushTransform(new RotateTransform(Deg(spin), c.X, c.Y));
+        var outline = Math.Max(1, 0.035 * h);
+
+        // Contorno: las mismas formas algo más grandes, en marrón oscuro.
+        void Blob(double x, double y, double rx, double ry, uint color)
+        {
+            var at = c + new Vector(x * h, y * h);
+            dc.DrawEllipse(Fill(BearDark), null, at, rx * h + outline, ry * h + outline);
+            dc.DrawEllipse(Fill(color), null, at, rx * h, ry * h);
+        }
+
+        void Dot(double x, double y, double rx, double ry, uint color, double alpha = 1) =>
+            dc.DrawEllipse(Fill(color, alpha), null, c + new Vector(x * h, y * h), rx * h, ry * h);
+
+        Blob(-0.17, 0.42, 0.11, 0.075, BearFur);
+        Blob(0.17, 0.42, 0.11, 0.075, BearFur);
+        Blob(0, 0.17, 0.29, 0.29, BearFur);
+        Blob(-0.28, 0.12, 0.085, 0.12, BearFur);
+        Blob(0.28, 0.12, 0.085, 0.12, BearFur);
+        Dot(-0.17, 0.44, 0.06, 0.04, BearCream);
+        Dot(0.17, 0.44, 0.06, 0.04, BearCream);
+        Dot(0, 0.21, 0.17, 0.18, BearCream);
+        Shape(dc, HeartShape, c + new Vector(0, 0.22 * h), 0.06 * h, 0, 0xF06292, 1, outline: false);
+
+        Blob(-0.20, -0.37, 0.09, 0.09, BearFur);
+        Blob(0.20, -0.37, 0.09, 0.09, BearFur);
+        Dot(-0.20, -0.37, 0.045, 0.045, 0xE8A0A0);
+        Dot(0.20, -0.37, 0.045, 0.045, 0xE8A0A0);
+        Blob(0, -0.16, 0.27, 0.25, BearFur);
+        Dot(0, -0.08, 0.12, 0.085, BearCream);
+        Dot(0, -0.11, 0.045, 0.032, 0x3E2723);
+        Dot(-0.10, -0.20, 0.03, 0.034, 0x2B1D16);
+        Dot(0.10, -0.20, 0.03, 0.034, 0x2B1D16);
+        Dot(-0.11, -0.21, 0.01, 0.01, 0xFFFFFF, 0.9);
+        Dot(0.09, -0.21, 0.01, 0.01, 0xFFFFFF, 0.9);
+        Dot(-0.16, -0.10, 0.05, 0.03, 0xF48FB1, 0.45);
+        Dot(0.16, -0.10, 0.05, 0.03, 0xF48FB1, 0.45);
+        dc.Pop();
+    }
+
+    /// <summary>
+    /// La camita, de alto <paramref name="h"/>: un cesto ovalado con su cojín. Por detrás, el respaldo y el colchón; por
+    /// delante, el borde, que tapa un poco a quien duerma dentro.
+    /// </summary>
+    private static void DrawBed(DrawingContext dc, Point feet, double h, ToyPart part)
+    {
+        var w = h * Toy.BedWidthDip / Toy.BedHeightDip;
+        var outline = Math.Max(1, 0.06 * h);
+        if (part != ToyPart.Front)
+        {
+            dc.DrawEllipse(Fill(0x000000, 0.16), null, feet - new Vector(0, 0.06 * h), 0.52 * w, 0.14 * h);
+            var back = feet - new Vector(0, 0.76 * h);
+            dc.DrawEllipse(Fill(BedRimDark), null, back, 0.5 * w + outline, 0.26 * h + outline);
+            dc.DrawEllipse(Fill(BedRim), null, back, 0.5 * w, 0.26 * h);
+            dc.DrawEllipse(Fill(BedCushion), null, back + new Vector(0, 0.05 * h), 0.41 * w, 0.15 * h);
+            dc.DrawEllipse(Fill(0xFFFFFF), Stroke(0xE0D6C8, Math.Max(1, 0.03 * h)), back + new Vector(-0.24 * w, 0), 0.11 * w, 0.11 * h);
+        }
+
+        if (part == ToyPart.Back)
+        {
+            return;
+        }
+
+        // Borde delantero: arriba una curva suave y abajo la panza del cesto.
+        var left = feet + new Vector(-0.5 * w, -0.74 * h);
+        var right = feet + new Vector(0.5 * w, -0.74 * h);
+        var rim = new StreamGeometry();
+        using (var g = rim.Open())
+        {
+            g.BeginFigure(left, isFilled: true, isClosed: true);
+            g.QuadraticBezierTo(feet + new Vector(0, -0.86 * h), right, isStroked: true, isSmoothJoin: true);
+            g.BezierTo(right + new Vector(0.03 * w, 0.55 * h), feet + new Vector(0.36 * w, 0), feet, isStroked: true, isSmoothJoin: true);
+            g.BezierTo(feet + new Vector(-0.36 * w, 0), left + new Vector(-0.03 * w, 0.55 * h), left, isStroked: true, isSmoothJoin: true);
+        }
+
+        rim.Freeze();
+        dc.DrawGeometry(Fill(BedRim), Stroke(BedRimDark, outline), rim);
+
+        // Lunares y un brillo en el borde.
+        foreach (var x in new[] { -0.33, -0.11, 0.11, 0.33 })
+        {
+            dc.DrawEllipse(Fill(0xFFFFFF, 0.7), null, feet + new Vector(x * w, -0.40 * h + Math.Abs(x) * 0.25 * h), 0.035 * w, 0.09 * h);
+        }
+
+        var shine = Stroke(0xD6E4F8, Math.Max(1, 0.07 * h));
+        dc.DrawLine(shine, feet + new Vector(-0.36 * w, -0.71 * h), feet + new Vector(-0.12 * w, -0.79 * h));
+    }
+}
+
+/// <summary>Qué parte de la cama se dibuja: entera, solo lo de detrás o solo el borde delantero.</summary>
+internal enum ToyPart
+{
+    All,
+    Back,
+    Front,
 }

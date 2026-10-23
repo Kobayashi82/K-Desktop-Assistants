@@ -2,7 +2,7 @@
   "$schema": "../../../../../docs/assistant/esquemas/assistant.schema.json",
   "id": "kobii",
   "name": "Kobii",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "author": "Kobayashi82",
   "description": {
     "es": "Una criatura blandita que pasea por tu barra de tareas y por encima de tus ventanas.",
@@ -13,12 +13,12 @@
     "pt": "Uma criaturinha fofinha que passeia pela sua barra de tarefas e por cima das suas janelas."
   },
   "changes": {
-    "es": "Kobii tiene vida propia: persigue mariposas (casi siempre se le escapan), saca su pelota de detrás de la espalda, juega con ella y la guarda, y de vez en cuando merienda una manzana, unas bayas o una galleta, o se toma un zumo, leche o agua. Reacciona a lo que pasa en el PC: te señala las notificaciones, baila al compás de la música que suena (o lleva el ritmo con el pie), barre con una escobita cuando vacías la papelera y bosteza con la batería baja. Necesita K-Desktop 5.0.162.",
-    "en": "Kobii has a life of its own: it chases butterflies (they nearly always get away), takes its ball out from behind its back, plays with it and puts it away, and now and then snacks on an apple, some berries or a cookie, or drinks juice, milk or water. It reacts to what happens on the PC: it points at your notifications, dances to the beat of the music that is playing (or taps its foot), sweeps with a little broom when you empty the recycle bin and yawns when the battery is low. Needs K-Desktop 5.0.162.",
-    "fr": "Kobii a sa propre vie : il poursuit les papillons (ils lui échappent presque toujours), sort sa balle de derrière son dos, joue avec puis la range, et de temps en temps grignote une pomme, des baies ou un biscuit, ou boit un jus, du lait ou de l’eau. Il réagit à ce qui se passe sur le PC : il te montre les notifications, danse au rythme de la musique (ou bat la mesure du pied), balaie avec un petit balai quand tu vides la corbeille et bâille quand la batterie est faible. Nécessite K-Desktop 5.0.162.",
-    "de": "Kobii hat ein eigenes Leben: Er jagt Schmetterlinge (die ihm fast immer entwischen), holt seinen Ball hinter dem Rücken hervor, spielt damit und räumt ihn wieder weg, und ab und zu nascht er einen Apfel, ein paar Beeren oder einen Keks oder trinkt Saft, Milch oder Wasser. Er reagiert auf das, was am PC passiert: Er zeigt auf deine Benachrichtigungen, tanzt im Takt der Musik (oder wippt mit dem Fuß), fegt mit einem kleinen Besen, wenn du den Papierkorb leerst, und gähnt bei schwachem Akku. Braucht K-Desktop 5.0.162.",
-    "it": "Kobii ha una vita tutta sua: insegue le farfalle (quasi sempre gli sfuggono), tira fuori la palla da dietro la schiena, ci gioca e poi la mette via, e ogni tanto fa merenda con una mela, qualche bacca o un biscotto, oppure beve un succo, del latte o dell’acqua. Reagisce a quello che succede sul PC: ti indica le notifiche, balla a tempo con la musica (o batte il piede), spazza con una scopetta quando svuoti il cestino e sbadiglia quando la batteria è scarica. Richiede K-Desktop 5.0.162.",
-    "pt": "O Kobii tem vida própria: persegue borboletas (elas quase sempre escapam), tira a bola de trás das costas, brinca com ela e guarda, e de vez em quando lancha uma maçã, umas frutinhas ou um biscoito, ou toma suco, leite ou água. Ele reage ao que acontece no PC: aponta as suas notificações, dança no ritmo da música que está tocando (ou bate o pé), varre com uma vassourinha quando você esvazia a lixeira e boceja quando a bateria está fraca. Precisa do K-Desktop 5.0.162."
+    "es": "Ya puedes darle cosas a Kobii desde su menú, su panel o tus comandos: comida, bebida, su pelota, un osito de peluche y una camita. Los juguetes se quedan en el escritorio hasta que los guardas (también al reiniciar): abraza el osito y lo pasea, bota en la cama o se sienta en ella, y cuando te vas se lleva el osito a la cama y se duerme acurrucado. Los juguetes se cogen y se lanzan con el ratón; si le lanzas la pelota (o le das un toque), va a por ella y te la trae. Su panel cuenta lo que ha comido, las pelotas que te ha traído y las mariposas que ha atrapado.",
+    "en": "You can now give Kobii things from its menu, its panel or your commands: food, drink, its ball, a teddy bear and a little bed. Toys stay on the desktop until you put them away (even after a restart): it hugs the teddy and carries it around, bounces on the bed or sits on it, and when you leave it takes the teddy to bed and curls up to sleep. Toys can be picked up and thrown with the mouse; throw it the ball (or give it a tap) and it runs after it and brings it back. Its panel counts what it has eaten, the balls it has brought back and the butterflies it has caught.",
+    "fr": "Tu peux maintenant donner des choses à Kobii depuis son menu, son panneau ou tes commandes : à manger, à boire, sa balle, un ourson en peluche et un petit lit. Les jouets restent sur le bureau jusqu’à ce que tu les ranges (même après un redémarrage) : il câline l’ourson et le promène, rebondit sur le lit ou s’y assoit, et quand tu t’en vas il emmène l’ourson au lit et s’endort tout pelotonné. Les jouets se prennent et se lancent avec la souris ; lance-lui la balle (ou donne-lui une pichenette) et il court la chercher et te la rapporte. Son panneau compte ce qu’il a mangé, les balles rapportées et les papillons attrapés.",
+    "de": "Du kannst Kobii jetzt über sein Menü, sein Panel oder deine Befehle etwas geben: Essen, Trinken, seinen Ball, einen Teddybären und ein kleines Bett. Die Spielsachen bleiben auf dem Desktop, bis du sie wegräumst (auch nach einem Neustart): Er knuddelt den Teddy und trägt ihn herum, hüpft auf dem Bett oder setzt sich darauf, und wenn du weg bist, nimmt er den Teddy mit ins Bett und schläft zusammengerollt ein. Spielsachen lassen sich mit der Maus aufheben und werfen; wirf ihm den Ball (oder stups ihn an), und er rennt hinterher und bringt ihn dir zurück. Sein Panel zählt, was er gegessen hat, die zurückgebrachten Bälle und die gefangenen Schmetterlinge.",
+    "it": "Ora puoi dare delle cose a Kobii dal suo menu, dal suo pannello o dai tuoi comandi: da mangiare, da bere, la sua palla, un orsacchiotto di peluche e un lettino. I giochi restano sul desktop finché non li metti via (anche dopo un riavvio): abbraccia l’orsacchiotto e lo porta a spasso, salta sul lettino o ci si siede, e quando te ne vai porta l’orsacchiotto a letto e si addormenta raggomitolato. I giochi si prendono e si lanciano con il mouse; lanciagli la palla (o dagli un colpetto) e lui corre a prenderla e te la riporta. Il suo pannello conta cosa ha mangiato, le palle riportate e le farfalle catturate.",
+    "pt": "Agora você pode dar coisas ao Kobii pelo menu dele, pelo painel ou pelos seus comandos: comida, bebida, a bola dele, um ursinho de pelúcia e uma caminha. Os brinquedos ficam na área de trabalho até você guardá-los (mesmo depois de reiniciar): ele abraça o ursinho e passeia com ele, pula na cama ou senta nela, e quando você sai ele leva o ursinho para a cama e dorme enroladinho. Os brinquedos podem ser pegos e jogados com o mouse; jogue a bola para ele (ou dê um toquinho) e ele corre atrás dela e traz de volta. O painel dele conta o que ele comeu, as bolas que trouxe e as borboletas que pegou."
   },
   "homepage": "https://github.com/Kobayashi82/K-Desktop-Assistants",
   "license": "MIT",
@@ -46,5 +46,79 @@
       "typing",
       "waitForWindow"
     ]
-  }
+  },
+  "extras": [
+    {
+      "id": "kobii.feed",
+      "name": {
+        "es": "Darle de comer",
+        "en": "Give it something to eat",
+        "fr": "Lui donner à manger",
+        "de": "Etwas zu essen geben",
+        "it": "Dargli da mangiare",
+        "pt": "Dar comida"
+      },
+      "icon": "kd:FoodApple"
+    },
+    {
+      "id": "kobii.drink",
+      "name": {
+        "es": "Darle de beber",
+        "en": "Give it something to drink",
+        "fr": "Lui donner à boire",
+        "de": "Etwas zu trinken geben",
+        "it": "Dargli da bere",
+        "pt": "Dar bebida"
+      },
+      "icon": "kd:DrinkToGo"
+    },
+    {
+      "id": "kobii.ball",
+      "name": {
+        "es": "Darle la pelota",
+        "en": "Give it the ball",
+        "fr": "Lui donner la balle",
+        "de": "Ball geben",
+        "it": "Dargli la palla",
+        "pt": "Dar a bola"
+      },
+      "icon": "kd:SportSoccer"
+    },
+    {
+      "id": "kobii.plush",
+      "name": {
+        "es": "Darle el peluche",
+        "en": "Give it the teddy",
+        "fr": "Lui donner la peluche",
+        "de": "Kuscheltier geben",
+        "it": "Dargli il peluche",
+        "pt": "Dar o ursinho"
+      },
+      "icon": "kd:AnimalRabbit"
+    },
+    {
+      "id": "kobii.bed",
+      "name": {
+        "es": "Ponerle la cama",
+        "en": "Put out its bed",
+        "fr": "Lui installer son lit",
+        "de": "Bettchen hinstellen",
+        "it": "Mettergli il lettino",
+        "pt": "Pôr a caminha"
+      },
+      "icon": "kd:Bed"
+    },
+    {
+      "id": "kobii.toys.away",
+      "name": {
+        "es": "Guardar los juguetes",
+        "en": "Put the toys away",
+        "fr": "Ranger les jouets",
+        "de": "Spielsachen wegräumen",
+        "it": "Mettere via i giochi",
+        "pt": "Guardar os brinquedos"
+      },
+      "icon": "kd:BoxArrowLeft"
+    }
+  ]
 }

@@ -51,6 +51,15 @@ public enum PlayKind
     Dance,
     Sweep,
     Dress,
+
+    /// <summary>Va a por la pelota que le has lanzado y te la trae.</summary>
+    Fetch,
+
+    /// <summary>Con su peluche (abrazarlo, pasearlo o llevárselo a dormir).</summary>
+    Plush,
+
+    /// <summary>En su cama (botar, sentarse o dormir).</summary>
+    Bed,
 }
 
 /// <summary>Cómo acaba la mariposa (para las pruebas y las vistas previas).</summary>
@@ -204,6 +213,15 @@ public enum GameEventKind
 
     /// <summary>Se ha puesto o quitado el pijama (el texto: «on» o «off»).</summary>
     Dressed,
+
+    /// <summary>Te ha traído la pelota que le lanzaste.</summary>
+    Fetched,
+
+    /// <summary>Ha empezado a abrazar su peluche.</summary>
+    Hugged,
+
+    /// <summary>Ha caído en el colchón de su cama (la magnitud: lo fuerte, 0–1).</summary>
+    BedBounced,
 }
 
 public readonly record struct GameEvent(GameEventKind Kind, Vec2 Position, double Magnitude = 0, string? Text = null);

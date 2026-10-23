@@ -58,6 +58,9 @@ internal enum Sound
 
     /// <summary>Una pasada de la escoba.</summary>
     Swish,
+
+    /// <summary>El peluche al apretujarlo.</summary>
+    Squeak,
 }
 
 /// <summary>
@@ -92,6 +95,7 @@ internal sealed class KobiiAudio
         _sounds[Sound.Clap] = Load(Noise(random, 0.06, 1600, 1100, 0.001, 0.55));
         _sounds[Sound.Sneeze] = Load(Mix(Sweep(0.18, 520, 900, 0.12, decay: 6), Delay(Noise(random, 0.22, 4200, 1600, 0.004, 0.5), 0.16)));
         _sounds[Sound.Swish] = Load(Noise(random, 0.18, 900, 2600, 0.05, 0.25));
+        _sounds[Sound.Squeak] = Load(Mix(Sweep(0.14, 900, 1350, 0.22, decay: 10, vibrato: 30), Delay(Sweep(0.12, 1250, 980, 0.16, decay: 14), 0.1)));
         _sounds[Sound.Chime] = Load(Mix(Tone(0.35, 1046, 0.32, decay: 9), Delay(Tone(0.4, 1568, 0.3, decay: 8), 0.09)));
     }
 

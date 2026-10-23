@@ -68,6 +68,15 @@ public sealed class AutonomyContext
     /// <summary>Pasa una mariposa (no son de cada rato).</summary>
     public bool ButterflyPassing { get; init; }
 
+    /// <summary>Tiene a mano la pelota que le has dado.</summary>
+    public bool BallNear { get; init; }
+
+    /// <summary>Tiene a mano su peluche.</summary>
+    public bool PlushNear { get; init; }
+
+    /// <summary>Tiene a mano su cama (y no está ya dentro).</summary>
+    public bool BedNear { get; init; }
+
     /// <summary>Hora de comer algo (media mañana, comida o merienda).</summary>
     public bool SnackTime => Hour is 11 or 14 or 17;
 
@@ -198,7 +207,11 @@ public sealed class Autonomy
             new("pompas", "Hacer pompas", ChoiceKind.Perform, c => 0.12 + Hi(c.Down, 0.1), "pompas"),
             new("pompas-sentado", "Pompas sentado", ChoiceKind.Perform, c => 0.08, "pompas-sentado"),
             new("mariposa", "Perseguir una mariposa", ChoiceKind.Play, c => Hi(c.ButterflyPassing && c.RoomToRun, 0.9)),
-            new("pelota", "Jugar con la pelota", ChoiceKind.Play, c => Hi(c.RoomToRun, 0.16 + Hi(c.Cheerful, 0.1))),
+            new("pelota", "Jugar con la pelota", ChoiceKind.Play, c => Hi(c.RoomToRun, 0.16 + Hi(c.Cheerful, 0.1) + Hi(c.BallNear, 0.14))),
+            new("peluche-abrazar", "Abrazar el peluche", ChoiceKind.Play, c => Hi(c.PlushNear, 0.22 + Hi(c.Down, 0.25))),
+            new("peluche-pasear", "Pasear el peluche", ChoiceKind.Play, c => Hi(c.PlushNear && c.RoomToRun, 0.12)),
+            new("cama-botar", "Botar en la cama", ChoiceKind.Play, c => Hi(c.BedNear, 0.14 + Hi(c.Cheerful, 0.15))),
+            new("cama-sentarse", "Sentarse en la cama", ChoiceKind.Play, c => Hi(c.BedNear, 0.12 + 0.2 * (1 - c.Energy))),
 
             // Aficiones y calma.
             new("leer", "Leer", ChoiceKind.Perform, c => Hi(!c.Down, 0.2), "leer"),

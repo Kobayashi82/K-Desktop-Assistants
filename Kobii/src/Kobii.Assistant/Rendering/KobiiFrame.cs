@@ -27,6 +27,9 @@ internal readonly record struct PropPose(Prop Prop, Wear Wear, Gesture Gesture, 
 /// <param name="Toy">El juguete (si no es comida).</param>
 /// <param name="Center">Su centro, en el mundo.</param>
 /// <param name="Rotation">Giro (el del cuerpo y, al beber, la inclinación del vaso).</param>
+/// <summary>La cama en la que está (para dibujar su borde por delante de él).</summary>
+internal readonly record struct BedPose(Vec2 Feet, double Radius, double Squash);
+
 internal readonly record struct HeldThing(FoodKind? Food, int Bites, double BiteSide, double Remaining, ToyKind? Toy, Vec2 Center, double Rotation, double Spin, double Scale)
 {
     public bool Any => Food is not null || Toy is not null;
@@ -101,8 +104,11 @@ internal sealed class KobiiFrame
     /// <summary>Lo que tiene en las manos (comida o un juguete).</summary>
     public HeldThing Held { get; private set; }
 
+    /// <summary>La cama en la que está, si está en una.</summary>
+    public BedPose? BedFront { get; private set; }
+
     /// <summary>Hay algo más que la criatura que dibujar (lo que lleva en la mano o puesto).</summary>
-    public bool HasExtras => Props.Prop != Prop.None || Props.Wear != Wear.None || Held.Any;
+    public bool HasExtras => Props.Prop != Prop.None || Props.Wear != Wear.None || Held.Any || BedFront is not null;
 
     /// <summary>Línea detrás de la que está escondido (en el mundo), si lo está.</summary>
     public ClipLine? Clip { get; private set; }
@@ -156,6 +162,7 @@ internal sealed class KobiiFrame
 
         Props = PoseProps(animator.Prop, animator.Wear, animator.Clip?.Gesture ?? Gesture.None, animator.PropSide, animator.Time);
         Held = HeldNow(game, alpha);
+        BedFront = game.Bed is { } bed ? new BedPose(bed.Body.IsGrounded ? bed.Body.Feet : Vec2.Lerp(bed.PreviousFeet, bed.Body.Feet, alpha), bed.Radius, bed.Squash) : null;
         UpdateHandsOver();
     }
 
@@ -234,6 +241,7 @@ internal sealed class KobiiFrame
         hash.Add(Feet);
         hash.Add(Props);
         hash.Add(Held);
+        hash.Add(BedFront);
         hash.Add(Palette);
         hash.Add(Clip);
         return hash.ToHashCode();
