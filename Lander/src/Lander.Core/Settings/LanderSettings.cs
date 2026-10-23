@@ -24,7 +24,7 @@ public sealed record HotkeySetting
 /// <summary>Ajustes del usuario. Se guardan como JSON en la carpeta de datos del usuario.</summary>
 public sealed class LanderSettings
 {
-    public const double MinSize = 32;
+    public const double MinSize = 24;
     public const double MaxSize = 96;
 
     public int Version { get; set; } = 1;

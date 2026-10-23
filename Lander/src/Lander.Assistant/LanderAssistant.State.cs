@@ -1,5 +1,6 @@
 using System.IO;
 using System.Text.Json;
+using KDesktop.Assistant.Sdk;
 using Lander.Assistant.Rendering.Skins;
 using Lander.Core.Progression;
 using Lander.Core.Settings;
@@ -23,7 +24,20 @@ public sealed partial class LanderAssistant
     private int _panelVersion = -1;
     private int _panelFlightBucket;
 
-    internal static LanderSettings ReadSettings(JsonElement json)
+    /// <summary>Altura del lander a tamaño 100 % (en DIP).</summary>
+    internal const double BaseSize = 48;
+
+    /// <summary>Volumen de sus sonidos a 100 %: el volumen propio lo aplica el host encima (ajustes comunes de K-Desktop).</summary>
+    private const double BaseVolume = 0.5;
+
+    internal static LanderSettings ReadSettings(JsonElement json) => ReadSettings(json, CommonSettings.Default);
+
+    /// <summary>
+    /// Sus ajustes, con lo que K-Desktop pone igual para todos los asistentes (SDK 1.9, pestaña «General» de su ficha): el
+    /// tamaño en %, lo movido que es y cogerlo con el ratón; el volumen lo aplica el host y el sonido tiene su interruptor
+    /// general en Opciones → Módulo Asistente.
+    /// </summary>
+    internal static LanderSettings ReadSettings(JsonElement json, CommonSettings common)
     {
         LanderSettings? settings = null;
         if (json.ValueKind == JsonValueKind.Object)
@@ -39,14 +53,11 @@ public sealed partial class LanderAssistant
         }
 
         settings ??= new LanderSettings();
-
-        // Dentro de K-Desktop el sonido ya tiene su interruptor general (Opciones → Módulo Asistente): el del lander
-        // empieza encendido, no apagado como en el Lander independiente.
-        if (json.ValueKind != JsonValueKind.Object || !json.TryGetProperty("soundEnabled", out _))
-        {
-            settings.SoundEnabled = true;
-        }
-
+        settings.LanderSize = BaseSize * common.Size;
+        settings.Activity = Math.Max(0.25, common.Liveliness);
+        settings.AllowDragging = common.Dragging;
+        settings.SoundEnabled = true;
+        settings.Volume = BaseVolume;
         return settings.Normalize();
     }
 

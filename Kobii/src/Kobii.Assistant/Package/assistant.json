@@ -2,7 +2,7 @@
   "$schema": "../../../../../docs/assistant/esquemas/assistant.schema.json",
   "id": "kobii",
   "name": "Kobii",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "author": "Kobayashi82",
   "description": {
     "es": "Una criatura blandita que pasea por tu barra de tareas y por encima de tus ventanas.",
@@ -13,16 +13,17 @@
     "pt": "Uma criaturinha fofinha que passeia pela sua barra de tarefas e por cima das suas janelas."
   },
   "changes": {
-    "es": "Por la noche (de 22:00 a 7:00) Kobii se pone su pijama de rayas, con cuello en pico, botones y mangas, y un gorro de dormir con pompón que cae hacia un lado; se lo pone y se lo quita él solo. Recién cepillado, le brillan destellos en el pelo. Al abrazar el osito ya no le tapa la cara. Y gasta menos: se dibuja a unos 60 fotogramas por segundo aunque el monitor vaya más rápido, y ya no se despierta a cada momento estando subido a una ventana.",
-    "en": "At night (10 pm to 7 am) Kobii puts on its striped pyjamas, with a V-neck, buttons and sleeves, and a nightcap with a pompom that flops to one side; it puts them on and takes them off by itself. Freshly brushed, little sparkles twinkle in its fur. When it hugs the teddy, its hand no longer covers the teddy's face. And it uses less: it is drawn at about 60 frames per second even on faster monitors, and it no longer wakes up constantly while standing on a window.",
-    "fr": "La nuit (de 22 h à 7 h), Kobii met son pyjama à rayures, avec col en V, boutons et manches, et un bonnet de nuit à pompon qui retombe sur le côté ; il les met et les enlève tout seul. Fraîchement brossé, de petites étincelles brillent dans ses poils. Quand il câline l’ourson, sa main ne lui cache plus le visage. Et il consomme moins : il est dessiné à environ 60 images par seconde même sur un écran plus rapide, et il ne se réveille plus sans arrêt quand il est perché sur une fenêtre.",
-    "de": "Nachts (von 22 bis 7 Uhr) zieht Kobii seinen gestreiften Schlafanzug mit V-Ausschnitt, Knöpfen und Ärmeln an und eine Schlafmütze mit Bommel, die zur Seite fällt; er zieht sie selbst an und aus. Frisch gebürstet funkeln kleine Glitzer in seinem Fell. Beim Knuddeln verdeckt seine Hand nicht mehr das Gesicht des Teddys. Und er braucht weniger: Er wird mit etwa 60 Bildern pro Sekunde gezeichnet, auch auf schnelleren Monitoren, und wacht nicht mehr ständig auf, wenn er auf einem Fenster steht.",
-    "it": "Di notte (dalle 22 alle 7) Kobii si mette il pigiama a righe, con scollo a V, bottoni e maniche, e una cuffia da notte con il pompon che ricade di lato; se li mette e se li toglie da solo. Appena spazzolato, gli brillano dei lampi nel pelo. Quando abbraccia l’orsacchiotto, la mano non gli copre più il muso. E consuma meno: viene disegnato a circa 60 fotogrammi al secondo anche su monitor più veloci, e non si sveglia più di continuo quando sta sopra una finestra.",
-    "pt": "À noite (das 22h às 7h) o Kobii veste o pijama listrado, com gola em V, botões e mangas, e uma touca de dormir com pompom que cai para o lado; ele mesmo veste e tira. Logo depois de escovado, brilhinhos piscam no pelo dele. Ao abraçar o ursinho, a mão não cobre mais o rosto do ursinho. E ele gasta menos: é desenhado a uns 60 quadros por segundo mesmo em monitores mais rápidos, e não acorda mais toda hora quando está em cima de uma janela."
+    "es": "El tamaño, el volumen, lo movido que es y cogerlo con el ratón están ahora en la pestaña «General» de su ficha, igual que en los demás asistentes.",
+    "en": "Size, volume, how lively it is and picking it up with the mouse are now in the «General» tab of its card, as for every other assistant.",
+    "fr": "La taille, le volume, la vivacité et l’attraper avec la souris sont maintenant dans l’onglet « Général » de sa fiche, comme pour les autres assistants.",
+    "de": "Größe, Lautstärke, Lebhaftigkeit und das Greifen mit der Maus stehen jetzt im Reiter „Allgemein“ seiner Karte, wie bei den anderen Assistenten.",
+    "it": "Dimensione, volume, vivacità e prenderlo con il mouse sono ora nella scheda «Generale» della sua scheda, come per gli altri assistenti.",
+    "pt": "Tamanho, volume, agitação e pegar com o mouse agora ficam na aba «Geral» da ficha dele, como nos outros assistentes."
   },
   "homepage": "https://github.com/Kobayashi82/K-Desktop-Assistants",
   "license": "MIT",
-  "sdk": "1.8",
+  "sdk": "1.9",
+  "common": ["size", "volume", "liveliness", "dragging"],
   "entry": "lib/Kobii.Assistant.dll!Kobii.Assistant.KobiiAssistant",
   "icon": "icon.png",
   "wakeWord": "Kobii",

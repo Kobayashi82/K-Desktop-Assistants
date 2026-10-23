@@ -1,9 +1,13 @@
 using System.Text.Json;
+using KDesktop.Assistant.Sdk;
 using Kobii.Core.Creature;
 
 namespace Kobii.Assistant;
 
-/// <summary>Sus ajustes (las claves de Package\settings.json), leídos de lo que manda el host con los valores por defecto ya puestos.</summary>
+/// <summary>
+/// Sus ajustes: los de Package\settings.json (lo que manda el host, con los valores por defecto ya puestos) y lo que K-Desktop
+/// pone igual para todos los asistentes (SDK 1.9, pestaña «General» de su ficha): tamaño, lo movido que es y cogerlo con el ratón.
+/// </summary>
 internal sealed record KobiiSettings
 {
     /// <summary>Su colorido (id de <see cref="Species.Palettes"/>).</summary>
@@ -21,29 +25,23 @@ internal sealed record KobiiSettings
 
     public GameOptions ToGameOptions() => new() { Size = Size, Liveliness = Liveliness, FollowCursor = FollowCursor };
 
-    public static KobiiSettings Read(JsonElement json)
+    public static KobiiSettings Read(JsonElement json, CommonSettings common)
     {
         var defaults = new KobiiSettings();
-        if (json.ValueKind != JsonValueKind.Object)
-        {
-            return defaults;
-        }
-
+        var own = json.ValueKind == JsonValueKind.Object;
         return new KobiiSettings
         {
-            Color = Text(json, "color") is { } color && Species.Palettes.Any(p => p.Id == color) ? color : defaults.Color,
-            Size = Math.Clamp(Number(json, "size") ?? defaults.Size, 0.6, 2),
-            Liveliness = Math.Clamp(Number(json, "liveliness") ?? defaults.Liveliness, 0.2, 2),
-            FollowCursor = Flag(json, "followCursor") ?? defaults.FollowCursor,
-            AllowDragging = Flag(json, "allowDragging") ?? defaults.AllowDragging,
+            Color = own && Text(json, "color") is { } color && Species.Palettes.Any(p => p.Id == color) ? color : defaults.Color,
+            Size = Math.Clamp(common.Size, 0.5, 2),
+            // Al 0 % lo menos movido que puede ser.
+            Liveliness = Math.Clamp(common.Liveliness, 0.2, 2),
+            FollowCursor = (own ? Flag(json, "followCursor") : null) ?? defaults.FollowCursor,
+            AllowDragging = common.Dragging,
         };
     }
 
     private static string? Text(JsonElement json, string key) =>
         json.TryGetProperty(key, out var value) && value.ValueKind == JsonValueKind.String ? value.GetString() : null;
-
-    private static double? Number(JsonElement json, string key) =>
-        json.TryGetProperty(key, out var value) && value.ValueKind == JsonValueKind.Number ? value.GetDouble() : null;
 
     private static bool? Flag(JsonElement json, string key) =>
         json.TryGetProperty(key, out var value) && value.ValueKind is JsonValueKind.True or JsonValueKind.False ? value.GetBoolean() : null;

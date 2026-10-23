@@ -93,7 +93,7 @@ public sealed partial class KobiiAssistant : IAssistant
     {
         _host = host;
         Log.Target = host.Log;
-        _settings = KobiiSettings.Read(host.Settings);
+        _settings = KobiiSettings.Read(host.Settings, host.Common);
         _game = new KobiiGame(_settings.ToGameOptions(), new GameRandom());
         _surface = host.Rendering.CreateSurface();
         _effects = host.Rendering.CreateSurface(SurfaceLayer.Front);
@@ -389,7 +389,7 @@ public sealed partial class KobiiAssistant : IAssistant
 
     public void OnSettingsChanged(JsonElement settings)
     {
-        _settings = KobiiSettings.Read(settings);
+        _settings = KobiiSettings.Read(settings, _host.Common);
         _game.ApplyOptions(_settings.ToGameOptions());
         _forceRender = true;
         _host.RequestTick();

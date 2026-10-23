@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using KDesktop.Assistant.Sdk;
 using Kobii.Core.Creature;
 
 namespace Kobii.Assistant.Tests;
@@ -19,10 +20,7 @@ public sealed class PackageTests
         var expected = new Dictionary<string, object>
         {
             ["color"] = defaults.Color,
-            ["size"] = defaults.Size,
-            ["liveliness"] = defaults.Liveliness,
             ["followCursor"] = defaults.FollowCursor,
-            ["allowDragging"] = defaults.AllowDragging,
         };
 
         var items = SettingItems().Where(i => i["key"] is not null).ToList();
@@ -37,12 +35,13 @@ public sealed class PackageTests
     [Fact]
     public void Values_saved_by_KDesktop_are_read()
     {
+        // Lo que quedó guardado de antes (tamaño, movido, cogerlo) ya no cuenta: manda lo común de K-Desktop (SDK 1.9).
         var settings = KobiiSettings.Read(JsonDocument.Parse("""
-            { "color": "lilac", "size": 1.4, "liveliness": 0.5, "followCursor": false, "allowDragging": false }
-            """).RootElement);
+            { "color": "lilac", "size": 1.4, "liveliness": 0.5, "followCursor": false, "allowDragging": true }
+            """).RootElement, new CommonSettings(Size: 1.25, Liveliness: 1.5, Dragging: false));
         Assert.Equal("lilac", settings.Color);
-        Assert.Equal(1.4, settings.Size);
-        Assert.Equal(0.5, settings.Liveliness);
+        Assert.Equal(1.25, settings.Size);
+        Assert.Equal(1.5, settings.Liveliness);
         Assert.False(settings.FollowCursor);
         Assert.False(settings.AllowDragging);
     }
@@ -50,10 +49,12 @@ public sealed class PackageTests
     [Fact]
     public void Missing_or_broken_values_fall_back_to_the_defaults()
     {
-        var broken = KobiiSettings.Read(JsonDocument.Parse("""{ "color": "rainbow", "size": "big", "liveliness": 50 }""").RootElement);
+        var broken = KobiiSettings.Read(JsonDocument.Parse("""{ "color": "rainbow", "followCursor": 3 }""").RootElement, CommonSettings.Default);
         Assert.Equal("mint", broken.Color);
+        Assert.True(broken.FollowCursor);
         Assert.Equal(1, broken.Size);
-        Assert.Equal(2, broken.Liveliness);
+        // Al 0 % lo menos movido que puede ser.
+        Assert.Equal(0.2, KobiiSettings.Read(default, new CommonSettings(Liveliness: 0)).Liveliness);
     }
 
     [Fact]

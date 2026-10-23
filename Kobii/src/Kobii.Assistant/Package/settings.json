@@ -18,28 +18,12 @@
                 { "id": "lilac", "name": { "es": "Lila", "en": "Lilac", "fr": "Lilas", "de": "Flieder", "it": "Lilla", "pt": "Lilás" }, "image": "assets/colors/lilac.png" },
                 { "id": "lemon", "name": { "es": "Limón", "en": "Lemon", "fr": "Citron", "de": "Zitrone", "it": "Limone", "pt": "Limão" }, "image": "assets/colors/lemon.png" }
               ]
-            },
-            {
-              "type": "slider", "key": "size", "min": 0.6, "max": 2, "step": 0.1, "default": 1, "format": "{0:P0}",
-              "label": { "es": "Tamaño", "en": "Size", "fr": "Taille", "de": "Größe", "it": "Dimensione", "pt": "Tamanho" }
             }
           ]
         },
         {
           "title": { "es": "Comportamiento", "en": "Behaviour", "fr": "Comportement", "de": "Verhalten", "it": "Comportamento", "pt": "Comportamento" },
           "items": [
-            {
-              "type": "slider", "key": "liveliness", "min": 0.2, "max": 2, "step": 0.1, "default": 1, "format": "{0:P0}",
-              "label": { "es": "Lo movido que es", "en": "How lively it is", "fr": "À quel point il bouge", "de": "Wie lebhaft er ist", "it": "Quanto è vivace", "pt": "O quanto ele se mexe" },
-              "description": {
-                "es": "Menos: se queda más rato quieto entre una cosa y otra.",
-                "en": "Lower: it stays still for longer between one thing and the next.",
-                "fr": "Moins : il reste plus longtemps immobile entre deux activités.",
-                "de": "Weniger: Er bleibt zwischen zwei Dingen länger ruhig.",
-                "it": "Meno: resta fermo più a lungo tra una cosa e l’altra.",
-                "pt": "Menos: ele fica parado por mais tempo entre uma coisa e outra."
-              }
-            },
             {
               "type": "toggle", "key": "followCursor", "default": true,
               "label": { "es": "Curiosea el cursor", "en": "Curious about the cursor", "fr": "Curieux du curseur", "de": "Neugierig auf den Mauszeiger", "it": "Curioso del cursore", "pt": "Curioso com o cursor" },
@@ -50,18 +34,6 @@
                 "de": "Lässt du den Mauszeiger in der Nähe ruhen, kommt er ihn anschauen.",
                 "it": "Se lasci il cursore fermo vicino, si avvicina a guardarlo.",
                 "pt": "Se você deixar o cursor parado por perto, ele se aproxima para olhar."
-              }
-            },
-            {
-              "type": "toggle", "key": "allowDragging", "default": true,
-              "label": { "es": "Cogerlo con el ratón", "en": "Pick it up with the mouse", "fr": "L’attraper avec la souris", "de": "Mit der Maus hochheben", "it": "Prenderlo con il mouse", "pt": "Pegá-lo com o mouse" },
-              "description": {
-                "es": "Arrástralo para llevarlo a otro sitio o lanzarlo.",
-                "en": "Drag it to carry it somewhere else or throw it.",
-                "fr": "Fais-le glisser pour l’emmener ailleurs ou le lancer.",
-                "de": "Zieh ihn, um ihn woanders hinzubringen oder zu werfen.",
-                "it": "Trascinalo per portarlo altrove o lanciarlo.",
-                "pt": "Arraste-o para levá-lo a outro lugar ou jogá-lo."
               }
             }
           ]

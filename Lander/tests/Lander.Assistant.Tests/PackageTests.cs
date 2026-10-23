@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using KDesktop.Assistant.Sdk;
 using Lander.Core.Progression;
 using Lander.Core.Settings;
 
@@ -24,8 +25,7 @@ public sealed class PackageTests
             var key = item["key"]!.GetValue<string>();
             Assert.True(model.ContainsKey(key), $"«{key}» no es un ajuste del Lander");
 
-            // Dentro de K-Desktop el sonido empieza encendido (tiene además el interruptor general de los asistentes).
-            var expected = key == "soundEnabled" ? JsonValue.Create(true) : model[key];
+            var expected = model[key];
             var actual = item["default"];
             Assert.True(SameValue(expected, actual), $"«{key}»: por defecto {actual?.ToJsonString()} en settings.json y {expected?.ToJsonString()} en el Lander");
         }
@@ -46,7 +46,7 @@ public sealed class PackageTests
     {
         var json = JsonDocument.Parse("""
             { "missionFrequency": "high", "pilotErrors": 0.25, "acrobatics": 1, "landOnContent": true,
-              "contentExcludedApps": ["Slack.exe"], "landerSize": 64, "skin": "apollo", "soundEnabled": false, "volume": 0.8 }
+              "contentExcludedApps": ["Slack.exe"], "skin": "apollo" }
             """).RootElement;
         var settings = LanderAssistant.ReadSettings(json);
         Assert.Equal(Core.Game.MissionFrequency.High, settings.MissionFrequency);
@@ -54,20 +54,36 @@ public sealed class PackageTests
         Assert.Equal(1, settings.Acrobatics);
         Assert.True(settings.LandOnContent);
         Assert.Equal(["slack"], settings.ContentExcludedApps);
-        Assert.Equal(64, settings.LanderSize);
         Assert.Equal("apollo", settings.Skin);
-        Assert.False(settings.SoundEnabled);
-        Assert.Equal(0.8, settings.Volume);
+    }
+
+    /// <summary>
+    /// Lo que K-Desktop pone igual para todos (SDK 1.9) manda sobre lo que quede guardado de antes: tamaño en %, lo movido
+    /// que es y cogerlo con el ratón; el sonido siempre encendido y el volumen fijo (el host aplica el suyo encima).
+    /// </summary>
+    [Fact]
+    public void The_common_settings_of_KDesktop_win()
+    {
+        var old = JsonDocument.Parse("""{ "landerSize": 80, "activity": 2.5, "allowDragging": true, "soundEnabled": false, "volume": 0.9 }""").RootElement;
+        var settings = LanderAssistant.ReadSettings(old, new CommonSettings(Size: 1.5, Liveliness: 0, Dragging: false));
+        Assert.Equal(72, settings.LanderSize);
+        Assert.Equal(0.25, settings.Activity);
+        Assert.False(settings.AllowDragging);
+        Assert.True(settings.SoundEnabled);
+        Assert.Equal(0.5, settings.Volume);
+
+        Assert.Equal(LanderSettings.MinSize, LanderAssistant.ReadSettings(old, new CommonSettings(Size: 0.5)).LanderSize);
+        Assert.Equal(LanderSettings.MaxSize, LanderAssistant.ReadSettings(old, new CommonSettings(Size: 2)).LanderSize);
+        Assert.Equal(LanderAssistant.BaseSize, LanderAssistant.ReadSettings(old).LanderSize);
     }
 
     [Fact]
     public void Missing_or_broken_values_fall_back_to_the_defaults()
     {
         Assert.True(LanderAssistant.ReadSettings(JsonDocument.Parse("{}").RootElement).SoundEnabled);
-        var broken = LanderAssistant.ReadSettings(JsonDocument.Parse("""{ "landerSize": "grande", "skin": "nope" }""").RootElement);
-        Assert.Equal(48, broken.LanderSize);
+        var broken = LanderAssistant.ReadSettings(JsonDocument.Parse("""{ "pilotErrors": "mucho", "skin": "nope" }""").RootElement);
+        Assert.Equal(0.5, broken.PilotErrors);
         Assert.Equal(Unlocks.DefaultSkin, broken.Skin);
-        Assert.Equal(LanderSettings.MaxSize, LanderAssistant.ReadSettings(JsonDocument.Parse("""{ "landerSize": 500 }""").RootElement).LanderSize);
     }
 
     [Fact]

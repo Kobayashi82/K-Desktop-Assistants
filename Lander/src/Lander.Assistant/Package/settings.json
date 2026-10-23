@@ -95,18 +95,6 @@
         {
           "items": [
             {
-              "type": "slider", "key": "landerSize", "min": 32, "max": 96, "step": 4, "default": 48, "format": "{0} px",
-              "label": { "es": "Tamaño", "en": "Size", "fr": "Taille", "de": "Größe", "it": "Dimensione", "pt": "Tamanho" },
-              "description": {
-                "es": "Altura del lander. Se ajusta además al escalado de cada monitor.",
-                "en": "Height of the lander. It also follows the scaling of each monitor.",
-                "fr": "Hauteur du lander. Elle suit aussi la mise à l’échelle de chaque écran.",
-                "de": "Höhe des Landers. Sie passt sich zusätzlich der Skalierung jedes Bildschirms an.",
-                "it": "Altezza del lander. Si adatta anche al ridimensionamento di ogni monitor.",
-                "pt": "Altura do lander. Ela também acompanha a escala de cada monitor."
-              }
-            },
-            {
               "type": "gallery", "key": "skin", "source": "skins", "default": "classic",
               "label": { "es": "Modelo", "en": "Model", "fr": "Modèle", "de": "Modell", "it": "Modello", "pt": "Modelo" },
               "description": {
@@ -140,20 +128,6 @@
       "sections": [
         {
           "items": [
-            {
-              "type": "slider", "key": "activity", "min": 0.25, "max": 3, "step": 0.05, "default": 1,
-              "label": { "es": "Actividad", "en": "Activity", "fr": "Activité", "de": "Aktivität", "it": "Attività", "pt": "Atividade" },
-              "description": {
-                "es": "Cada cuánto se anima a volar a otro sitio cuando está en automático.",
-                "en": "How often it decides to fly somewhere else on its own.",
-                "fr": "À quelle fréquence il décide de voler ailleurs tout seul.",
-                "de": "Wie oft er von selbst woanders hinfliegt.",
-                "it": "Ogni quanto decide di volare altrove da solo.",
-                "pt": "Com que frequência ele resolve voar para outro lugar sozinho."
-              },
-              "minLabel": { "es": "Tranquilo", "en": "Calm", "fr": "Calme", "de": "Ruhig", "it": "Tranquillo", "pt": "Tranquilo" },
-              "maxLabel": { "es": "Activo", "en": "Active", "fr": "Actif", "de": "Aktiv", "it": "Attivo", "pt": "Ativo" }
-            },
             {
               "type": "slider", "key": "shyness", "min": 0, "max": 1, "step": 0.05, "default": 0.5,
               "label": { "es": "Timidez", "en": "Shyness", "fr": "Timidité", "de": "Schüchternheit", "it": "Timidezza", "pt": "Timidez" },
@@ -238,18 +212,6 @@
                 "de": "Was er für deine Befehle tut, verbraucht keinen Treibstoff, also verzögert er sie nie. Ohne ihn verbrauchen Manöver Treibstoff (ein Fenster abschleppen viel), und mit fast leerem Tank sagt er es dir nur.",
                 "it": "Ciò che fa per i tuoi ordini non consuma carburante, quindi non li ritarda mai. Senza, le manovre consumano (rimorchiare una finestra, parecchio) e con il serbatoio quasi vuoto te lo dice soltanto.",
                 "pt": "O que ele faz pelas suas ordens não gasta combustível, então nunca as atrasa. Sem ele, as manobras gastam (rebocar uma janela, bastante) e com o tanque quase vazio ele só avisa."
-              }
-            },
-            {
-              "type": "toggle", "key": "allowDragging", "default": true,
-              "label": { "es": "Cogerlo con el ratón", "en": "Pick it up with the mouse", "fr": "L’attraper avec la souris", "de": "Mit der Maus greifen", "it": "Prenderlo con il mouse", "pt": "Pegar com o mouse" },
-              "description": {
-                "es": "Arrástralo y suéltalo para lanzarlo; un clic es una caricia y el doble clic, pilotarlo. Si lo desactivas, el ratón lo atraviesa siempre.",
-                "en": "Drag and drop it to throw it; a click pets it and a double click flies it. If you turn this off, the mouse always goes through it.",
-                "fr": "Glisse-le et lâche-le pour le lancer ; un clic le caresse et un double-clic le pilote. Si tu le désactives, la souris le traverse toujours.",
-                "de": "Zieh ihn und lass los, um ihn zu werfen; ein Klick streichelt ihn, ein Doppelklick steuert ihn. Ausgeschaltet geht die Maus immer durch ihn hindurch.",
-                "it": "Trascinalo e rilascialo per lanciarlo; un clic è una carezza e il doppio clic lo pilota. Se lo disattivi, il mouse lo attraversa sempre.",
-                "pt": "Arraste e solte para lançá-lo; um clique é um carinho e o clique duplo o pilota. Se desativar, o mouse sempre passa através dele."
               }
             }
           ]
@@ -346,32 +308,6 @@
                 "it": "Perfetto: piano, dritto e con entrambe le zampe sulla piattaforma; punti extra, e le serie moltiplicano. Duro: un po’ veloce o inclinato; meno punti e qualche danno. Incidente: troppo veloce o di lato; ritorno alla base. La barra delle applicazioni è la base: atterra lì per fare rifornimento e riparare. Una finestra stretta vale più della barra delle applicazioni, e senza carburante niente motore.",
                 "pt": "Perfeito: devagar, reto e com as duas pernas na plataforma; pontos extras, e as sequências multiplicam. Duro: um pouco rápido ou inclinado; menos pontos e algum dano. Acidente: rápido demais ou de lado; volta à base. A barra de tarefas é a base: pouse lá para reabastecer e reparar. Uma janela estreita vale mais que a barra de tarefas, e sem combustível não há motor."
               }
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "title": { "es": "Sonido", "en": "Sound", "fr": "Son", "de": "Ton", "it": "Suono", "pt": "Som" },
-      "icon": "kd:Speaker2",
-      "sections": [
-        {
-          "items": [
-            {
-              "type": "toggle", "key": "soundEnabled", "default": true,
-              "label": { "es": "Sonido", "en": "Sound", "fr": "Son", "de": "Ton", "it": "Suono", "pt": "Som" },
-              "description": {
-                "es": "Zumbido del motor, clic de las patas y pitido de aterrizaje. Siempre en silencio con «No molestar». Los sonidos de todos los asistentes se apagan también en Opciones → Módulo Asistente.",
-                "en": "Engine hum, leg clicks and landing chime. Always silent with Do not disturb. Sounds of all assistants can also be turned off in Settings → Assistant module.",
-                "fr": "Ronronnement du moteur, clic des pieds et bip d’atterrissage. Toujours silencieux avec « Ne pas déranger ». Les sons de tous les assistants se coupent aussi dans Paramètres → Module Assistant.",
-                "de": "Triebwerksbrummen, Klicken der Beine und Landeton. Bei „Nicht stören“ immer still. Die Töne aller Assistenten lassen sich auch unter Einstellungen → Assistent-Modul ausschalten.",
-                "it": "Ronzio del motore, clic delle zampe e segnale di atterraggio. Sempre in silenzio con «Non disturbare». I suoni di tutti gli assistenti si spengono anche in Impostazioni → Modulo Assistente.",
-                "pt": "Zumbido do motor, clique das pernas e bipe de pouso. Sempre em silêncio com «Não incomodar». Os sons de todos os assistentes também podem ser desligados em Configurações → Módulo Assistente."
-              }
-            },
-            {
-              "type": "slider", "key": "volume", "min": 0, "max": 1, "step": 0.05, "default": 0.5, "format": "{0:P0}", "enabledWhen": "soundEnabled",
-              "label": { "es": "Volumen", "en": "Volume", "fr": "Volume", "de": "Lautstärke", "it": "Volume", "pt": "Volume" }
             }
           ]
         }

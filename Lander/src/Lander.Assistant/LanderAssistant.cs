@@ -67,7 +67,7 @@ public sealed partial class LanderAssistant : IAssistant
         _host = host;
         Log.Target = host.Log;
         Texts.Language = host.Language;
-        _settings = ReadSettings(host.Settings);
+        _settings = ReadSettings(host.Settings, host.Common);
         _progress = LoadProgress();
         _audio = new LanderAudio(host.Audio);
         _markers = new MarkerLayer(host.Rendering);
@@ -308,7 +308,7 @@ public sealed partial class LanderAssistant : IAssistant
         }
     }
 
-    public void OnSettingsChanged(JsonElement settings) => ApplySettings(ReadSettings(settings));
+    public void OnSettingsChanged(JsonElement settings) => ApplySettings(ReadSettings(settings, _host.Common));
 
     public void Dispose()
     {

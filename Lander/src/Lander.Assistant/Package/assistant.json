@@ -2,7 +2,7 @@
   "$schema": "../../../../../docs/assistant/esquemas/assistant.schema.json",
   "id": "lander",
   "name": "Lander",
-  "version": "0.11.0",
+  "version": "0.12.0",
   "author": "Kobayashi82",
   "description": {
     "es": "Un pequeño módulo lunar que vuela por tus ventanas y aterriza en ellas. Incluye su juego.",
@@ -15,14 +15,15 @@
   "homepage": "https://github.com/Kobayashi82/K-Desktop-Assistants",
   "license": "MIT",
   "changes": {
-    "es": "Rayo tractor para minimizar ventanas y dos ganchos en las esquinas para estirarlas o encogerlas.",
-    "en": "Tractor beam to minimise windows and two hooks on the corners to stretch or shrink them.",
-    "fr": "Rayon tracteur pour réduire les fenêtres et deux grappins aux coins pour les étirer ou les rétrécir.",
-    "de": "Traktorstrahl zum Minimieren von Fenstern und zwei Haken an den Ecken, um sie zu strecken oder zu verkleinern.",
-    "it": "Raggio traente per ridurre le finestre e due ganci agli angoli per allargarle o rimpicciolirle.",
-    "pt": "Raio trator para minimizar janelas e dois ganchos nos cantos para esticá-las ou encolhê-las."
+    "es": "El tamaño, el volumen, lo movido que es y cogerlo con el ratón están ahora en la pestaña «General» de su ficha, igual que en los demás asistentes (el tamaño en %).",
+    "en": "Size, volume, how lively it is and picking it up with the mouse are now in the «General» tab of its card, as for every other assistant (size in %).",
+    "fr": "La taille, le volume, la vivacité et l’attraper avec la souris sont maintenant dans l’onglet « Général » de sa fiche, comme pour les autres assistants (taille en %).",
+    "de": "Größe, Lautstärke, Lebhaftigkeit und das Greifen mit der Maus stehen jetzt im Reiter „Allgemein“ seiner Karte, wie bei den anderen Assistenten (Größe in %).",
+    "it": "Dimensione, volume, vivacità e prenderlo con il mouse sono ora nella scheda «Generale» della sua scheda, come per gli altri assistenti (dimensione in %).",
+    "pt": "Tamanho, volume, agitação e pegar com o mouse agora ficam na aba «Geral» da ficha dele, como nos outros assistentes (tamanho em %)."
   },
-  "sdk": "1.4",
+  "sdk": "1.9",
+  "common": ["size", "volume", "liveliness", "dragging"],
   "entry": "lib/Lander.Assistant.dll!Lander.Assistant.LanderAssistant",
   "icon": "icon.png",
   "wakeWord": "Lander",
