@@ -2,7 +2,7 @@
   "$schema": "../../../../../docs/assistant/esquemas/assistant.schema.json",
   "id": "lander",
   "name": "Lander",
-  "version": "0.10.4",
+  "version": "0.11.0",
   "author": "Kobayashi82",
   "description": {
     "es": "Un pequeño módulo lunar que vuela por tus ventanas y aterriza en ellas. Incluye su juego.",
@@ -14,6 +14,14 @@
   },
   "homepage": "https://github.com/Kobayashi82/K-Desktop-Assistants",
   "license": "MIT",
+  "changes": {
+    "es": "Rayo tractor para minimizar ventanas y dos ganchos en las esquinas para estirarlas o encogerlas.",
+    "en": "Tractor beam to minimise windows and two hooks on the corners to stretch or shrink them.",
+    "fr": "Rayon tracteur pour réduire les fenêtres et deux grappins aux coins pour les étirer ou les rétrécir.",
+    "de": "Traktorstrahl zum Minimieren von Fenstern und zwei Haken an den Ecken, um sie zu strecken oder zu verkleinern.",
+    "it": "Raggio traente per ridurre le finestre e due ganci agli angoli per allargarle o rimpicciolirle.",
+    "pt": "Raio trator para minimizar janelas e dois ganchos nos cantos para esticá-las ou encolhê-las."
+  },
   "sdk": "1.4",
   "entry": "lib/Lander.Assistant.dll!Lander.Assistant.LanderAssistant",
   "icon": "icon.png",

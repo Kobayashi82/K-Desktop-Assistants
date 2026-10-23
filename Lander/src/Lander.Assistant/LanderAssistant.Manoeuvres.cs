@@ -154,6 +154,23 @@ public sealed partial class LanderAssistant
 
     private async Task ShootAsync(Gesture.PressButton press, Pace pace, IGestureContext ctx, Action commit, CancellationToken ct)
     {
+        // El botón tapado por otra ventana: el disparo la atravesaría. Lo hace K-Desktop sin más.
+        if (!Seen(press.Window.Handle, ToVec(press.ButtonBounds.Center)))
+        {
+            _host.Log.Debug($"Maniobra: el botón de «{press.Window.Title}» está tapado; lo pulsa K-Desktop");
+            commit();
+            return;
+        }
+
+        // Minimizar: la mitad de las veces, con el rayo tractor en vez del disparo (si hay tiempo de volar y se ve casi
+        // entera: el haz envuelve la ventana).
+        if (press.Button == CaptionButton.Minimize && pace.Flight > 0 && press.Window is { IsMaximized: false, Bounds.IsEmpty: false }
+            && ctx.TimeLeft.TotalSeconds > 2 && SeenShare(press.Window.Handle, press.Window.Bounds) >= 0.85 && _tractorDice.NextDouble() < TractorChance)
+        {
+            await TractorAsync(press, pace, ctx, commit, ct);
+            return;
+        }
+
         var target = ToVec(press.ButtonBounds.Center);
         var charged = press.Button == CaptionButton.Close && pace.Charge > 0;
         var color = press.Button switch
@@ -178,6 +195,54 @@ public sealed partial class LanderAssistant
 
         await FireAsync(target, color, charged ? 1.6 : 1, pace, commit, ct);
         _ = ReactToResultAsync(ctx.Committed);
+    }
+
+    /// <summary>Las veces (de cada una) que minimiza con el rayo tractor en vez de disparar al botón.</summary>
+    private const double TractorChance = 0.5;
+
+    private readonly Random _tractorDice = new();
+
+    /// <summary>
+    /// El rayo tractor (fase 12): se pone encima de la ventana, la envuelve con un haz que la «absorbe» y, cuando ya la
+    /// tiene, la ventana se minimiza (Windows la lleva a la barra de tareas mientras el haz se apaga).
+    /// </summary>
+    private async Task TractorAsync(Gesture.PressButton press, Pace pace, IGestureContext ctx, Action commit, CancellationToken ct)
+    {
+        var window = press.Window;
+        var h = _game.Body.Height;
+        var b = window.Bounds;
+        var top = new Vec2(b.Center.X, b.Top);
+        var above = new Vec2(b.Center.X, b.Top - 3 * h);
+        if ((_world.MonitorAt(top) ?? _world.NearestMonitor(top)) is { } monitor)
+        {
+            above = above with { Y = Math.Max(above.Y, monitor.Bounds.Top + 2.4 * h) };
+        }
+
+        var seconds = Math.Max(0.8, pace.Show * 1.2);
+        _host.Log.Debug($"Maniobra: rayo tractor sobre «{window.Title}» ({seconds:0.0} s)");
+        // El haz sale de arriba: «a tiro» solo si ya está encima de la ventana; si no, vuela a ponerse encima.
+        var body = _game.Body.Position;
+        var overIt = body.Y < b.Top - 1.5 * h && body.X > b.Left && body.X < b.Right;
+        await ApproachAsync(above, top, pace, ctx, seconds + 0.4, ct, overIt ? pace.Range : 0);
+        if (_game.Body.Position.Y > b.Top - h)
+        {
+            // No ha llegado a ponerse encima a tiempo: el disparo de siempre.
+            await FireAsync(ToVec(press.ButtonBounds.Center), ShotColor, 1, pace, commit, ct);
+            _ = ReactToResultAsync(ctx.Committed);
+            return;
+        }
+
+        var area = new System.Windows.Rect(b.Left, b.Top, b.Width, b.Height);
+        var beam = _effects.Add(new ManoeuvreEffect(EffectKind.Tractor, _now, seconds, _game.Body.Position, top, ShotColor, _game.Body.Scale, area));
+        Play(Sound.Charge, 0.6);
+        _game.Visual.LookTarget = top;
+
+        // La tiene cuando el haz lleva un rato: ahí se minimiza, y el haz se apaga después.
+        await FollowAsync(beam, seconds * 0.7, fromBody: true, ct);
+        commit();
+        PlayAt(Sound.Whoosh, 0.7, top.X);
+        _ = ReactToResultAsync(ctx.Committed);
+        await FollowAsync(beam, seconds * 0.3, fromBody: true, ct);
     }
 
     /// <summary>Desde dónde dispara: un poco por debajo y a un lado del botón, del lado por el que llega.</summary>

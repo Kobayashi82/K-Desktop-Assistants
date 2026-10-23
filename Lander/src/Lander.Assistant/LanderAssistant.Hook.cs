@@ -113,6 +113,14 @@ public sealed partial class LanderAssistant
 
         var h = _game.Body.Height;
 
+        // Tapada por otra ventana: ni gancho ni empujón (atravesaría lo que hay delante); que la mueva K-Desktop.
+        if (!Seen(handle, HookPoint(bounds, TitleOffset(bounds))) || (IsStretch(bounds, destination) && !CornersSeen(handle, bounds)))
+        {
+            _host.Log.Debug("Maniobra: la ventana está tapada; la mueve K-Desktop");
+            commit();
+            return GestureOutcome.Committed;
+        }
+
         // Un poco nada más y del mismo tamaño: un empujón, sin gancho.
         var shift = new Vec2(destination.Left - bounds.Left, destination.Top - bounds.Top);
         if (shift.Length is > 1 and < PushReach * 48 && Math.Abs(destination.Width - bounds.Width) <= 2 && Math.Abs(destination.Height - bounds.Height) <= 2
@@ -121,13 +129,19 @@ public sealed partial class LanderAssistant
             return pushed;
         }
 
+        // Cambia sobre todo de tamaño, casi en el mismo sitio: la estira (o la encoge) con dos ganchos en las esquinas.
+        if (IsStretch(bounds, destination))
+        {
+            return await StretchAsync(handle, bounds, destination, pace, ctx, deadline, ct);
+        }
+
         var title = TitleOffset(bounds);
         var hook = HookPoint(bounds, title);
         // Cerca, pero sin gastar el tiempo del remolque: el cable da para disparar desde lejos.
         var approach = pace with { Flight = Math.Min(pace.Flight, pace.Flight > 3 ? 1.8 : 1.0) };
         await ApproachAsync(hook + new Vec2(0, -3.2 * h), hook, approach, ctx, 3.0, ct, range: 11);
 
-        var hooked = await ShootHookAsync(handle, title, ct);
+        var hooked = await ShootHookAsync(handle, b => HookPoint(b, title), ct);
         if (hooked is not { } line)
         {
             _host.Log.Debug("Maniobra: no se ha podido enganchar la ventana");
@@ -147,10 +161,10 @@ public sealed partial class LanderAssistant
     }
 
     /// <summary>
-    /// Dispara el gancho a la barra de título (hasta <see cref="HookAttempts"/> veces): el cable enganchado (su efecto), o
-    /// null si la ventana ya no está o no ha habido manera.
+    /// Dispara el gancho al punto de la ventana que da <paramref name="point"/> (la barra de título, una esquina; hasta
+    /// <see cref="HookAttempts"/> veces): el cable enganchado (su efecto), o null si la ventana ya no está o no ha habido manera.
     /// </summary>
-    private async Task<ManoeuvreEffect?> ShootHookAsync(long handle, double title, CancellationToken ct)
+    private async Task<ManoeuvreEffect?> ShootHookAsync(long handle, Func<PixelRect, Vec2> point, CancellationToken ct)
     {
         var scale = _game.Body.Scale;
         for (var attempt = 0; attempt < HookAttempts; attempt++)
@@ -160,7 +174,7 @@ public sealed partial class LanderAssistant
                 return null;
             }
 
-            var target = HookPoint(bounds, title);
+            var target = point(bounds);
             var from = Winch();
             var shot = HookShot.Aim(from, target, scale);
             var rope = new Rope(ToPoint(from), ToPoint(from), Math.Max(10, Vec2.Distance(from, target) * 0.4))
@@ -187,7 +201,7 @@ public sealed partial class LanderAssistant
                 last = _now;
             }
 
-            var now = WindowBounds(handle) is { IsEmpty: false } moved ? HookPoint(moved, title) : (Vec2?)null;
+            var now = WindowBounds(handle) is { IsEmpty: false } moved ? point(moved) : (Vec2?)null;
             if (shot.Hits(now))
             {
                 rope.PinEnd(ToPoint(now!.Value));
@@ -335,6 +349,49 @@ public sealed partial class LanderAssistant
     /// <summary>La mitad de la barra de título, según el escalado del monitor de la ventana.</summary>
     private double TitleOffset(PixelRect bounds) =>
         16 * (_host.World.Current.MonitorAt(bounds.Center)?.DpiScale ?? 1);
+
+    /// <summary>
+    /// Si se ve ese punto de la ventana: ninguna otra de las que tiene delante (el mundo las da de arriba abajo) lo tapa.
+    /// Una ventana tapada no se dispara, ni se engancha, ni se absorbe: se vería atravesar lo que hay delante.
+    /// </summary>
+    private bool Seen(long handle, Vec2 point)
+    {
+        var at = new System.Windows.Point(point.X, point.Y);
+        foreach (var window in _host.World.Current.Windows)
+        {
+            if (window.Handle == handle)
+            {
+                return true;
+            }
+
+            if (window.Bounds.Contains(at))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /// <summary>Lo que se ve de la ventana (0 a 1), con una rejilla de puntos.</summary>
+    private double SeenShare(long handle, PixelRect bounds)
+    {
+        const int steps = 6;
+        var seen = 0;
+        for (var i = 0; i < steps; i++)
+        {
+            for (var j = 0; j < steps; j++)
+            {
+                var point = new Vec2(bounds.Left + bounds.Width * (i + 0.5) / steps, bounds.Top + bounds.Height * (j + 0.5) / steps);
+                if (Seen(handle, point))
+                {
+                    seen++;
+                }
+            }
+        }
+
+        return seen / (double)(steps * steps);
+    }
 
     /// <summary>Dónde está la ventana ahora (el mundo del host), o null si ya no está.</summary>
     private PixelRect? WindowBounds(long handle) => _host.World.Current.Window(handle)?.Bounds;

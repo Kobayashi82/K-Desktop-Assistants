@@ -32,6 +32,12 @@ internal enum EffectKind
 
     /// <summary>El cable del gancho (<see cref="ManoeuvreEffect.Line"/>), con la garra en su punta.</summary>
     Rope,
+
+    /// <summary>
+    /// El rayo tractor: un haz ancho desde el lander (<see cref="ManoeuvreEffect.From"/>) que envuelve una ventana
+    /// (<see cref="ManoeuvreEffect.Area"/>) y chispas que suben de ella hacia la nave (minimizar).
+    /// </summary>
+    Tractor,
 }
 
 /// <param name="From">Origen (proyectil, foco); lo mueve el lander mientras vuela.</param>
@@ -122,6 +128,14 @@ internal sealed class ManoeuvreLayer(IRendering rendering) : IDisposable
 
             case EffectKind.Flash:
                 return effect.Area;
+
+            case EffectKind.Tractor:
+            {
+                var all = effect.Area;
+                all.Union(new Rect(effect.From.X - 30 * effect.Scale, effect.From.Y - 30 * effect.Scale, 60 * effect.Scale, 60 * effect.Scale));
+                all.Inflate(8 * effect.Scale, 8 * effect.Scale);
+                return all;
+            }
 
             case EffectKind.Rope when effect.Line is { } line:
                 return line.Bounds(14 * effect.Scale);
@@ -258,6 +272,37 @@ internal sealed class ManoeuvreLayer(IRendering rendering) : IDisposable
             case EffectKind.Flash:
                 dc.DrawRectangle(Gfx.Brush(Colors.White.WithAlpha(0.42 * (1 - t) * (1 - t))), null, e.Area);
                 break;
+
+            case EffectKind.Tractor:
+            {
+                // Un haz ancho que envuelve la ventana, un velo que la cubre y chispas que suben de ella hacia la nave
+                // (cada vez más juntas), como si la absorbiera; se enciende y se apaga con suavidad.
+                var area = e.Area;
+                var level = Math.Min(1, Math.Min(t / 0.12, (1 - t) / 0.12));
+                var emitter = new Point(e.From.X, e.From.Y + 8 * s);
+                var cone = Gfx.Polygon(emitter.X - 6 * s, emitter.Y, area.Left, area.Top, area.Left, area.Bottom, area.Right, area.Bottom, area.Right, area.Top, emitter.X + 6 * s, emitter.Y);
+                dc.DrawGeometry(Gfx.Gradient(emitter, new Point(area.Left + area.Width / 2, area.Bottom),
+                    (0, e.Color.WithAlpha(0.4 * level)), (1, e.Color.WithAlpha(0.08 * level))), null, cone);
+                var ray = Gfx.Pen(e.Color.WithAlpha(0.6 * level), 1.4 * s);
+                dc.DrawLine(ray, emitter, new Point(area.Left, area.Top));
+                dc.DrawLine(ray, emitter, new Point(area.Right, area.Top));
+                dc.DrawRectangle(Gfx.Brush(e.Color.WithAlpha(0.12 * level)), Gfx.Pen(e.Color.WithAlpha(0.55 * level), 1.6 * s), area);
+
+                // Las chispas: cada una sale de un punto de la ventana y sube hacia el emisor.
+                for (var i = 0; i < 28; i++)
+                {
+                    var phase = (now * 0.9 + i * 0.37) % 1;
+                    var startX = area.Left + area.Width * ((i * 0.618) % 1);
+                    var startY = area.Top + area.Height * ((i * 0.431) % 1);
+                    var pull = Math.Pow(phase, 1.6);
+                    var p = new Point(startX + (emitter.X - startX) * pull, startY + (emitter.Y - startY) * phase);
+                    var size = (2.6 - 1.6 * phase) * s;
+                    dc.DrawEllipse(Gfx.Brush(Colors.White.WithAlpha(0.85 * level * (1 - phase * 0.6))), null, p, size, size);
+                }
+
+                dc.DrawEllipse(LanderParts.Glow(e.Color, 0.9 * level), null, emitter, 16 * s, 16 * s);
+                break;
+            }
 
             case EffectKind.Rope when e.Line is { } line:
             {
