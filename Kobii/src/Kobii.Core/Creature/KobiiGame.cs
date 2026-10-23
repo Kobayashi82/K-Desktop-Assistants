@@ -135,7 +135,8 @@ public sealed partial class KobiiGame
         UpdateScale(world);
         if (world.PrimaryGround is { } ground)
         {
-            Body.PlaceOn(ground, ground.Left + ground.Width * fraction);
+            var x = ground.Left + ground.Width * fraction;
+            Body.PlaceOn(ground, FreeX(ground, x) ?? x);
             Activity = Activity.Idle;
         }
 
@@ -837,6 +838,12 @@ public sealed partial class KobiiGame
             return;
         }
 
+        // Se ha quedado encima de otro asistente (llegaron a la vez, o lo han dejado caer ahí): se aparta.
+        if (StepAside())
+        {
+            return;
+        }
+
         // Lleva mucho rato en lo alto de una ventana: se baja (descolgándose o dejándose caer).
         if (Body.Support is { IsBase: false } && Time - _platformSince > 180 && !_greetPending && (ComeDown() || TryGoDown()))
         {
@@ -1120,6 +1127,72 @@ public sealed partial class KobiiGame
         Raise(GameEventKind.Hop);
     }
 
+    /// <summary>Donde están quietos otros asistentes de K-Desktop (lo pone el asistente en cada ciclo): no se queda encima.</summary>
+    public IReadOnlyList<PixelRect> Occupied { get; set; } = [];
+
+    /// <summary>De pie en <paramref name="x"/> sobre una plataforma a la altura <paramref name="y"/>, quedaría encima de otro asistente.</summary>
+    public bool IsTaken(double x, double y)
+    {
+        if (Occupied.Count == 0)
+        {
+            return false;
+        }
+
+        var half = Body.HalfWidth + 4 * Body.Scale;
+        var spot = new PixelRect((int)(x - half), (int)(y - Body.Height), (int)Math.Ceiling(x + half), (int)Math.Ceiling(y));
+        foreach (var other in Occupied)
+        {
+            if (other.Intersects(spot))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>El sitio libre de otros asistentes más cercano a <paramref name="x"/> en esa plataforma, o null si no cabe.</summary>
+    public double? FreeX(Platform platform, double x)
+    {
+        var margin = Body.HalfWidth + 4 * Body.Scale;
+        var left = platform.Left + margin;
+        var right = platform.Right - margin;
+        if (right < left)
+        {
+            return null;
+        }
+
+        x = Math.Clamp(x, left, right);
+        var step = Math.Max(4, Body.HalfWidth / 2);
+        for (var d = 0.0; d <= right - left; d += step)
+        {
+            if (x + d <= right && !IsTaken(x + d, platform.Y))
+            {
+                return x + d;
+            }
+
+            if (x - d >= left && !IsTaken(x - d, platform.Y))
+            {
+                return x - d;
+            }
+        }
+
+        return null;
+    }
+
+    /// <summary>Está de pie donde otro asistente se ha quedado: se va andando al sitio libre más cercano.</summary>
+    private bool StepAside()
+    {
+        if (Body.Support is not { } support || !Body.IsGrounded || !IsTaken(Body.Feet.X, support.Y)
+            || FreeX(support, Body.Feet.X) is not { } free || !TryWalkTo(free))
+        {
+            return false;
+        }
+
+        Raise(GameEventKind.SteppedAside);
+        return true;
+    }
+
     private bool TryWalkTo(double x, double? clampMargin = null)
     {
         if (Body.Support is not { } support)
@@ -1129,6 +1202,17 @@ public sealed partial class KobiiGame
 
         var margin = clampMargin ?? Body.HalfWidth + 4 * Body.Scale;
         _targetX = Math.Clamp(x, support.Left + margin, Math.Max(support.Left + margin, support.Right - margin));
+        // Otro asistente se ha quedado ahí: al lado (pasar por delante sí vale; quedarse encima, no).
+        if (IsTaken(_targetX, support.Y))
+        {
+            if (FreeX(support, _targetX) is not { } free)
+            {
+                return false;
+            }
+
+            _targetX = free;
+        }
+
         if (Math.Abs(_targetX - Body.Feet.X) < 8 * Body.Scale)
         {
             return false;

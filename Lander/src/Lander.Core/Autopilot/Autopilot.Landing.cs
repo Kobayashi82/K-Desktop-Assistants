@@ -80,6 +80,23 @@ public sealed partial class Autopilot
             return Steer(ctx, Vec2.Zero);
         }
 
+        // Mientras llegaba, otro asistente se ha quedado justo ahí: al lado (o a otra parte si no cabe).
+        if (_purpose != FlightPurpose.Recover && _destination.TryResolve(ctx.World, body, out _, out var segment)
+            && DestinationPicker.IsTaken(body, segment.Y, target.X, ctx.Occupied))
+        {
+            if (DestinationPicker.FreeX(body, segment, target.X, ctx.Occupied) is { } free)
+            {
+                _destination = Destination.On(segment, free);
+                target = new Vec2(free, target.Y);
+            }
+            else
+            {
+                Replan(ctx);
+                State = _purpose == FlightPurpose.ReturnToBase ? AutopilotState.ReturningToBase : AutopilotState.Flying;
+                return Steer(ctx, Vec2.Zero);
+            }
+        }
+
         ctx.Visual.LookTarget = target + new Vec2(0, body.Height);
         if (_phase == FlightPhase.Transit && IsShortHop(ctx, target))
         {

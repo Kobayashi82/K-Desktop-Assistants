@@ -2,7 +2,7 @@
   "$schema": "../../../../../docs/assistant/esquemas/assistant.schema.json",
   "id": "kobii",
   "name": "Kobii",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "author": "Kobayashi82",
   "description": {
     "es": "Una criatura blandita que pasea por tu barra de tareas y por encima de tus ventanas.",
@@ -13,16 +13,16 @@
     "pt": "Uma criaturinha fofinha que passeia pela sua barra de tarefas e por cima das suas janelas."
   },
   "changes": {
-    "es": "El tamaño, el volumen, lo movido que es y cogerlo con el ratón están ahora en la pestaña «General» de su ficha, igual que en los demás asistentes.",
-    "en": "Size, volume, how lively it is and picking it up with the mouse are now in the «General» tab of its card, as for every other assistant.",
-    "fr": "La taille, le volume, la vivacité et l’attraper avec la souris sont maintenant dans l’onglet « Général » de sa fiche, comme pour les autres assistants.",
-    "de": "Größe, Lautstärke, Lebhaftigkeit und das Greifen mit der Maus stehen jetzt im Reiter „Allgemein“ seiner Karte, wie bei den anderen Assistenten.",
-    "it": "Dimensione, volume, vivacità e prenderlo con il mouse sono ora nella scheda «Generale» della sua scheda, come per gli altri assistenti.",
-    "pt": "Tamanho, volume, agitação e pegar com o mouse agora ficam na aba «Geral» da ficha dele, como nos outros assistentes."
+    "es": "Ya no se queda encima de otros asistentes: al pasear elige un sitio libre y, si acaba encima de otro, se aparta.",
+    "en": "It no longer stays on top of other assistants: it strolls to free spots and, if it ends up on top of another one, it steps aside.",
+    "fr": "Il ne reste plus sur les autres assistants : il se promène vers des places libres et, s’il finit sur un autre, il s’écarte.",
+    "de": "Er bleibt nicht mehr auf anderen Assistenten stehen: Er spaziert zu freien Plätzen und geht zur Seite, wenn er doch auf einem landet.",
+    "it": "Non resta più sopra gli altri assistenti: passeggia verso posti liberi e, se finisce sopra un altro, si sposta.",
+    "pt": "Ele não fica mais em cima de outros assistentes: passeia até lugares livres e, se acaba em cima de outro, sai do caminho."
   },
   "homepage": "https://github.com/Kobayashi82/K-Desktop-Assistants",
   "license": "MIT",
-  "sdk": "1.9",
+  "sdk": "1.11",
   "common": ["size", "volume", "liveliness", "dragging"],
   "entry": "lib/Kobii.Assistant.dll!Kobii.Assistant.KobiiAssistant",
   "icon": "icon.png",

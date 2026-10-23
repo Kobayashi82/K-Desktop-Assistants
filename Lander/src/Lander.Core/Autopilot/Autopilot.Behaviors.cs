@@ -239,7 +239,7 @@ public sealed partial class Autopilot
             return false;
         }
 
-        if (DestinationPicker.PickOnOwner(ctx.World, body, handle, random) is not { } perch || !IsReachable(ctx, perch)
+        if (DestinationPicker.PickOnOwner(ctx.World, body, handle, random, ctx.Occupied) is not { } perch || !IsReachable(ctx, perch)
             || ctx.Sensors.FullscreenMonitors.Contains(perch.MonitorIndex))
         {
             return false;

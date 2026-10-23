@@ -2,7 +2,7 @@
   "$schema": "../../../../../docs/assistant/esquemas/assistant.schema.json",
   "id": "lander",
   "name": "Lander",
-  "version": "0.12.0",
+  "version": "0.13.0",
   "author": "Kobayashi82",
   "description": {
     "es": "Un pequeño módulo lunar que vuela por tus ventanas y aterriza en ellas. Incluye su juego.",
@@ -15,14 +15,14 @@
   "homepage": "https://github.com/Kobayashi82/K-Desktop-Assistants",
   "license": "MIT",
   "changes": {
-    "es": "El tamaño, el volumen, lo movido que es y cogerlo con el ratón están ahora en la pestaña «General» de su ficha, igual que en los demás asistentes (el tamaño en %).",
-    "en": "Size, volume, how lively it is and picking it up with the mouse are now in the «General» tab of its card, as for every other assistant (size in %).",
-    "fr": "La taille, le volume, la vivacité et l’attraper avec la souris sont maintenant dans l’onglet « Général » de sa fiche, comme pour les autres assistants (taille en %).",
-    "de": "Größe, Lautstärke, Lebhaftigkeit und das Greifen mit der Maus stehen jetzt im Reiter „Allgemein“ seiner Karte, wie bei den anderen Assistenten (Größe in %).",
-    "it": "Dimensione, volume, vivacità e prenderlo con il mouse sono ora nella scheda «Generale» della sua scheda, come per gli altri assistenti (dimensione in %).",
-    "pt": "Tamanho, volume, agitação e pegar com o mouse agora ficam na aba «Geral» da ficha dele, como nos outros assistentes (tamanho em %)."
+    "es": "Ya no se posa encima de otros asistentes: si otro se ha quedado donde iba a aterrizar, elige un sitio al lado o se va a otra parte.",
+    "en": "It no longer lands on top of other assistants: if another one stays where it was about to land, it picks a spot next to it or goes elsewhere.",
+    "fr": "Il ne se pose plus sur les autres assistants : si un autre reste là où il allait atterrir, il choisit une place à côté ou va ailleurs.",
+    "de": "Er landet nicht mehr auf anderen Assistenten: Bleibt einer dort, wo er landen wollte, sucht er sich einen Platz daneben oder fliegt woandershin.",
+    "it": "Non atterra più sopra gli altri assistenti: se un altro resta dove stava per atterrare, sceglie un posto accanto o va altrove.",
+    "pt": "Ele não pousa mais em cima de outros assistentes: se outro fica onde ele ia pousar, escolhe um lugar ao lado ou vai para outro canto."
   },
-  "sdk": "1.9",
+  "sdk": "1.11",
   "common": ["size", "volume", "liveliness", "dragging"],
   "entry": "lib/Lander.Assistant.dll!Lander.Assistant.LanderAssistant",
   "icon": "icon.png",

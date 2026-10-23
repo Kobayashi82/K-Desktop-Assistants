@@ -60,6 +60,22 @@ public sealed partial class LanderAssistant : IAssistant
             ? new System.Windows.Point(game.Body.Position.X, game.Body.Position.Y - LanderBody.BaseHalfHeight * game.Body.Scale)
             : null;
 
+    /// <summary>Dónde está su cuerpo (SDK 1.11): lo que los otros asistentes evitan; sin llama, partículas ni bocadillo.</summary>
+    public KDesktop.Assistant.Sdk.PixelRect? BodyBounds
+    {
+        get
+        {
+            if (_game is not { IsInitialized: true } game || _hidden || game.Body.State == BodyState.Destroyed)
+            {
+                return null;
+            }
+
+            var body = game.Body;
+            return new KDesktop.Assistant.Sdk.PixelRect((int)(body.Position.X - body.HalfWidth), (int)(body.Position.Y - body.HalfHeight),
+                (int)Math.Ceiling(body.Position.X + body.HalfWidth), (int)Math.Ceiling(body.Position.Y + body.HalfHeight));
+        }
+    }
+
     private double FrameInterval => _sensors.PowerSaver ? 1.0 / 30 : Math.Min(1.0 / 60, _host.Rendering.FrameInterval);
 
     public void Attach(IAssistantHost host)
@@ -125,6 +141,7 @@ public sealed partial class LanderAssistant : IAssistant
         _now = now;
         ReleaseFrames();
         ExpireVoiceMood(now);
+        UpdateOthers();
         if (!_game.IsInitialized && !TryStart())
         {
             return 0.5;

@@ -196,6 +196,9 @@ public enum GameEventKind
     /// <summary>No ha encontrado forma de llegar adonde iba.</summary>
     Lost,
 
+    /// <summary>Se aparta: se había quedado encima de otro asistente de K-Desktop.</summary>
+    SteppedAside,
+
     /// <summary>Saca algo de detrás de la espalda (o lo guarda): ¡puf! (el texto: «out» o «in»).</summary>
     Pulled,
 

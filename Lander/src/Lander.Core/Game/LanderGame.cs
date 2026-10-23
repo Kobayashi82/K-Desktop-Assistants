@@ -1051,6 +1051,7 @@ public sealed class LanderGame
         // En la barra de tareas, un poco a la derecha del centro para no tapar el botón de inicio.
         var margin = DestinationPicker.LandingMargin(Body);
         var x = Math.Clamp(ground.CenterX + ground.Width * 0.18, ground.Left + margin, ground.Right - margin);
+        x = DestinationPicker.FreeX(Body, ground, x, Occupied) ?? x;
         Body.Velocity = Vec2.Zero;
         Body.AngularVelocity = 0;
         Body.PlaceOn(ground, x, World.Timestamp);
@@ -1110,9 +1111,13 @@ public sealed class LanderGame
         }
     }
 
+    /// <summary>Donde están quietos otros asistentes de K-Desktop (lo pone el asistente en cada ciclo).</summary>
+    public IReadOnlyList<PixelRect> Occupied { get; set; } = [];
+
     private void PrepareContext(Sensors sensors, double dt)
     {
         _context.World = World;
+        _context.Occupied = Occupied;
         _context.Physics = _physics.Config;
         _context.Sensors = sensors;
         _context.Time = Time;

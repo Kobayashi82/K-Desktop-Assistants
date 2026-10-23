@@ -27,6 +27,9 @@ public sealed record DestinationQuery
 
     /// <summary>Si hay combustible para llegar a una plataforma (y volver luego a la base).</summary>
     public Func<Platform, Vec2, bool>? CanReach { get; init; }
+
+    /// <summary>Donde están quietos otros asistentes: ahí no se posa.</summary>
+    public IReadOnlyList<PixelRect> Occupied { get; init; } = [];
 }
 
 public static class DestinationPicker
@@ -63,7 +66,7 @@ public static class DestinationPicker
                 continue;
             }
 
-            if (!TryPickX(world, body, platform, random, out var x))
+            if (!TryPickX(world, body, platform, random, query.Occupied, out var x))
             {
                 continue;
             }
@@ -110,7 +113,7 @@ public static class DestinationPicker
     }
 
     /// <summary>Destino sobre alguna de las plataformas de <paramref name="ownerId"/> (ventana nueva, misión...).</summary>
-    public static Destination? PickOnOwner(World world, LanderBody body, long ownerId, IRandom random)
+    public static Destination? PickOnOwner(World world, LanderBody body, long ownerId, IRandom random, IReadOnlyList<PixelRect>? occupied = null)
     {
         var margin = LandingMargin(body);
         var segments = world.SegmentsOf(ownerId).Where(p => p.Width >= margin * 2 + 4).ToList();
@@ -120,11 +123,11 @@ public static class DestinationPicker
         }
 
         var widest = segments.MaxBy(p => p.Width)!;
-        return TryPickX(world, body, widest, random, out var x) ? Destination.On(widest, x) : null;
+        return TryPickX(world, body, widest, random, occupied ?? [], out var x) ? Destination.On(widest, x) : null;
     }
 
     /// <summary>Base más cercana, aterrizando cerca de la vertical actual si es posible.</summary>
-    public static Destination? PickBase(World world, LanderBody body, IRandom random)
+    public static Destination? PickBase(World world, LanderBody body, IRandom random, IReadOnlyList<PixelRect>? occupied = null)
     {
         var monitor = world.MonitorAt(body.Position) ?? world.NearestMonitor(body.Position);
         var ground = (monitor is null ? null : world.GroundOf(monitor.Index)) ?? world.NearestGround(body.Position);
@@ -135,7 +138,7 @@ public static class DestinationPicker
 
         var margin = LandingMargin(body);
         var x = Math.Clamp(body.Position.X + random.Range(-1, 1) * body.Height * 3, ground.Left + margin, ground.Right - margin);
-        return Destination.On(ground, x);
+        return Destination.On(ground, FreeX(body, ground, x, occupied ?? []) ?? x);
     }
 
     /// <summary>
@@ -223,7 +226,60 @@ public static class DestinationPicker
         return counts;
     }
 
-    private static bool TryPickX(World world, LanderBody body, Platform platform, IRandom random, out double x)
+    /// <summary>
+    /// Posado en <paramref name="x"/> sobre una plataforma a la altura <paramref name="platformY"/>, quedaría encima de otro
+    /// asistente que está quieto ahí (pasar por delante sí vale).
+    /// </summary>
+    public static bool IsTaken(LanderBody body, double platformY, double x, IReadOnlyList<PixelRect> occupied)
+    {
+        if (occupied.Count == 0)
+        {
+            return false;
+        }
+
+        var half = body.HalfWidth + 6 * body.Scale;
+        var spot = new PixelRect((int)(x - half), (int)(platformY - body.Height), (int)Math.Ceiling(x + half), (int)Math.Ceiling(platformY));
+        foreach (var other in occupied)
+        {
+            if (other.Intersects(spot))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>El sitio libre de otros asistentes más cercano a <paramref name="x"/> en esa plataforma, o null si no queda.</summary>
+    public static double? FreeX(LanderBody body, Platform platform, double x, IReadOnlyList<PixelRect> occupied)
+    {
+        var margin = LandingMargin(body);
+        var left = platform.Left + margin;
+        var right = platform.Right - margin;
+        if (right <= left)
+        {
+            return null;
+        }
+
+        x = Math.Clamp(x, left, right);
+        var step = Math.Max(4, body.HalfWidth / 2);
+        for (var d = 0.0; d <= right - left; d += step)
+        {
+            if (x + d <= right && !IsTaken(body, platform.Y, x + d, occupied))
+            {
+                return x + d;
+            }
+
+            if (x - d >= left && !IsTaken(body, platform.Y, x - d, occupied))
+            {
+                return x - d;
+            }
+        }
+
+        return null;
+    }
+
+    private static bool TryPickX(World world, LanderBody body, Platform platform, IRandom random, IReadOnlyList<PixelRect> occupied, out double x)
     {
         var margin = LandingMargin(body);
         var left = platform.Left + margin;
@@ -242,10 +298,21 @@ public static class DestinationPicker
             // En plataformas estrechas, mejor cerca del centro.
             var t = platform.Width < body.Height * 4 ? random.Range(0.35, 0.65) : random.Range(0.08, 0.92);
             x = MathUtil.Lerp(left, right, t);
-            if (world.HasClearDescent(x, approachFrom, platform.Y, body.HalfWidth, platform.OwnerId))
+            if (world.HasClearDescent(x, approachFrom, platform.Y, body.HalfWidth, platform.OwnerId) && !IsTaken(body, platform.Y, x, occupied))
             {
                 break;
             }
+        }
+
+        // Otro asistente se ha quedado ahí: al lado, o a otra plataforma si no cabe.
+        if (IsTaken(body, platform.Y, x, occupied))
+        {
+            if (FreeX(body, platform, x, occupied) is not { } free)
+            {
+                return false;
+            }
+
+            x = free;
         }
 
         return true;

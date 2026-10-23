@@ -65,6 +65,22 @@ public sealed partial class KobiiAssistant : IAssistant
     private double _statPresentMs;
     private double _statDrawMs;
 
+    /// <summary>Dónde está su cuerpo (SDK 1.11): lo que los otros asistentes evitan; sin juguetes, partículas ni bocadillo.</summary>
+    public KDesktop.Assistant.Sdk.PixelRect? BodyBounds
+    {
+        get
+        {
+            if (_game is not { IsInitialized: true } game || _hidden || _exitStart is not null)
+            {
+                return null;
+            }
+
+            var body = game.Body;
+            return new KDesktop.Assistant.Sdk.PixelRect((int)(body.Feet.X - body.HalfWidth), (int)(body.Feet.Y - body.Height),
+                (int)Math.Ceiling(body.Feet.X + body.HalfWidth), (int)Math.Ceiling(body.Feet.Y));
+        }
+    }
+
     public System.Windows.Point? BubbleAnchor =>
         _game is { IsInitialized: true } game && !_hidden && _exitStart is null
             ? new System.Windows.Point(game.HeadPoint.X, game.HeadPoint.Y - game.Body.Height * 0.1)
@@ -140,6 +156,7 @@ public sealed partial class KobiiAssistant : IAssistant
         var elapsed = tick.Elapsed;
         _now = now;
         ReleaseFrames();
+        UpdateOthers();
         if (!_game.IsInitialized && !TryStart())
         {
             return 0.25;
@@ -340,6 +357,7 @@ public sealed partial class KobiiAssistant : IAssistant
             case GameEventKind.Greeted:
             case GameEventKind.Arrived:
             case GameEventKind.Lost:
+            case GameEventKind.SteppedAside:
                 _host.Log.Debug($"Kobii: {gameEvent.Kind} {gameEvent.Text}");
                 break;
             case GameEventKind.Hop:

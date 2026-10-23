@@ -137,6 +137,9 @@ public sealed class AutopilotContext
 
     public double Activity { get; set; } = 1;
 
+    /// <summary>Donde están quietos otros asistentes (K-Desktop): no se posa encima de ellos.</summary>
+    public IReadOnlyList<PixelRect> Occupied { get; set; } = [];
+
     /// <summary>En pausa o en «No molestar»: termina lo que esté haciendo y no inicia vuelos nuevos.</summary>
     public bool HoldStill { get; set; }
 
@@ -479,7 +482,7 @@ public sealed partial class Autopilot(IRandom random)
             _investigateOwner = null;
             if (CanExplore(ctx) && random.Chance(0.35 + 0.5 * Personality.Curiosity)
                 && owner != body.Support?.OwnerId
-                && DestinationPicker.PickOnOwner(ctx.World, body, owner, random) is { } investigate
+                && DestinationPicker.PickOnOwner(ctx.World, body, owner, random, ctx.Occupied) is { } investigate
                 && IsReachable(ctx, investigate))
             {
                 BeginChoosing(ctx, investigate, FlightPurpose.Investigate, BubbleIcon.Question);
@@ -751,7 +754,7 @@ public sealed partial class Autopilot(IRandom random)
 
     private void StartReturnToBase(AutopilotContext ctx, bool sleep, BubbleIcon icon)
     {
-        if (DestinationPicker.PickBase(ctx.World, ctx.Body, random) is not { } home)
+        if (DestinationPicker.PickBase(ctx.World, ctx.Body, random, ctx.Occupied) is not { } home)
         {
             return;
         }
@@ -765,7 +768,7 @@ public sealed partial class Autopilot(IRandom random)
         var body = ctx.Body;
         if (_purpose == FlightPurpose.ReturnToBase)
         {
-            Retarget(ctx, DestinationPicker.PickBase(ctx.World, body, random), FlightPurpose.ReturnToBase);
+            Retarget(ctx, DestinationPicker.PickBase(ctx.World, body, random, ctx.Occupied), FlightPurpose.ReturnToBase);
         }
         else
         {

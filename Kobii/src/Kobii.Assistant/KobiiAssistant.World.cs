@@ -24,6 +24,24 @@ public sealed partial class KobiiAssistant
     private bool _terrainDirty = true;
     private Vec2? _lastCursor;
 
+    private IReadOnlyList<OtherAssistant>? _othersOf;
+
+    /// <summary>
+    /// Donde están quietos los otros asistentes de K-Desktop (SDK 1.11): Kobii no se queda encima de ellos (pasar por
+    /// delante sí). Solo se rehace si el host publica otra lista.
+    /// </summary>
+    private void UpdateOthers()
+    {
+        var others = _host.World.Others;
+        if (ReferenceEquals(others, _othersOf))
+        {
+            return;
+        }
+
+        _othersOf = others;
+        _game.Occupied = [.. others.Where(o => !o.Moving).Select(o => new CoreRect(o.Body.Left, o.Body.Top, o.Body.Right, o.Body.Bottom))];
+    }
+
     private void OnWorldChanged(WorldSnapshot snapshot)
     {
         _terrainDirty = true;

@@ -422,7 +422,7 @@ public sealed partial class Autopilot
         {
             // Algo impide posarse donde quería: mejor la base, que siempre tiene sitio.
             _totalFlightTime = 0;
-            Retarget(ctx, DestinationPicker.PickBase(ctx.World, body, random), FlightPurpose.ReturnToBase);
+            Retarget(ctx, DestinationPicker.PickBase(ctx.World, body, random, ctx.Occupied), FlightPurpose.ReturnToBase);
             State = AutopilotState.ReturningToBase;
         }
 
@@ -814,7 +814,7 @@ public sealed partial class Autopilot
         }
 
         var home = FuelPlanner.ToBase(ctx.World, body, config, body.Position);
-        if (body.Fuel >= home + FuelPlanner.Reserve(body) * 0.25 && DestinationPicker.PickBase(ctx.World, body, random) is { } baseDestination)
+        if (body.Fuel >= home + FuelPlanner.Reserve(body) * 0.25 && DestinationPicker.PickBase(ctx.World, body, random, ctx.Occupied) is { } baseDestination)
         {
             ctx.Visual.ShowBubble(new Bubble(BubbleIcon.Fuel, 2));
             Retarget(ctx, baseDestination, FlightPurpose.ReturnToBase);
