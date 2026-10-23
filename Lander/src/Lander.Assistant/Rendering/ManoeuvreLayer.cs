@@ -323,17 +323,21 @@ internal sealed class ManoeuvreLayer(IRendering rendering) : IDisposable
             case EffectKind.Carry when e.Picture is { } picture:
             {
                 // El haz se enciende en un momento y envuelve la imagen, que se mece un poco; al cogerla, el haz la sube
-                // encogiéndola hasta la nave (el área ya la mueve quien la sujeta).
+                // encogiéndola hasta la nave (el área ya la mueve quien la sujeta). Si la imagen va encima de la nave, el haz
+                // sale de arriba.
                 var area = e.Area;
                 var age = now - e.Start;
                 var level = Math.Min(1, age / 0.15);
-                var emitter = new Point(e.From.X, e.From.Y + 8 * s);
-                var cone = Gfx.Polygon(emitter.X - 6 * s, emitter.Y, area.Left, area.Top, area.Left, area.Bottom, area.Right, area.Bottom, area.Right, area.Top, emitter.X + 6 * s, emitter.Y);
-                dc.DrawGeometry(Gfx.Gradient(emitter, new Point(area.Left + area.Width / 2, area.Bottom),
+                var above = area.Top + area.Height / 2 < e.From.Y;
+                var emitter = new Point(e.From.X, e.From.Y + (above ? -8 : 8) * s);
+                var near = above ? area.Bottom : area.Top;
+                var far = above ? area.Top : area.Bottom;
+                var cone = Gfx.Polygon(emitter.X - 6 * s, emitter.Y, area.Left, near, area.Left, far, area.Right, far, area.Right, near, emitter.X + 6 * s, emitter.Y);
+                dc.DrawGeometry(Gfx.Gradient(emitter, new Point(area.Left + area.Width / 2, far),
                     (0, e.Color.WithAlpha(0.35 * level)), (1, e.Color.WithAlpha(0.06 * level))), null, cone);
                 var ray = Gfx.Pen(e.Color.WithAlpha(0.5 * level), 1.2 * s);
-                dc.DrawLine(ray, emitter, new Point(area.Left, area.Top));
-                dc.DrawLine(ray, emitter, new Point(area.Right, area.Top));
+                dc.DrawLine(ray, emitter, new Point(area.Left, near));
+                dc.DrawLine(ray, emitter, new Point(area.Right, near));
                 dc.PushOpacity(0.4 + 0.6 * level);
                 dc.DrawImage(picture, area);
                 dc.Pop();
@@ -342,7 +346,7 @@ internal sealed class ManoeuvreLayer(IRendering rendering) : IDisposable
                 {
                     var phase = (now * 0.8 + i * 0.37) % 1;
                     var startX = area.Left + area.Width * ((i * 0.618) % 1);
-                    var p = new Point(startX + (emitter.X - startX) * Math.Pow(phase, 1.6), area.Top + (emitter.Y - area.Top) * phase);
+                    var p = new Point(startX + (emitter.X - startX) * Math.Pow(phase, 1.6), near + (emitter.Y - near) * phase);
                     var size = (2.2 - 1.4 * phase) * s;
                     dc.DrawEllipse(Gfx.Brush(Colors.White.WithAlpha(0.8 * level * (1 - phase * 0.6))), null, p, size, size);
                 }

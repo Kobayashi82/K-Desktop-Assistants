@@ -8,7 +8,7 @@ namespace Lander.Assistant;
 
 /// <summary>
 /// Archivos que le sueltan encima: con ellos encima enseña el icono de paquete y sujeta su imagen con el rayo tractor bajo
-/// la nave (K-Desktop esconde la de Windows, que lo tapaba; SDK 1.17); si te los llevas, la suelta con una interrogación,
+/// la nave, o sobre ella si está abajo del todo (K-Desktop esconde la de Windows, que lo tapaba; SDK 1.17); si te los llevas, la suelta con una interrogación,
 /// y al soltarlos la sube a la nave y lo celebra como una orden que sale bien. Lo que se hace con ellos lo decide K-Desktop.
 /// </summary>
 public sealed partial class LanderAssistant
@@ -17,6 +17,9 @@ public sealed partial class LanderAssistant
     private const double CatchSeconds = 0.4;
 
     private ManoeuvreEffect? _carry;
+
+    /// <summary>La imagen va encima de la nave (debajo se saldría de la pantalla).</summary>
+    private bool _carryAbove;
 
     private bool OnFiles(PointerEvent e)
     {
@@ -63,7 +66,10 @@ public sealed partial class LanderAssistant
         return true;
     }
 
-    /// <summary>La imagen sigue a la nave, colgada debajo; al cogerla sube encogiéndose y se va.</summary>
+    /// <summary>
+    /// La imagen sigue a la nave, colgada debajo (o encima si debajo no cabe en la pantalla); al cogerla se acerca a la nave
+    /// encogiéndose y se va.
+    /// </summary>
     private void PlaceCarry(double now)
     {
         if (_carry is not { Picture: { } picture } carry)
@@ -91,7 +97,22 @@ public sealed partial class LanderAssistant
         var w = picture.Width * fit * shrink;
         var ph = picture.Height * fit * shrink;
         var sway = carry.Caught is null ? Math.Sin((now - carry.Start) * 2.2) * 0.12 * h : 0;
-        var hang = new Vec2(body.Position.X + sway, body.Position.Y + 1.2 * h + side / 2);
+        var reach = 1.2 * h + side / 2;
+        var x = body.Position.X + sway;
+        if ((_world.MonitorAt(body.Position) ?? _world.NearestMonitor(body.Position)) is { } monitor)
+        {
+            // Posado en la barra de tareas o abajo del todo, debajo no cabe: la sube por encima. Con margen para no cambiar
+            // de lado a cada momento.
+            var bounds = monitor.Bounds;
+            var below = body.Position.Y + reach + side / 2;
+            var above = body.Position.Y - reach - side / 2;
+            _carryAbove = _carryAbove
+                ? below > bounds.Bottom - 0.5 * h && above >= bounds.Top
+                : below > bounds.Bottom && above >= bounds.Top;
+            x = Math.Clamp(x, bounds.Left + side / 2, Math.Max(bounds.Left + side / 2, bounds.Right - side / 2));
+        }
+
+        var hang = new Vec2(x, body.Position.Y + (_carryAbove ? -reach : reach));
         var center = Vec2.Lerp(body.Position, hang, shrink);
         carry.From = body.Position;
         carry.Area = new System.Windows.Rect(center.X - w / 2, center.Y - ph / 2, Math.Max(1, w), Math.Max(1, ph));

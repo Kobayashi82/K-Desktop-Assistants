@@ -2,7 +2,7 @@
   "$schema": "../../../../../docs/assistant/esquemas/assistant.schema.json",
   "id": "lander",
   "name": "Lander",
-  "version": "0.15.0",
+  "version": "0.15.1",
   "author": "Kobayashi82",
   "description": {
     "es": "Un pequeño módulo lunar que vuela por tus ventanas y aterriza en ellas. Incluye su juego.",
@@ -15,12 +15,12 @@
   "homepage": "https://github.com/Kobayashi82/K-Desktop-Assistants",
   "license": "MIT",
   "changes": {
-    "es": "Nota los archivos que le arrastras desde el Explorador: sujeta su imagen con el rayo tractor bajo la nave y, al soltarlos, la sube a bordo y lo celebra.",
-    "en": "It notices files you drag onto it from File Explorer: it holds their picture in its tractor beam under the ship and, when you drop them, pulls it on board and celebrates.",
-    "fr": "Il remarque les fichiers que vous glissez sur lui depuis l’Explorateur : il tient leur image dans son rayon tracteur sous le vaisseau et, quand vous les lâchez, la monte à bord et fête ça.",
-    "de": "Er bemerkt Dateien, die du aus dem Explorer auf ihn ziehst: Er hält ihr Bild mit dem Traktorstrahl unter dem Schiff und holt es an Bord, wenn du sie loslässt, und freut sich.",
-    "it": "Si accorge dei file che gli trascini sopra da Esplora file: tiene la loro immagine nel raggio traente sotto la navicella e, quando li lasci, la porta a bordo e festeggia.",
-    "pt": "Ele percebe os arquivos que você arrasta para ele pelo Explorador: segura a imagem deles no raio trator embaixo da nave e, quando você os solta, puxa para bordo e comemora."
+    "es": "Nota los archivos que le arrastras desde el Explorador: sujeta su imagen con el rayo tractor bajo la nave (sobre ella si está posado abajo del todo, para que no se salga de la pantalla) y, al soltarlos, la sube a bordo y lo celebra.",
+    "en": "It notices files you drag onto it from File Explorer: it holds their picture in its tractor beam under the ship (above it when it sits at the very bottom, so it stays on screen) and, when you drop them, pulls it on board and celebrates.",
+    "fr": "Il remarque les fichiers que vous glissez sur lui depuis l’Explorateur : il tient leur image dans son rayon tracteur sous le vaisseau (au-dessus s’il est posé tout en bas, pour qu’elle reste à l’écran) et, quand vous les lâchez, la monte à bord et fête ça.",
+    "de": "Er bemerkt Dateien, die du aus dem Explorer auf ihn ziehst: Er hält ihr Bild mit dem Traktorstrahl unter dem Schiff (darüber, wenn es ganz unten steht, damit es auf dem Bildschirm bleibt) und holt es an Bord, wenn du sie loslässt, und freut sich.",
+    "it": "Si accorge dei file che gli trascini sopra da Esplora file: tiene la loro immagine nel raggio traente sotto la navicella (sopra, se è posata in fondo allo schermo, perché non esca) e, quando li lasci, la porta a bordo e festeggia.",
+    "pt": "Ele percebe os arquivos que você arrasta para ele pelo Explorador: segura a imagem deles no raio trator embaixo da nave (em cima, se ela estiver pousada lá embaixo, para não sair da tela) e, quando você os solta, puxa para bordo e comemora."
   },
   "sdk": "1.17",
   "common": ["size", "volume", "liveliness", "dragging"],
