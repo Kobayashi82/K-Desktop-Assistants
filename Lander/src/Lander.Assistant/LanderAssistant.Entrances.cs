@@ -228,15 +228,21 @@ public sealed partial class LanderAssistant
         }
 
         var arrival = _arrivals.Pick(a => a != Arrival.Sky || body.Position.Y - TopOfMonitor() > body.Height * 6);
+#if DEBUG
+        // Para probar una entrada concreta: LANDER_ARRIVAL=Sky (Beam, Warp).
+        if (Enum.TryParse<Arrival>(Environment.GetEnvironmentVariable("LANDER_ARRIVAL"), out var forced))
+        {
+            arrival = forced;
+        }
+#endif
         _host.Log.Info($"Entra ({how}): {arrival}.");
         var scale = body.Scale;
         switch (arrival)
         {
             case Arrival.Sky:
-                // Aparece arriba (no más de 9 alturas: desde lo alto de un monitor grande tardaba 7 s en posarse) y baja: el
-                // piloto frena con el motor y se posa en lo que tenga debajo.
-                var top = Math.Max(TopOfMonitor() + body.Height * 1.4, body.Position.Y - body.Height * 9);
-                _game.PlaceInAir(new Vec2(body.Position.X, top), new Vec2(0, 140 * scale));
+                // Aparece arriba del todo del monitor y cae con el motor apagado; lo enciende a tope en el último instante
+                // para frenar y posarse en lo que tenga debajo (un «suicide burn»).
+                _game.DropFromSky(new Vec2(body.Position.X, TopOfMonitor() + body.Height * 0.8), new Vec2(0, 60 * scale));
                 _game.Visual.Opacity = 0.2;
                 _game.Visual.Flash(Expression.Happy, 2.5);
                 _previousPosition = body.Position;

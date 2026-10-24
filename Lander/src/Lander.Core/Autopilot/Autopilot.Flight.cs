@@ -100,6 +100,7 @@ public sealed partial class Autopilot
         _hasFlown = true;
         _napping = false;
         _travelStartX = body.Position.X;
+        _skyDrop = false;
 
         // Paseos seguidos (el salto al vacío empieza con un paseo hasta el borde y no cuenta).
         _strollStreak = purpose switch
@@ -184,7 +185,7 @@ public sealed partial class Autopilot
 
     /// <summary>Margen con el que enciende el motor en la frenada final (más tarde si se ha despistado).</summary>
     private double IgnitionThreshold =>
-        0.78 + (_mistake == PilotMistake.LateIgnition ? 0.12 + 0.5 * _mistakeSeverity * _mistakeSeverity : 0);
+        0.78 +(_mistake == PilotMistake.LateIgnition ? 0.12 + 0.5 * _mistakeSeverity * _mistakeSeverity : 0);
 
     /// <summary>Velocidad de contacto que busca en la aproximación final (más si se ha despistado).</summary>
     private double ContactSpeed(double normal, double scale) =>

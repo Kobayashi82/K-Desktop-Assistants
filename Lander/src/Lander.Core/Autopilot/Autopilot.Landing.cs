@@ -15,6 +15,10 @@ public sealed partial class Autopilot
     private double _leafTime;
     private double _poiseDuration;
     private bool _finalDescent;
+    private bool _skyDrop;
+
+    /// <summary>Motor con el que enciende en la entrada desde lo alto (casi a tope, con un poco de margen para corregir).</summary>
+    private const double SkyDropIgnition = 0.95;
     private double _surveyTime;
     private double _surveyClock;
 
@@ -233,6 +237,36 @@ public sealed partial class Autopilot
         return Steer(ctx, new Vec2(vx, vy), retractLegs: false, maxTilt: 0.25);
     }
 
+    /// <summary>
+    /// Entrada desde lo alto del monitor (un «suicide burn»): sin quedarse quieto antes, cae con el motor apagado hacia lo
+    /// que tenga debajo y lo enciende casi a tope en el último instante en que aún puede frenar. No gasta combustible
+    /// (<see cref="InSkyDrop"/>): es un espectáculo, no un vuelo.
+    /// </summary>
+    public void BeginSkyDrop(AutopilotContext ctx)
+    {
+        var body = ctx.Body;
+        StartRecovery(ctx, startled: false);
+        if (_destination is null || !_destination.TryResolve(ctx.World, body, out _, out _))
+        {
+            return;
+        }
+
+        _style = FlightStyle.HoverSlam;
+        _mistake = PilotMistake.None;
+        _mistakeSeverity = 0;
+        _cruiseY = body.Position.Y;
+        _leaf = false;
+        _surveyTime = 0;
+        _finalDescent = false;
+        _skyDrop = true;
+        State = AutopilotState.Landing;
+        _stateTime = 0;
+        _phase = FlightPhase.Drop;
+    }
+
+    /// <summary>Está en la entrada desde lo alto (ver <see cref="BeginSkyDrop"/>), hasta posarse.</summary>
+    public bool InSkyDrop => _skyDrop && State == AutopilotState.Landing;
+
     /// <summary>Caída libre con el motor apagado hasta el último instante en que aún puede frenar.</summary>
     private ThrustInput UpdateDrop(AutopilotContext ctx, Vec2 target)
     {
@@ -241,7 +275,12 @@ public sealed partial class Autopilot
         var remaining = target.Y - body.Position.Y;
         var required = RequiredDeceleration(body, remaining);
         var available = AvailableDeceleration(body, ctx.Physics);
-        if (required >= available * IgnitionThreshold || remaining < height * 0.8 || Math.Abs(target.X - body.Position.X) > height * 1.2 || body.Fuel <= 0)
+
+        // En la entrada desde lo alto, en cuanto el motor casi a tope ya solo le deje pararse en el suelo.
+        var late = _skyDrop
+            ? SkyDropThrottle(body, ctx.Physics, remaining) >= SkyDropIgnition
+            : required >= available * IgnitionThreshold;
+        if (late || remaining < height * 0.8 || Math.Abs(target.X - body.Position.X) > height * 1.2 || body.Fuel <= 0)
         {
             _phase = FlightPhase.Burn;
             _stateTime = 0;
@@ -273,7 +312,12 @@ public sealed partial class Autopilot
         }
 
         double accelerationUp;
-        if (vy > touchdown)
+        if (_skyDrop && vy > touchdown)
+        {
+            // El motor justo (y constante) para pararse en el suelo, contando el arrastre.
+            accelerationUp = SkyDropThrottle(body, config, remaining) * MaxThrust(body, config);
+        }
+        else if (vy > touchdown)
         {
             accelerationUp = gravity + RequiredDeceleration(body, remaining) - config.LinearDrag * vy;
         }
@@ -305,6 +349,70 @@ public sealed partial class Autopilot
 
         var distance = Math.Max(body.Height * 0.05, remaining - body.Height * 0.1);
         return (vy * vy - touchdown * touchdown) / (2 * distance);
+    }
+
+    private static double MaxThrust(LanderBody body, PhysicsConfig config) =>
+        config.MainThrust * body.Scale * FuelPlanner.ThrustFactor(body, config) * Math.Max(0.3, Math.Cos(body.Angle));
+
+    /// <summary>
+    /// Motor constante (1 = a tope) con el que, cayendo como cae ahora, llega a <paramref name="remaining"/> píxeles a velocidad
+    /// de contacto, contando la gravedad y el arrastre (que frena mucho a toda velocidad y casi nada al final). Más de 1 = ya no
+    /// llega a frenar.
+    /// </summary>
+    private static double SkyDropThrottle(LanderBody body, PhysicsConfig config, double remaining)
+    {
+        var vy = body.Velocity.Y;
+        var touchdown = SlamTouchdownSpeed * body.Scale;
+        var distance = Math.Max(body.Height * 0.05, remaining - body.Height * 0.1);
+        var max = MaxThrust(body, config);
+        var gravity = config.Gravity * body.Scale;
+        if (StopDistance(vy, touchdown, max, gravity, config.LinearDrag) > distance)
+        {
+            return 1.01;
+        }
+
+        // A más motor, menos distancia: búsqueda binaria del que la deja justa.
+        double low = 0, high = 1;
+        for (var i = 0; i < 24; i++)
+        {
+            var middle = (low + high) / 2;
+            if (StopDistance(vy, touchdown, middle * max, gravity, config.LinearDrag) > distance)
+            {
+                low = middle;
+            }
+            else
+            {
+                high = middle;
+            }
+        }
+
+        return high;
+    }
+
+    /// <summary>
+    /// Distancia para frenar de <paramref name="speed"/> a <paramref name="touchdown"/> con el empuje <paramref name="thrust"/>:
+    /// la deceleración es thrust − gravedad + arrastre·v, así que d = ∫ v / (A + k·v) dv entre las dos velocidades.
+    /// </summary>
+    private static double StopDistance(double speed, double touchdown, double thrust, double gravity, double drag)
+    {
+        var a = thrust - gravity;
+        if (speed <= touchdown)
+        {
+            return 0;
+        }
+
+        if (a + drag * touchdown <= 0)
+        {
+            return double.PositiveInfinity;
+        }
+
+        if (drag <= 1e-9)
+        {
+            return (speed * speed - touchdown * touchdown) / (2 * a);
+        }
+
+        double F(double v) => v / drag - a / (drag * drag) * Math.Log(a + drag * v);
+        return F(speed) - F(touchdown);
     }
 
     /// <summary>Lo que puede frenar con el motor a tope (empuje menos gravedad).</summary>

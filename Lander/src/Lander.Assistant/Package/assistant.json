@@ -2,7 +2,7 @@
   "$schema": "../../../../../docs/assistant/schemas/assistant.schema.json",
   "id": "lander",
   "name": "Lander",
-  "version": "0.16.0",
+  "version": "0.16.1",
   "author": "Kobayashi82",
   "description": {
     "es": "Un pequeño módulo lunar que vuela por tus ventanas y aterriza en ellas. Incluye su juego.",
@@ -15,12 +15,12 @@
   "homepage": "https://github.com/Kobayashi82/K-Desktop-Assistants",
   "license": "MIT",
   "changes": {
-    "es": "Más variado: entra de tres maneras (con el haz, cayendo del cielo o de un salto entre destellos) y, si lo pones tú, aparece junto al cursor y te saluda; al recargarse vuelve donde estaba. Se despide de varias maneras, y al quitarlo, con un corazón. Las reacciones cambian cada vez y según de dónde vienen (la tercera seguida, la primera del día, un «gracias»). Enseña en un bocadillo lo que está haciendo (internet, archivos, música, el tiempo…), pone cara de concentración al pensar a fondo y se encoge de hombros sin cerebro. Antes de avisarte de algo vuela junto al cursor. Y sus animaciones, en la pestaña «Probar».",
-    "en": "More varied: it comes in three ways (with its beam, dropping from the sky or popping in among sparkles) and, when you put it there, it appears by the cursor and waves; when reloaded it comes back where it was. It says goodbye in several ways, and with a heart when removed. Its reactions change every time and with where they come from (the third in a row, the first of the day, a «thanks»). A bubble shows what it is doing (the internet, files, music, the weather…), it looks focused when thinking hard and shrugs without a brain. Before telling you something it flies next to the cursor. And its animations, in the «Try» tab.",
-    "fr": "Plus varié : il arrive de trois façons (avec son rayon, en tombant du ciel ou d’un bond parmi les étincelles) et, si c’est vous qui le placez, il apparaît près du curseur et vous salue ; rechargé, il revient où il était. Il dit au revoir de plusieurs façons, et avec un cœur quand on le retire. Ses réactions changent à chaque fois et selon leur origine (la troisième d’affilée, la première du jour, un « merci »). Une bulle montre ce qu’il fait (Internet, fichiers, musique, météo…), il se concentre quand il réfléchit à fond et hausse les épaules sans cerveau. Avant de vous prévenir, il vole près du curseur. Et ses animations, dans l’onglet « Essayer ».",
-    "de": "Abwechslungsreicher: Er kommt auf drei Arten (mit seinem Strahl, vom Himmel fallend oder mit einem Sprung zwischen Funken) und, wenn du ihn holst, erscheint er beim Mauszeiger und winkt; neu geladen kehrt er an seinen Platz zurück. Er verabschiedet sich auf verschiedene Weise, und mit einem Herz, wenn er entfernt wird. Seine Reaktionen ändern sich jedes Mal und je nach Anlass (die dritte in Folge, die erste des Tages, ein „Danke“). Eine Sprechblase zeigt, was er tut (Internet, Dateien, Musik, Wetter…), beim gründlichen Nachdenken schaut er konzentriert, ohne Gehirn zuckt er mit den Schultern. Bevor er dir etwas sagt, fliegt er zum Mauszeiger. Und seine Animationen im Tab „Ausprobieren“.",
-    "it": "Più vario: arriva in tre modi (con il raggio, cadendo dal cielo o con un salto tra le scintille) e, se lo metti tu, appare vicino al cursore e ti saluta; quando si ricarica torna dov’era. Si congeda in vari modi, e con un cuore quando lo rimuovi. Le reazioni cambiano ogni volta e a seconda di dove vengono (la terza di fila, la prima del giorno, un «grazie»). Un fumetto mostra cosa sta facendo (internet, file, musica, meteo…), si concentra quando pensa a fondo e alza le spalle senza cervello. Prima di avvisarti di qualcosa vola vicino al cursore. E le sue animazioni, nella scheda «Prova».",
-    "pt": "Mais variado: entra de três jeitos (com o raio, caindo do céu ou de um salto entre brilhos) e, se você o colocar, aparece perto do cursor e acena; ao recarregar volta para onde estava. Despede-se de vários jeitos, e com um coração quando é removido. As reações mudam a cada vez e conforme a origem (a terceira seguida, a primeira do dia, um «obrigado»). Um balão mostra o que está fazendo (internet, arquivos, música, o tempo…), fica concentrado quando pensa a fundo e dá de ombros sem cérebro. Antes de avisar algo, voa até perto do cursor. E suas animações, na aba «Testar»."
+    "es": "Al caer del cielo aparece arriba del todo del monitor, cae con el motor apagado y lo enciende a tope en el último momento para frenar y posarse.",
+    "en": "When it drops from the sky it appears at the very top of the monitor, falls with its engine off and fires it at full power at the last moment to brake and land.",
+    "fr": "Quand il tombe du ciel, il apparaît tout en haut de l’écran, tombe moteur coupé et l’allume à fond au dernier moment pour freiner et se poser.",
+    "de": "Wenn er vom Himmel fällt, erscheint er ganz oben am Bildschirm, fällt mit abgeschaltetem Triebwerk und zündet es im letzten Moment mit voller Kraft, um abzubremsen und zu landen.",
+    "it": "Quando cade dal cielo appare in cima allo schermo, cade a motore spento e lo accende al massimo all’ultimo momento per frenare e posarsi.",
+    "pt": "Ao cair do céu, aparece no topo da tela, cai com o motor desligado e o liga no máximo no último instante para frear e pousar."
   },
   "sdk": "1.18",
   "common": ["size", "volume", "liveliness", "dragging"],

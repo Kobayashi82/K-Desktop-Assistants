@@ -225,7 +225,8 @@ public sealed class LanderGame
             _physics.Step(Body, input, world, dt, _physicsEvents);
 
             // «Modo asistente»: lo que hace para una orden no gasta combustible (nunca se queda sin él a medias).
-            if (Options.AssistantMode && Autopilot.OnErrand && Body.Fuel < fuel)
+            // La entrada desde lo alto tampoco.
+            if (((Options.AssistantMode && Autopilot.OnErrand) || Autopilot.InSkyDrop) && Body.Fuel < fuel)
             {
                 Body.Fuel = fuel;
             }
@@ -1080,6 +1081,21 @@ public sealed class LanderGame
         UpdateScale();
         PrepareContext(Sensors, TimeStep);
         Autopilot.Resume(_context);
+    }
+
+    /// <summary>
+    /// Pone el lander en el aire en <paramref name="position"/> y lo deja caer con el motor apagado hacia lo que tenga
+    /// debajo, encendiéndolo a tope en el último instante para frenar y posarse (ver <see cref="Autopilot.BeginSkyDrop"/>).
+    /// </summary>
+    public void DropFromSky(Vec2 position, Vec2 velocity)
+    {
+        if (!_initialized)
+        {
+            return;
+        }
+
+        PlaceInAir(position, velocity);
+        Autopilot.BeginSkyDrop(_context);
     }
 
     private void PlaceAtBase()
