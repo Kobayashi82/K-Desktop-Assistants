@@ -195,9 +195,15 @@ public sealed class KumoCloud
 
     /// <summary>Hay algo moviéndose de forma visible: hace falta dibujar a cada fotograma.</summary>
     public bool IsLively =>
-        Motion is Motion.Fly or Motion.Follow || Speed > 0.15 || Puffs.Count > 0 || PoseTime < 0.6
+        Motion is Motion.Fly or Motion.Follow || Speed > 0.15 || HasFastPuffs || PoseTime < 0.6
         || Pose is CloudPose.Bubble or CloudPose.Talk or CloudPose.Listen or CloudPose.Point or CloudPose.Press or CloudPose.Wave
-            or CloudPose.Happy or CloudPose.Surprise or CloudPose.Dissolve or CloudPose.Tickle or CloudPose.Hug;
+            or CloudPose.Happy or CloudPose.Surprise or CloudPose.Dissolve or CloudPose.Tickle or CloudPose.Hug or CloudPose.Gather;
+
+    /// <summary>
+    /// Alguna nubecita va deprisa (al volar, en un estallido): las que se evaporan despacio se ven bien a menos fotogramas (con ellas
+    /// a cada fotograma, en reposo dibujaba el doble).
+    /// </summary>
+    public bool HasFastPuffs => Puffs.Exists(p => p.VX * p.VX + p.VY * p.VY > 0.36 * Unit * Unit);
 
     /// <summary>Lo pone en un sitio de golpe (sin vuelo ni estirones).</summary>
     public void Place(Vec2 position)
@@ -485,6 +491,7 @@ public sealed class KumoCloud
         CloudPose.Listen => 0.3,
         CloudPose.Surprise => 0.5,
         CloudPose.Busy or CloudPose.Hug => 0.25,
+        CloudPose.Gather => 0.35,
         CloudPose.Think => 0.15,
         _ => 0,
     };
@@ -732,6 +739,18 @@ public sealed class KumoCloud
                 mouth = CloudMouth.Flat;
                 break;
 
+            case CloudPose.Gather:
+            {
+                // Aspira despacio y se va llenando: cada vez un poco más grande, latiendo.
+                var fill = Math.Min(1, PoseTime / 6);
+                var breath = 0.9 + fill * 0.08 + 0.035 * Math.Sin(t * 3.4);
+                Cumulus(p, breath, breath);
+                eyes = CloudEyes.Closed;
+                mouth = CloudMouth.O;
+                look = new Vec2(0, -0.03);
+                break;
+            }
+
             case CloudPose.Busy:
                 Cumulus(p, 0.96, 0.96);
                 eyes = CloudEyes.Focused;
@@ -946,6 +965,18 @@ public sealed class KumoCloud
                     Alpha = 0.2,
                     Grey = Tint > 0.5,
                 });
+            }
+        }
+
+        // Juntando fuerzas: nubecitas que llegan de alrededor (sobre todo de arriba) y se funden con el cuerpo.
+        if (pose == CloudPose.Gather)
+        {
+            for (var n = Count("gather", 4.5, dt); n > 0; n--)
+            {
+                var a = -Math.PI / 2 + _random.Range(-1.9, 1.9);
+                var d = _random.Range(2.0, 2.5) * u;
+                var dir = new Vec2(Math.Cos(a), Math.Sin(a) * 0.8);
+                AddPuff(new Vec2(at.X + dir.X * d, at.Y + dir.Y * d), new Vec2(-dir.X, -dir.Y) * _random.Range(2.2, 2.6) * u, _random.Range(0.12, 0.18) * u, _random.Range(0.95, 1.15), 0);
             }
         }
 

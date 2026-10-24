@@ -127,7 +127,9 @@ static List<(string, IReadOnlyList<SheetScene>)> Groups()
             S("Cosquillas", Pose(CloudPose.Tickle), 0.6),
             S("Deshaciéndose", Pose(CloudPose.Dissolve), 0.6),
             S("Condensándose", c => c.Condense(), 0.5),
+            S("Juntando fuerzas", Pose(CloudPose.Gather), 1.6),
         ]),
+        ("Actividades", [.. Enum.GetValues<KDesktop.Assistant.Sdk.AssistantActivity>().Skip(1).Select(a => new SheetScene(a.ToString(), Pose(CloudPose.Busy), 1, a))]),
     ];
 }
 

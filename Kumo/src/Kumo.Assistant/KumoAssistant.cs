@@ -31,6 +31,9 @@ public sealed partial class KumoAssistant : IAssistant
     /// <summary>Solo se mueven las partículas: no hace falta el ritmo de la pantalla.</summary>
     private const double ParticleInterval = 1.0 / 30;
 
+    /// <summary>Una nubecita que se evapora despacio.</summary>
+    private const double SlowPuffInterval = 1.0 / 20;
+
     /// <summary>Nadie mira: el usuario lleva un rato sin tocar nada.</summary>
     private const double AwayInterval = 0.25;
 
@@ -156,6 +159,11 @@ public sealed partial class KumoAssistant : IAssistant
             return Math.Max(FrameInterval, ParticleInterval);
         }
 
+        if (_cloud.Puffs.Count > 0)
+        {
+            return Math.Max(FrameInterval, SlowPuffInterval);
+        }
+
         var interval = IsUserAway() ? AwayInterval : IsAttentive() ? AttentiveInterval : CalmInterval;
 
         // El parpadeo se ve entero: se despierta justo cuando empieza.
@@ -165,7 +173,7 @@ public sealed partial class KumoAssistant : IAssistant
 
     /// <summary>Hay algo que se ve moverse: a cada fotograma.</summary>
     private bool IsActive() =>
-        _cloud.IsLively || _dragging || _pressed || ManoeuvreActive || _cloud.Lid > 0 || _now - _fadeStart < FadeInDuration || !double.IsNaN(_fadeOutStart);
+        _cloud.IsLively || _badge.IsAnimating(_now) || _dragging || _pressed || ManoeuvreActive || _cloud.Lid > 0 || _now - _fadeStart < FadeInDuration || !double.IsNaN(_fadeOutStart);
 
     private bool IsUserAway() => _host.World.System.UserIdleSeconds > 60 && !_pressed && !_dragging;
 

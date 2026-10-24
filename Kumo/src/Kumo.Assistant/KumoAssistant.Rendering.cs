@@ -1,5 +1,7 @@
 using KDesktop.Assistant.Sdk;
 using Kumo.Assistant.Rendering;
+using Kumo.Core.Cloud;
+using Kumo.Core.Geometry;
 using SdkRect = KDesktop.Assistant.Sdk.PixelRect;
 
 namespace Kumo.Assistant;
@@ -16,6 +18,7 @@ public sealed partial class KumoAssistant
 
     private readonly KumoFrame _frame = new();
     private readonly KumoPainter _painter = new();
+    private readonly ActivityBadge _badge = new();
     private ISurface _surface = null!;
     private ISurface _effects = null!;
     private IHitArea _hit = null!;
@@ -44,10 +47,27 @@ public sealed partial class KumoAssistant
         _frame.Update(_cloud, Opacity());
         _statFieldMs += System.Diagnostics.Stopwatch.GetElapsedTime(fieldClock).TotalMilliseconds;
         var (left, top, width, height) = _frame.PixelBounds();
+        var badge = BadgePlace();
+        if (badge is var (center, from))
+        {
+            var box = ActivityBadge.Bounds(center, from, _cloud.Unit);
+            var right = Math.Max(left + width, (int)Math.Ceiling(box.Right) + 2);
+            var bottom = Math.Max(top + height, (int)Math.Ceiling(box.Bottom) + 2);
+            left = Math.Min(left, (int)Math.Floor(box.Left) - 2);
+            top = Math.Min(top, (int)Math.Floor(box.Top) - 2);
+            width = Math.Clamp(right - left, 1, 4096);
+            height = Math.Clamp(bottom - top, 1, 4096);
+        }
+
         _surface.Present(SdkRect.FromSize(left, top, width, height), dc =>
         {
             var drawClock = System.Diagnostics.Stopwatch.GetTimestamp();
             _painter.Draw(dc, _frame);
+            if (badge is var (c, f))
+            {
+                _badge.Draw(dc, c, f, _cloud.Unit, _now, _frame.Dark, _frame.Opacity);
+            }
+
             DrawSpeech(dc);
             _statDrawMs += System.Diagnostics.Stopwatch.GetElapsedTime(drawClock).TotalMilliseconds;
         });
@@ -88,6 +108,26 @@ public sealed partial class KumoAssistant
                 dc.Pop();
             }
         });
+    }
+
+    /// <summary>
+    /// Dónde va la burbujita de lo que hace (píxeles) y desde dónde salen sus puntitos; null si no hay nada que enseñar. Va hacia
+    /// el lado del monitor con más sitio, y no mientras es bocadillo o lleva una ventana.
+    /// </summary>
+    private (Vec2 Center, Vec2 From)? BadgePlace()
+    {
+        if (_badge.Scale(_now) <= 0.01 || _cloud.Pose is CloudPose.Bubble or CloudPose.Hug)
+        {
+            return null;
+        }
+
+        var at = _cloud.RenderPosition;
+        var body = _cloud.BodyExtent();
+        var monitor = _host.World.Current.MonitorAt(new System.Windows.Point(at.X, at.Y));
+        var left = monitor is not null && at.X > monitor.Bounds.Center.X;
+        var center = ActivityBadge.Place(at, body, _cloud.Unit, left, _now);
+        var from = new Vec2(at.X + (left ? body.Left : body.Right) * 0.38 * _cloud.Unit, at.Y + body.Top * 0.62 * _cloud.Unit);
+        return (center, from);
     }
 
     /// <summary>Aparece al entrar o volver y se desvanece al salir.</summary>

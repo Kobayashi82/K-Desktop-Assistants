@@ -10,7 +10,7 @@ using Kumo.Core.Geometry;
 namespace Kumo.Assistant.Rendering;
 
 /// <summary>Una escena de la hoja: lo que hace y cuánto se deja correr antes de la foto.</summary>
-internal sealed record SheetScene(string Name, Action<KumoCloud> Setup, double Seconds);
+internal sealed record SheetScene(string Name, Action<KumoCloud> Setup, double Seconds, KDesktop.Assistant.Sdk.AssistantActivity Activity = KDesktop.Assistant.Sdk.AssistantActivity.None);
 
 /// <summary>
 /// Hojas con el dibujo de Kumo (el mismo que en el escritorio) para revisar de un vistazo formas, estados y caras sin K-Desktop.
@@ -92,6 +92,18 @@ internal static class KumoSheet
         var frame = new KumoFrame { Dark = dark };
         frame.Update(cloud, 1);
         new KumoPainter().Draw(dc, frame);
+        if (scene.Activity != KDesktop.Assistant.Sdk.AssistantActivity.None)
+        {
+            // La burbujita ya del todo fuera, a la derecha.
+            var badge = new ActivityBadge();
+            badge.Set(scene.Activity, 0);
+            var body = cloud.BodyExtent();
+            var c = cloud.RenderPosition;
+            var center = ActivityBadge.Place(c, body, unit, left: false, cloud.Time);
+            var from = new Vec2(c.X + body.Right * 0.38 * unit, c.Y + body.Top * 0.62 * unit);
+            badge.Draw(dc, center, from, unit, 10, dark, 1);
+        }
+
         ParticlePainter.Draw(dc, cloud.Particles.Items, unit);
         dc.Pop();
     }

@@ -62,6 +62,11 @@ public enum CloudPose
 
     /// <summary>Cosquillas: se retuerce y se ríe.</summary>
     Tickle,
+
+    /// <summary>
+    /// Juntando fuerzas (cargando el cerebro): ojos cerrados, aspira y la niebla de alrededor llega en nubecitas que se funden con él.
+    /// </summary>
+    Gather,
 }
 
 public enum CloudEyes { Normal, Wide, Happy, Sad, Closed, Focused, Wink, Half }

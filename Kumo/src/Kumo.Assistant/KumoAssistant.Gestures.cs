@@ -1,5 +1,6 @@
 using KDesktop.Assistant.Sdk;
 using Kumo.Assistant.Audio;
+using Kumo.Assistant.Rendering;
 using Kumo.Core.Cloud;
 using Kumo.Core.Geometry;
 using SdkGesture = KDesktop.Assistant.Sdk.Gesture;
@@ -114,7 +115,10 @@ public sealed partial class KumoAssistant
 
     public void SetState(AssistantState state) => SetState(state, StateDetail.None);
 
-    /// <summary>Lo que hace el módulo (SDK 1.13): cada estado tiene su forma (el icono de la actividad, pendiente).</summary>
+    /// <summary>
+    /// Lo que hace el módulo (SDK 1.13): cada estado tiene su forma; mientras trabaja para ti, lo que hace va en una burbujita junto a
+    /// su cabeza (<see cref="ActivityBadge"/>). Cargando el cerebro, junta fuerzas (<see cref="CloudPose.Gather"/>).
+    /// </summary>
     public void SetState(AssistantState state, StateDetail detail)
     {
         var previous = _moduleState;
@@ -125,7 +129,7 @@ public sealed partial class KumoAssistant
             AssistantState.Listening => CloudPose.Listen,
             AssistantState.Thinking => CloudPose.Think,
             AssistantState.ThinkingHard => CloudPose.ThinkHard,
-            AssistantState.LoadingBrain => CloudPose.Drop,
+            AssistantState.LoadingBrain => CloudPose.Gather,
             AssistantState.NoBrain => CloudPose.Shrug,
             AssistantState.Speaking => CloudPose.Talk,
             AssistantState.AwaitingConfirmation => CloudPose.Wait,
@@ -133,6 +137,13 @@ public sealed partial class KumoAssistant
             AssistantState.Sleeping => CloudPose.Sleep,
             _ => _asleep ? CloudPose.Sleep : CloudPose.Idle,
         };
+
+        _badge.Set(state is AssistantState.Busy or AssistantState.Thinking or AssistantState.ThinkingHard or AssistantState.AwaitingConfirmation
+            ? detail.Activity : AssistantActivity.None, _now);
+        if (state == AssistantState.LoadingBrain && previous != AssistantState.LoadingBrain)
+        {
+            Play(Sound.Whoosh, 0.2);
+        }
 
         if (state == AssistantState.NoBrain && previous != AssistantState.NoBrain)
         {
