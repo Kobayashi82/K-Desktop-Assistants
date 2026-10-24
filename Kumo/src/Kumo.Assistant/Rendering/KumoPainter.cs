@@ -29,9 +29,9 @@ internal sealed class KumoPainter
     /// <summary>Niveles verticales de los pinceles de los bultos.</summary>
     private const int BallLevels = 10;
 
-    /// <summary>Orden de los bultos: los de abajo primero, los de arriba por delante (sin los dos de arriba: van por dentro del
-    /// núcleo, y sus círculos caerían sobre la cara).</summary>
-    private static readonly int[] BallOrder = [8, 9, 7, 5, 6, 1, 2, 0];
+    /// <summary>Orden de los bultos: los de abajo primero, los de arriba por delante (sin el núcleo ni los dos de arriba: van por
+    /// dentro, y sus círculos se verían como un disco detrás de la cara).</summary>
+    private static readonly int[] BallOrder = [8, 9, 7, 5, 6, 1, 2];
 
     /// <summary>Arriba y abajo del degradado del cuerpo (unidades).</summary>
     private const double GradientTop = -0.9;
