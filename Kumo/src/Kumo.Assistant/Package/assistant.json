@@ -25,6 +25,6 @@
     "travelSpeed": 520,
     "canMoveWindows": true,
     "canReachMaximized": true,
-    "gestures": ["communicate", "react", "announce"]
+    "gestures": ["communicate", "react", "pressButton", "activateWindow", "pointAt", "goTo", "mark", "scan", "typing", "waitForWindow", "moveWindow", "announce"]
   }
 }

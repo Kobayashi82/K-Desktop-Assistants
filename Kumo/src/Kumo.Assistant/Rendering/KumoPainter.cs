@@ -11,9 +11,9 @@ namespace Kumo.Assistant.Rendering;
 /// cambian las geometrías de los contornos.
 /// </summary>
 /// <remarks>
-/// Orden: sombra y halo; los anillos del borde blando (el mismo degradado cada vez más opaco) y el cuerpo; recortado al cuerpo,
-/// cada bulto con su degradado esférico (luz arriba a la izquierda, oscuro abajo: donde un bulto se apoya en otro queda el
-/// pliegue) y el borde iluminado por arriba y oscuro por abajo; el brillo de gota; la cara.
+/// Orden: la sombra; los anillos del borde blando (el mismo degradado cada vez más opaco) y el cuerpo, liso por dentro (los bultos
+/// se ven en la silueta: sombreados, sus círculos rodeaban la cara como un disco o unos mofletes); recortado al cuerpo, el borde
+/// iluminado por arriba y oscuro por abajo; el brillo de gota; la cara.
 /// </remarks>
 internal sealed class KumoPainter
 {
@@ -26,13 +26,6 @@ internal sealed class KumoPainter
     /// <summary>Niveles de gris en los que se guardan los pinceles (no hace falta más: el cambio dura un momento).</summary>
     private const int TintLevels = 8;
 
-    /// <summary>Niveles verticales de los pinceles de los bultos.</summary>
-    private const int BallLevels = 10;
-
-    /// <summary>Orden de los bultos: los de abajo primero, los de arriba por delante (sin el núcleo ni los dos de arriba: van por
-    /// dentro, y sus círculos se verían como un disco detrás de la cara).</summary>
-    private static readonly int[] BallOrder = [8, 9, 7, 5, 6, 1, 2];
-
     /// <summary>Arriba y abajo del degradado del cuerpo (unidades).</summary>
     private const double GradientTop = -0.9;
 
@@ -40,7 +33,6 @@ internal sealed class KumoPainter
 
     private readonly Dictionary<int, Brush> _bodyBrushes = [];
     private readonly Dictionary<int, Brush> _ringBrushes = [];
-    private readonly Dictionary<int, Brush> _ballBrushes = [];
     private readonly Dictionary<int, Pen> _rimPens = [];
     private readonly Dictionary<int, Brush> _glossBrushes = [];
     private readonly Dictionary<int, Brush> _cheekBrushes = [];
@@ -88,33 +80,6 @@ internal sealed class KumoPainter
         {
             dc.DrawGeometry(BodyBrush(tint), null, body);
             dc.PushClip(body);
-            var bumpy = 1 - frame.Smooth;
-            if (bumpy > 0.02)
-            {
-                if (bumpy < 0.98)
-                {
-                    dc.PushOpacity(bumpy);
-                }
-
-                foreach (var index in BallOrder)
-                {
-                    var b = frame.Balls[index];
-                    if (b.R < 0.05)
-                    {
-                        continue;
-                    }
-
-                    var level = (int)Math.Clamp(Math.Round((b.Y - GradientTop) / (GradientBottom - GradientTop) * (BallLevels - 1)), 0, BallLevels - 1);
-                    var r = b.R * 0.99;
-                    dc.DrawEllipse(BallBrush(level, tint), null, new Point(b.X, b.Y), r, r);
-                }
-
-                if (bumpy < 0.98)
-                {
-                    dc.Pop();
-                }
-            }
-
             dc.DrawGeometry(null, RimPen(tint), body);
             var gloss = (int)Math.Round(frame.Smooth * 10);
             if (gloss > 0)
@@ -362,33 +327,6 @@ internal sealed class KumoPainter
         MappingMode = BrushMappingMode.Absolute,
         Opacity = opacity,
     };
-
-    /// <summary>
-    /// El degradado de un bulto a esa altura: más claro arriba a la izquierda y oscuro en el borde de abajo (el pliegue donde se
-    /// apoya en el de debajo).
-    /// </summary>
-    private Brush BallBrush(int level, int tint) => Cached(_ballBrushes, level * 100 + tint, () =>
-    {
-        var g = level / (double)(BallLevels - 1);
-        var baseColor = BodyAt(g, tint);
-        var light = Mix(baseColor, Color.FromRgb(255, 248, 222), 0.24);
-        return new RadialGradientBrush(
-            [
-                new GradientStop(light, 0),
-                new GradientStop(baseColor, 0.5),
-                new GradientStop(WithAlpha(Mix(baseColor, Shade(2, tint), 0.35), 0.95), 0.76),
-                new GradientStop(WithAlpha(Mix(baseColor, Shade(3, tint), 0.45), 0.55), 0.9),
-                new GradientStop(WithAlpha(Shade(3, tint), 0), 1),
-            ])
-        {
-            // Centrado en el bulto: el último color cae justo en su borde (transparente), así no se ve el círculo; la luz
-            // sale de arriba a la izquierda y el pliegue queda abajo a la derecha.
-            GradientOrigin = new Point(0.36, 0.28),
-            Center = new Point(0.5, 0.5),
-            RadiusX = 0.5,
-            RadiusY = 0.5,
-        };
-    });
 
     /// <summary>El borde: iluminado por arriba (el sol le da) y oscuro por debajo; solo se ve la mitad de dentro.</summary>
     private Pen RimPen(int tint) => CachedPen(_rimPens, tint, () =>

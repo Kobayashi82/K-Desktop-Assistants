@@ -10,7 +10,7 @@ namespace Kumo.Assistant;
 /// <summary>
 /// Gestos que pide el módulo y lo que hace mientras te atiende. De momento: <see cref="SdkGesture.Communicate"/> (habla latiendo
 /// con la voz), <see cref="SdkGesture.React"/> (contento, sorpresa, gris con lluvia, estrellas) y <see cref="SdkGesture.Announce"/>
-/// (vuela junto al cursor y saluda). Las maniobras de las órdenes llegan en la 17.3.
+/// (vuela junto al cursor y saluda). Las maniobras de las órdenes están en <see cref="ManoeuvreAsync"/>.
 /// </summary>
 public sealed partial class KumoAssistant
 {
@@ -18,13 +18,15 @@ public sealed partial class KumoAssistant
     private AssistantState _moduleState = AssistantState.Idle;
     private int _manoeuvres;
 
-    /// <summary>La ventana que lleva envuelta (17.3).</summary>
-    private object? Carrying { get; set; }
+    /// <summary>La ventana que lleva abrazada (<see cref="CarryWindowAsync"/>).</summary>
+    private long? Carrying { get; set; }
 
-    private bool ManoeuvreActive => _manoeuvres > 0;
+    /// <summary>Hay una maniobra en marcha (o algo esperando al siguiente fotograma).</summary>
+    private bool ManoeuvreActive => _manoeuvres > 0 || _frames.Count > 0;
 
     public bool CanPerform(SdkGesture gesture) =>
-        gesture.Kind is GestureKind.Communicate or GestureKind.React or GestureKind.Announce && _started && !_hidden && _exitStart is null && !_dragging;
+        (gesture.Kind is GestureKind.Communicate or GestureKind.React or GestureKind.Announce || IsManoeuvre(gesture.Kind) && !OnFullscreen(gesture))
+        && _started && !_hidden && _exitStart is null && !_dragging;
 
     public async Task<GestureOutcome> PerformAsync(SdkGesture gesture, IGestureContext ctx, CancellationToken ct)
     {
@@ -75,6 +77,9 @@ public sealed partial class KumoAssistant
                 }
 
                 return GestureOutcome.Committed;
+
+            case var _ when IsManoeuvre(gesture.Kind):
+                return await ManoeuvreAsync(gesture, ctx, ct);
 
             default:
                 return GestureOutcome.NotPerformed;
@@ -150,7 +155,7 @@ public sealed partial class KumoAssistant
             _cloud.Burst(ParticleKind.Question, new Vec2(_cloud.Position.X, _cloud.Position.Y - _unit * 1.1));
         }
 
-        if (_action is null && !ManoeuvreActive)
+        if (_action is null && !ManoeuvreActive && _speech is null)
         {
             _cloud.SetPose(_basePose);
         }

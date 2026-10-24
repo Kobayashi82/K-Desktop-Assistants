@@ -24,19 +24,19 @@ public sealed partial class KumoAssistant
     private double _nextTrip = double.NaN;
     private bool _asleep;
 
-    /// <summary>Lo que hace por su cuenta un momento (vuelve a lo de antes al acabar).</summary>
+    /// <summary>Lo que hace por su cuenta un momento (vuelve a lo de antes al acabar). Hecho bocadillo, sigue siéndolo.</summary>
     private void Act(CloudPose pose, double seconds)
     {
         _action = pose;
         _actionUntil = _now + seconds;
-        _cloud.SetPose(pose);
+        _cloud.SetPose(_speech is not null ? CloudPose.Bubble : pose);
         _host.RequestTick();
     }
 
     private void EndAction()
     {
         _action = null;
-        _cloud.SetPose(_basePose);
+        _cloud.SetPose(_speech is not null ? CloudPose.Bubble : _basePose);
     }
 
     /// <summary>Cada ciclo: la forma que toca y lo suyo cuando no tiene nada que hacer.</summary>
@@ -61,13 +61,13 @@ public sealed partial class KumoAssistant
         }
 
         // En plena maniobra o mientras lo llevas, no hace nada por su cuenta.
-        if (ManoeuvreActive || _dragging || Carrying is not null)
+        if (ManoeuvreActive || _dragging || Carrying is not null || !double.IsNaN(_returnAt))
         {
             return;
         }
 
-        var shown = _speech is not null ? CloudPose.Bubble : _basePose;
-        if (_action is null && _cloud.Pose != shown)
+        var shown = _speech is not null ? CloudPose.Bubble : _action ?? _basePose;
+        if (_cloud.Pose != shown)
         {
             _cloud.SetPose(shown);
         }

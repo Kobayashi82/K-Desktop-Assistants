@@ -138,6 +138,7 @@ public sealed partial class KumoAssistant : IAssistant
             return 0.5;
         }
 
+        UpdateManoeuvres();
         Behave(tick.Elapsed);
         _unit = UnitHere();
         _cloud.Unit = _unit * SproutScale();
