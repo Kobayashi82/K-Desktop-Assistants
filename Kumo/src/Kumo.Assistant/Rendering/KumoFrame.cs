@@ -41,7 +41,7 @@ internal sealed class KumoFrame
 
     public double Extent { get; private set; } = 1;
 
-    /// <summary>Lo que ocupa todo lo que se dibuja (unidades): el campo y el halo.</summary>
+    /// <summary>Lo que ocupa todo lo que se dibuja (unidades): el campo y la sombra.</summary>
     public (double Left, double Top, double Right, double Bottom) Bounds { get; private set; }
 
     public double Smooth { get; private set; }
@@ -106,11 +106,11 @@ internal sealed class KumoFrame
             _field.Contours(e0 + RingLevels[i].Level * (e1 - e0), Spacing, Rings[i]);
         }
 
-        var glow = Extent * 1.9;
-        var l = Math.Min(_field.Origin.X, Center.X - glow);
-        var t = Math.Min(_field.Origin.Y, Center.Y - glow);
-        var r = Math.Max(_field.Origin.X + _field.Columns * Cell, Center.X + glow);
-        var b = Math.Max(_field.Origin.Y + _field.Rows * Cell, Center.Y + glow + 0.4);
+        // El campo y la sombra de debajo (la de KumoPainter.Draw).
+        var l = Math.Min(_field.Origin.X, Center.X + 0.1 - Extent * 1.15);
+        var t = _field.Origin.Y;
+        var r = Math.Max(_field.Origin.X + _field.Columns * Cell, Center.X + 0.1 + Extent * 1.15);
+        var b = Math.Max(_field.Origin.Y + _field.Rows * Cell, Center.Y + 0.38 + Extent * 0.8);
         Bounds = (l, t, r, b);
     }
 

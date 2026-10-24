@@ -41,7 +41,6 @@ internal sealed class KumoPainter
     private readonly Dictionary<int, Brush> _ringBrushes = [];
     private readonly Dictionary<int, Brush> _ballBrushes = [];
     private readonly Dictionary<int, Pen> _rimPens = [];
-    private readonly Dictionary<int, Brush> _glowBrushes = [];
     private readonly Dictionary<int, Brush> _glossBrushes = [];
     private readonly Dictionary<int, Brush> _cheekBrushes = [];
     private static readonly Brush ShadowBrush = Frozen(Radial([(0, Color.FromArgb(28, 8, 6, 20)), (1, Color.FromArgb(0, 8, 6, 20))]));
@@ -70,10 +69,8 @@ internal sealed class KumoPainter
         var c = frame.Center;
         var ext = frame.Extent;
 
-        // Sombra blanda debajo y halo cálido alrededor (más fuerte condensado).
+        // Sombra blanda debajo.
         dc.DrawEllipse(ShadowBrush, null, new Point(c.X + 0.1, c.Y + 0.38), ext * 1.15, ext * 0.8);
-        var glow = (int)Math.Round(MathUtil.Lerp(0.16, 0.55, frame.Smooth) * 20);
-        dc.DrawEllipse(GlowBrush(glow, tint, ext), null, new Point(c.X, c.Y), ext * 1.85, ext * 1.85);
 
         // Borde blando: anillos del mismo degradado, de fuera adentro, cada vez más opacos; luego el cuerpo.
         for (var i = 0; i < frame.Rings.Length; i++)
@@ -406,13 +403,6 @@ internal sealed class KumoPainter
             ], new Point(0, GradientTop), new Point(0, GradientBottom))
         { MappingMode = BrushMappingMode.Absolute };
         return new Pen(brush, 0.12) { LineJoin = PenLineJoin.Round };
-    });
-
-    private Brush GlowBrush(int level, int tint, double extent) => Cached(_glowBrushes, level * 100 + tint, () =>
-    {
-        var color = tint > TintLevels / 2 ? Color.FromRgb(170, 182, 200) : Color.FromRgb(255, 190, 60);
-        var alpha = level / 20.0 * 0.4;
-        return Radial([(0, WithAlpha(color, 0)), (0.2, WithAlpha(color, alpha)), (1, WithAlpha(color, 0))]);
     });
 
     private Brush GlossBrush(int level) => Cached(_glossBrushes, level, () =>
