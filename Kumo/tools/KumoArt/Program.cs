@@ -24,7 +24,7 @@ var thread = new Thread(() =>
 
     var package = args.Length > 0 ? Path.GetFullPath(args[0]) : FindPackage(AppContext.BaseDirectory);
     var icon = Path.Combine(package, "icon.png");
-    KumoSheet.Save(KumoSheet.Portrait(256, 0.33), icon);
+    KumoSheet.Save(KumoSheet.Portrait(256, 0.37), icon);
     Console.WriteLine(icon);
 });
 thread.SetApartmentState(ApartmentState.STA);
