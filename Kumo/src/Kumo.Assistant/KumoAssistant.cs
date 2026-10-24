@@ -14,28 +14,26 @@ namespace Kumo.Assistant;
 /// </summary>
 /// <remarks>
 /// Todo ocurre en el hilo del motor del host. Kumo nunca está quieto del todo (su forma cambia sin parar), así que el ritmo es lo
-/// que decide lo que gasta: a cada fotograma solo cuando se mueve de verdad o hace algo; en reposo, una docena de fotogramas por
-/// segundo (el cambio de forma es lento); sin nadie delante, cuatro.
+/// que decide lo que gasta: a cada fotograma solo cuando se mueve de verdad o hace algo; en reposo, 30 fotogramas por segundo (con
+/// 12, y con 4 sin tocar nada, se veía a saltos); si llevas un minuto sin tocar nada, 20 (puedes estar mirando), y solo cuando
+/// llevas diez minutos fuera, 8.
 /// </remarks>
 public sealed partial class KumoAssistant : IAssistant
 {
     /// <summary>Píxeles por unidad a escala 1 y 100 % de escalado (la nube mide unas 2,3 unidades de ancho).</summary>
     internal const double BaseUnit = 40;
 
-    /// <summary>En reposo cambiando de forma: no hace falta más (el cambio es lento).</summary>
-    private const double CalmInterval = 1.0 / 12;
-
-    /// <summary>Con el cursor cerca (te sigue con los ojos).</summary>
-    private const double AttentiveInterval = 1.0 / 20;
+    /// <summary>En reposo cambiando de forma (y con el cursor cerca, siguiéndolo con los ojos).</summary>
+    private const double CalmInterval = 1.0 / 30;
 
     /// <summary>Solo se mueven las partículas: no hace falta el ritmo de la pantalla.</summary>
     private const double ParticleInterval = 1.0 / 30;
 
-    /// <summary>Una nubecita que se evapora despacio.</summary>
-    private const double SlowPuffInterval = 1.0 / 20;
+    /// <summary>Un minuto sin tocar nada: puede que estés mirando (leyendo, viendo algo).</summary>
+    private const double StillInterval = 1.0 / 20;
 
-    /// <summary>Nadie mira: el usuario lleva un rato sin tocar nada.</summary>
-    private const double AwayInterval = 0.25;
+    /// <summary>Diez minutos sin tocar nada: no hay nadie.</summary>
+    private const double AwayInterval = 1.0 / 8;
 
     private IAssistantHost _host = null!;
     private KumoSettings _settings = new();
@@ -94,18 +92,16 @@ public sealed partial class KumoAssistant : IAssistant
     /// Cada cuánto se dibuja cuando se mueve: unos 60 fotogramas por segundo, en un número entero de refrescos de la pantalla
     /// (como Kobii: a 144 Hz, uno de cada dos).
     /// </summary>
-    private double FrameInterval
-    {
-        get
-        {
-            if (_host.World.System.PowerSaver)
-            {
-                return 1.0 / 30;
-            }
+    private double FrameInterval => _host.World.System.PowerSaver ? Paced(1.0 / 30) : Paced(1.0 / 60);
 
-            var refresh = _host.Rendering.FrameInterval;
-            return refresh <= 0 ? 1.0 / 60 : refresh * Math.Max(1, Math.Round(1 / (60 * refresh)));
-        }
+    /// <summary>
+    /// <paramref name="interval"/> redondeado a un número entero de refrescos de la pantalla: con otro ritmo, unos fotogramas
+    /// duran un refresco más que otros y el movimiento lento da tirones.
+    /// </summary>
+    private double Paced(double interval)
+    {
+        var refresh = _host.Rendering.FrameInterval;
+        return refresh <= 0 ? interval : refresh * Math.Max(1, Math.Round(interval / refresh));
     }
 
     public void Attach(IAssistantHost host)
@@ -157,15 +153,11 @@ public sealed partial class KumoAssistant : IAssistant
 
         if (_cloud.Particles.Count > 0)
         {
-            return Math.Max(FrameInterval, ParticleInterval);
+            return Math.Max(FrameInterval, Paced(ParticleInterval));
         }
 
-        if (_cloud.Puffs.Count > 0)
-        {
-            return Math.Max(FrameInterval, SlowPuffInterval);
-        }
-
-        var interval = IsUserAway() ? AwayInterval : IsAttentive() ? AttentiveInterval : CalmInterval;
+        var idle = _pressed || _dragging ? 0 : _host.World.System.UserIdleSeconds;
+        var interval = Paced(idle > 600 ? AwayInterval : idle > 60 ? StillInterval : CalmInterval);
 
         // El parpadeo se ve entero: se despierta justo cuando empieza.
         var blink = _cloud.NextBlink - _cloud.Time;
@@ -175,11 +167,6 @@ public sealed partial class KumoAssistant : IAssistant
     /// <summary>Hay algo que se ve moverse: a cada fotograma.</summary>
     private bool IsActive() =>
         _cloud.IsLively || _badge.IsAnimating(_now) || _dragging || _pressed || ManoeuvreActive || _cloud.Lid > 0 || _now - _fadeStart < FadeInDuration || !double.IsNaN(_fadeOutStart);
-
-    private bool IsUserAway() => _host.World.System.UserIdleSeconds > 60 && !_pressed && !_dragging;
-
-    private bool IsAttentive() =>
-        _host.World.System.Cursor is { } cursor && Vec2.Distance(new Vec2(cursor.X, cursor.Y), _cloud.Position) < _cloud.Unit * 7;
 
     /// <summary>Lo pone en su sitio en cuanto hay monitores (al cargarlo el mundo puede estar aún vacío) y hace su entrada.</summary>
     private bool TryStart()
