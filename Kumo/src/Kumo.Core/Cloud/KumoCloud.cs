@@ -48,6 +48,9 @@ public sealed class KumoCloud
         [0, 0.04, 0.64, -0.5, 0.12, 0.42, 0.5, 0.12, 0.42, 0.02, -0.32, 0.39, -0.44, -0.12, 0.32, -0.84, 0.3, 0.26, 0.84, 0.3, 0.26, 0, 0.36, 0.42, -0.42, 0.36, 0.34, 0.42, 0.36, 0.34],
     ];
 
+    /// <summary>Lo más alto que llegan los bultos de arriba (unidades): por debajo de la cúpula del núcleo.</summary>
+    private const double HeadTop = -0.42;
+
     /// <summary>Lo grande que es la cara (unidades: los ojos van a 0,17 × esto del centro).</summary>
     private const double FaceSize = 1.2;
 
@@ -533,6 +536,14 @@ public sealed class KumoCloud
             }
 
             r *= 1 + 0.025 * Math.Sin(t * 2 + i * 1.3);
+
+            // Los de arriba nunca asoman por encima del núcleo: la cabeza es una cúpula lisa (con ellos encima parecía una
+            // joroba); hacen de hombros.
+            if (i is 3 or 4)
+            {
+                y = Math.Max(y, HeadTop + r);
+            }
+
             into[i] = new Target(x * k * sx, y * k * sy + dy, r * rk);
         }
 
