@@ -6,6 +6,12 @@
     <Project Path="Kobii/tests/Kobii.Core.Tests/Kobii.Core.Tests.csproj" />
     <Project Path="Kobii/tools/KobiiArt/KobiiArt.csproj" />
   </Folder>
+  <Folder Name="/Kumo/">
+    <Project Path="Kumo/src/Kumo.Assistant/Kumo.Assistant.csproj" />
+    <Project Path="Kumo/src/Kumo.Core/Kumo.Core.csproj" />
+    <Project Path="Kumo/tests/Kumo.Core.Tests/Kumo.Core.Tests.csproj" />
+    <Project Path="Kumo/tools/KumoArt/KumoArt.csproj" />
+  </Folder>
   <Folder Name="/Lander/">
     <Project Path="Lander/src/Lander.Assistant/Lander.Assistant.csproj" />
     <Project Path="Lander/src/Lander.Core/Lander.Core.csproj" />

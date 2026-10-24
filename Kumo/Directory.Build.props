@@ -1,0 +1,12 @@
+<Project>
+
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)..'))" />
+
+  <PropertyGroup>
+    <!-- La versión del asistente es la de Package\assistant.json; esta solo marca los ensamblados. -->
+    <Version>0.1.0</Version>
+    <Product>Kumo</Product>
+    <Description>Kumo como asistente de K-Desktop: una nube ámbar que flota sobre tus ventanas y habla en su propia nube.</Description>
+  </PropertyGroup>
+
+</Project>

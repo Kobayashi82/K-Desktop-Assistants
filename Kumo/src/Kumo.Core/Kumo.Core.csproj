@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Lo de Kumo que no depende de Windows: la nube (bolas, forma, campo y contornos), cómo se mueve y lo que hace. -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>Kumo.Core</RootNamespace>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Kumo.Core.Tests" />
+  </ItemGroup>
+
+</Project>

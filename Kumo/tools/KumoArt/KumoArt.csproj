@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Dibuja las imágenes del paquete con el dibujo vectorial de Kumo (el icono): «dotnet run» en esta carpeta. Las deja en
+    src\Kumo.Assistant\Package (o en la carpeta que se le pase). «sheet <archivo.png> [dark]» hace una hoja con sus estados
+    y formas; «bench» mide lo que cuesta un fotograma (campo, contornos y grabar el dibujo).
+  -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <Platforms>x64</Platforms>
+    <PlatformTarget>x64</PlatformTarget>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Kumo.Assistant\Kumo.Assistant.csproj" />
+    <ProjectReference Include="$(AssistantSdkProject)" />
+  </ItemGroup>
+
+</Project>

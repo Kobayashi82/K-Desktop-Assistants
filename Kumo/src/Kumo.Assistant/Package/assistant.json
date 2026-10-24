@@ -1,0 +1,30 @@
+{
+  "$schema": "../../../../../docs/assistant/schemas/assistant.schema.json",
+  "id": "kumo",
+  "name": "Kumo",
+  "version": "0.1.0",
+  "author": "Kobayashi82",
+  "description": {
+    "es": "Una nube ámbar que flota sobre tus ventanas, cambia de forma sin parar y te habla en su propia nube.",
+    "en": "An amber cloud that floats over your windows, never stops changing shape and talks to you in its own cloud.",
+    "fr": "Un nuage ambré qui flotte au-dessus de tes fenêtres, change de forme sans arrêt et te parle dans son propre nuage.",
+    "de": "Eine bernsteinfarbene Wolke, die über deinen Fenstern schwebt, ständig ihre Form ändert und in ihrer eigenen Wolke mit dir spricht.",
+    "it": "Una nuvola ambrata che fluttua sopra le tue finestre, cambia forma senza sosta e ti parla nella sua nuvola.",
+    "pt": "Uma nuvem âmbar que flutua sobre as suas janelas, muda de forma sem parar e fala com você na própria nuvem."
+  },
+  "homepage": "https://github.com/Kobayashi82/K-Desktop-Assistants",
+  "license": "MIT",
+  "sdk": "1.21",
+  "common": ["size", "volume", "liveliness", "dragging"],
+  "entry": "lib/Kumo.Assistant.dll!Kumo.Assistant.KumoAssistant",
+  "icon": "icon.png",
+  "wakeWord": "Kumo",
+  "speech": "own",
+  "traits": {
+    "travel": "fly",
+    "travelSpeed": 520,
+    "canMoveWindows": true,
+    "canReachMaximized": true,
+    "gestures": ["communicate", "react", "announce"]
+  }
+}
