@@ -16,6 +16,9 @@ public enum Motion
 
     /// <summary>Lo llevas con el ratón: sigue al punto con un muelle duro.</summary>
     Follow,
+
+    /// <summary>Lanzado: sigue con su velocidad, frenando poco a poco, y se queda donde se para.</summary>
+    Glide,
 }
 
 /// <summary>
@@ -255,6 +258,26 @@ public sealed class KumoCloud
         Home = target;
     }
 
+    /// <summary>Lo has lanzado a esta velocidad (píxeles por segundo).</summary>
+    public void Glide(Vec2 velocity)
+    {
+        Motion = Motion.Glide;
+        Velocity = velocity;
+        Home = Position;
+    }
+
+    /// <summary>Se para en seco en ese punto (un lanzamiento que llega al borde de la pantalla) y flota ahí.</summary>
+    public void StopAt(Vec2 at)
+    {
+        Position = at;
+        Home = at;
+        Velocity = default;
+        Motion = Motion.Hover;
+    }
+
+    /// <summary>Lo que frena un lanzamiento (por segundo): llega a la velocidad entre esto.</summary>
+    public const double GlideFriction = 3.2;
+
     public void SetPose(CloudPose pose)
     {
         if (pose == Pose)
@@ -356,15 +379,29 @@ public sealed class KumoCloud
             }
         }
 
-        var c = 2 * Math.Sqrt(k) * z;
-        var velocity = Velocity + (k * (target - Position) - c * Velocity) * dt;
-        if (Motion == Motion.Fly)
+        if (Motion == Motion.Glide)
         {
-            velocity = velocity.ClampLength(FlySpeed);
+            // Lanzado: sin muelle que lo devuelva; frena y, casi parado, flota donde está.
+            Velocity *= Math.Exp(-GlideFriction * dt);
+            Position += Velocity * dt;
+            Home = Position;
+            if (Velocity.Length < 0.6 * u)
+            {
+                Motion = Motion.Hover;
+            }
         }
+        else
+        {
+            var c = 2 * Math.Sqrt(k) * z;
+            var velocity = Velocity + (k * (target - Position) - c * Velocity) * dt;
+            if (Motion == Motion.Fly)
+            {
+                velocity = velocity.ClampLength(FlySpeed);
+            }
 
-        Velocity = velocity;
-        Position += Velocity * dt;
+            Velocity = velocity;
+            Position += Velocity * dt;
+        }
 
         var acceleration = (Velocity - _previousVelocity) / dt;
         _previousVelocity = Velocity;

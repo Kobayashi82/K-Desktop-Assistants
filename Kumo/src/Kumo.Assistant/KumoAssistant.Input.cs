@@ -11,11 +11,11 @@ namespace Kumo.Assistant;
 /// </summary>
 public sealed partial class KumoAssistant
 {
-    /// <summary>Lo que sigue tras lanzarlo: la velocidad con la que lo sueltas durante este tiempo…</summary>
-    private const double FlingSeconds = 0.35;
-
-    /// <summary>…y como mucho tantas unidades.</summary>
-    private const double FlingUnits = 12;
+    /// <summary>
+    /// Lo más deprisa que sale lanzado (unidades por segundo; el ratón llega a 15 000 px/s). Con el freno de la nube recorre
+    /// hasta unas 19 unidades.
+    /// </summary>
+    private const double FlingSpeed = 60;
 
     private bool _pressed;
     private bool _dragging;
@@ -89,14 +89,21 @@ public sealed partial class KumoAssistant
         {
             // Si lo lanzas, sigue con el impulso y se queda por donde le lleva (no vuelve al ratón); si no, donde lo sueltas.
             // KeepOnScreen lo mete en la pantalla.
-            var fling = _cloud.Velocity * FlingSeconds;
-            var most = _unit * FlingUnits;
+            var fling = _cloud.Velocity;
+            var most = _unit * FlingSpeed;
             if (fling.Length > most)
             {
                 fling *= most / fling.Length;
             }
 
-            _cloud.Hover(_cloud.Position + fling);
+            if (fling.Length > _unit * 2)
+            {
+                _cloud.Glide(fling);
+            }
+            else
+            {
+                _cloud.Hover(_cloud.Position);
+            }
             _savedSpot = _cloud.Home;
             _hit.Cursor = PointerCursor.Hand;
         }

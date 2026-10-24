@@ -1,4 +1,6 @@
 using KDesktop.Assistant.Sdk;
+using Kumo.Assistant.Audio;
+using Kumo.Core.Cloud;
 using Kumo.Core.Geometry;
 using Sdk = KDesktop.Assistant.Sdk;
 using SdkRect = KDesktop.Assistant.Sdk.PixelRect;
@@ -142,6 +144,19 @@ public sealed partial class KumoAssistant
         var monitor = world.MonitorAt(new System.Windows.Point(_cloud.Home.X, _cloud.Home.Y)) ?? Nearest(_cloud.Home);
         if (monitor is null)
         {
+            return;
+        }
+
+        // Lanzado: al llegar al borde de la pantalla se queda ahí (pasa de un monitor a otro si los hay seguidos).
+        if (_cloud.Motion == Motion.Glide)
+        {
+            var inside = Clamp(_cloud.Position, monitor);
+            if (Vec2.Distance(inside, _cloud.Position) > 0.5)
+            {
+                _cloud.StopAt(inside);
+                Play(Sound.Puff, 0.25);
+            }
+
             return;
         }
 

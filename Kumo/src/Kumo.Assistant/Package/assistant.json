@@ -55,5 +55,322 @@
     "canMoveWindows": true,
     "canReachMaximized": true,
     "gestures": ["communicate", "react", "pressButton", "activateWindow", "pointAt", "goTo", "mark", "scan", "typing", "waitForWindow", "moveWindow", "announce"]
-  }
+  },
+  "showcase": [
+    {
+      "item": "enter.startup",
+      "clip": "showcase/enter.startup.webp"
+    },
+    {
+      "item": "enter.summoned",
+      "clip": "showcase/enter.summoned.webp"
+    },
+    {
+      "item": "exit.dismissed",
+      "clip": "showcase/exit.dismissed.webp"
+    },
+    {
+      "item": "exit.uninstalling",
+      "clip": "showcase/exit.uninstalling.webp"
+    },
+    {
+      "item": "state.listening",
+      "clip": "showcase/state.listening.webp"
+    },
+    {
+      "item": "state.thinking",
+      "clip": "showcase/state.thinking.webp"
+    },
+    {
+      "item": "state.thinkingHard",
+      "clip": "showcase/state.thinkingHard.webp"
+    },
+    {
+      "item": "state.loadingBrain",
+      "clip": "showcase/state.loadingBrain.webp"
+    },
+    {
+      "item": "state.busy",
+      "clip": "showcase/state.busy.webp"
+    },
+    {
+      "item": "state.awaitingConfirmation",
+      "clip": "showcase/state.awaitingConfirmation.webp"
+    },
+    {
+      "item": "state.speaking",
+      "clip": "showcase/state.speaking.webp"
+    },
+    {
+      "item": "state.noBrain",
+      "clip": "showcase/state.noBrain.webp"
+    },
+    {
+      "item": "state.sleeping",
+      "clip": "showcase/state.sleeping.webp"
+    },
+    {
+      "item": "react.success",
+      "clip": "showcase/react.success.webp"
+    },
+    {
+      "item": "react.celebration",
+      "clip": "showcase/react.celebration.webp"
+    },
+    {
+      "item": "react.warning",
+      "clip": "showcase/react.warning.webp"
+    },
+    {
+      "item": "react.failure",
+      "clip": "showcase/react.failure.webp"
+    },
+    {
+      "item": "gesture.announce",
+      "clip": "showcase/gesture.announce.webp"
+    },
+    {
+      "item": "gesture.communicate",
+      "clip": "showcase/gesture.communicate.webp"
+    },
+    {
+      "item": "gesture.mark",
+      "clip": "showcase/gesture.mark.webp"
+    },
+    {
+      "item": "gesture.pointAt",
+      "clip": "showcase/gesture.pointAt.webp"
+    },
+    {
+      "item": "gesture.goTo",
+      "clip": "showcase/gesture.goTo.webp"
+    },
+    {
+      "item": "gesture.scan",
+      "clip": "showcase/gesture.scan.webp"
+    },
+    {
+      "item": "gesture.typing",
+      "clip": "showcase/gesture.typing.webp"
+    },
+    {
+      "item": "window.minimize",
+      "clip": "showcase/window.minimize.webp"
+    },
+    {
+      "item": "window.maximize",
+      "clip": "showcase/window.maximize.webp"
+    },
+    {
+      "item": "window.close",
+      "clip": "showcase/window.close.webp"
+    },
+    {
+      "item": "window.move",
+      "clip": "showcase/window.move.webp"
+    },
+    {
+      "item": "window.activate",
+      "clip": "showcase/window.activate.webp"
+    },
+    {
+      "item": "window.open",
+      "clip": "showcase/window.open.webp"
+    },
+    {
+      "item": "kumo.drop",
+      "clip": "showcase/kumo.drop.webp",
+      "name": {
+        "es": "Hacerse gota",
+        "en": "Turn into a drop",
+        "fr": "Devenir une goutte",
+        "de": "Zum Tropfen werden",
+        "it": "Diventare una goccia",
+        "pt": "Virar uma gota"
+      },
+      "group": "idle"
+    },
+    {
+      "item": "kumo.puffs",
+      "clip": "showcase/kumo.puffs.webp",
+      "name": {
+        "es": "Soltar nubecitas",
+        "en": "Let out little clouds",
+        "fr": "Lâcher des petits nuages",
+        "de": "Wölkchen ausstoßen",
+        "it": "Liberare nuvolette",
+        "pt": "Soltar nuvenzinhas"
+      },
+      "group": "idle"
+    },
+    {
+      "item": "kumo.wiggle",
+      "clip": "showcase/kumo.wiggle.webp",
+      "name": {
+        "es": "Retorcerse",
+        "en": "Wiggle",
+        "fr": "Se tortiller",
+        "de": "Sich winden",
+        "it": "Dimenarsi",
+        "pt": "Se contorcer"
+      },
+      "group": "idle"
+    },
+    {
+      "item": "kumo.travel",
+      "clip": "showcase/kumo.travel.webp",
+      "name": {
+        "es": "Viajar a otro sitio",
+        "en": "Fly somewhere else",
+        "fr": "S’envoler ailleurs",
+        "de": "Woandershin fliegen",
+        "it": "Volare altrove",
+        "pt": "Voar para outro lugar"
+      },
+      "group": "moving"
+    },
+    {
+      "item": "kumo.condense",
+      "clip": "showcase/kumo.condense.webp",
+      "name": {
+        "es": "Condensarse",
+        "en": "Condense",
+        "fr": "Se condenser",
+        "de": "Sich verdichten",
+        "it": "Condensarsi",
+        "pt": "Condensar-se"
+      },
+      "group": "moving"
+    },
+    {
+      "item": "kumo.dissolve",
+      "clip": "showcase/kumo.dissolve.webp",
+      "name": {
+        "es": "Deshacerse en niebla",
+        "en": "Dissolve into mist",
+        "fr": "Se dissoudre en brume",
+        "de": "Sich in Nebel auflösen",
+        "it": "Sciogliersi in nebbia",
+        "pt": "Desfazer-se em névoa"
+      },
+      "group": "moving"
+    },
+    {
+      "item": "kumo.rainbow",
+      "clip": "showcase/kumo.rainbow.webp",
+      "name": {
+        "es": "Hacer un arcoíris",
+        "en": "Make a rainbow",
+        "fr": "Faire un arc-en-ciel",
+        "de": "Einen Regenbogen machen",
+        "it": "Fare un arcobaleno",
+        "pt": "Fazer um arco-íris"
+      },
+      "group": "playing"
+    },
+    {
+      "item": "kumo.drizzle",
+      "clip": "showcase/kumo.drizzle.webp",
+      "name": {
+        "es": "Llovizna",
+        "en": "Drizzle",
+        "fr": "Bruine",
+        "de": "Nieselregen",
+        "it": "Pioggerellina",
+        "pt": "Garoa"
+      },
+      "group": "playing"
+    },
+    {
+      "item": "kumo.dance",
+      "clip": "showcase/kumo.dance.webp",
+      "name": {
+        "es": "Bailar",
+        "en": "Dance",
+        "fr": "Danser",
+        "de": "Tanzen",
+        "it": "Ballare",
+        "pt": "Dançar"
+      },
+      "group": "playing"
+    },
+    {
+      "item": "kumo.nap",
+      "clip": "showcase/kumo.nap.webp",
+      "name": {
+        "es": "Siesta con almohada",
+        "en": "Nap on a pillow",
+        "fr": "Sieste sur un oreiller",
+        "de": "Nickerchen auf dem Kissen",
+        "it": "Pisolino sul cuscino",
+        "pt": "Soneca no travesseiro"
+      },
+      "group": "playing"
+    },
+    {
+      "item": "kumo.wave",
+      "clip": "showcase/kumo.wave.webp",
+      "name": {
+        "es": "Saludar",
+        "en": "Wave",
+        "fr": "Saluer",
+        "de": "Winken",
+        "it": "Salutare",
+        "pt": "Acenar"
+      },
+      "group": "feelings"
+    },
+    {
+      "item": "kumo.happy",
+      "clip": "showcase/kumo.happy.webp",
+      "name": {
+        "es": "Contento",
+        "en": "Happy",
+        "fr": "Content",
+        "de": "Fröhlich",
+        "it": "Contento",
+        "pt": "Contente"
+      },
+      "group": "feelings"
+    },
+    {
+      "item": "kumo.surprise",
+      "clip": "showcase/kumo.surprise.webp",
+      "name": {
+        "es": "Sorpresa",
+        "en": "Surprise",
+        "fr": "Surprise",
+        "de": "Überraschung",
+        "it": "Sorpresa",
+        "pt": "Surpresa"
+      },
+      "group": "feelings"
+    },
+    {
+      "item": "kumo.shrug",
+      "clip": "showcase/kumo.shrug.webp",
+      "name": {
+        "es": "Ni idea",
+        "en": "No idea",
+        "fr": "Aucune idée",
+        "de": "Keine Ahnung",
+        "it": "Non ne ho idea",
+        "pt": "Sei lá"
+      },
+      "group": "feelings"
+    },
+    {
+      "item": "kumo.tickle",
+      "clip": "showcase/kumo.tickle.webp",
+      "name": {
+        "es": "Cosquillas",
+        "en": "Tickles",
+        "fr": "Chatouilles",
+        "de": "Kitzeln",
+        "it": "Solletico",
+        "pt": "Cócegas"
+      },
+      "group": "feelings"
+    }
+  ]
 }
