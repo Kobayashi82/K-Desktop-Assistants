@@ -2,7 +2,7 @@
   "$schema": "../../../../../docs/assistant/schemas/assistant.schema.json",
   "id": "lander",
   "name": "Lander",
-  "version": "0.16.1",
+  "version": "0.17.0",
   "author": "Kobayashi82",
   "description": {
     "es": "Un pequeño módulo lunar que vuela por tus ventanas y aterriza en ellas. Incluye su juego.",
@@ -15,14 +15,14 @@
   "homepage": "https://github.com/Kobayashi82/K-Desktop-Assistants",
   "license": "MIT",
   "changes": {
-    "es": "Al caer del cielo aparece arriba del todo del monitor, cae con el motor apagado y lo enciende a tope en el último momento para frenar y posarse.",
-    "en": "When it drops from the sky it appears at the very top of the monitor, falls with its engine off and fires it at full power at the last moment to brake and land.",
-    "fr": "Quand il tombe du ciel, il apparaît tout en haut de l’écran, tombe moteur coupé et l’allume à fond au dernier moment pour freiner et se poser.",
-    "de": "Wenn er vom Himmel fällt, erscheint er ganz oben am Bildschirm, fällt mit abgeschaltetem Triebwerk und zündet es im letzten Moment mit voller Kraft, um abzubremsen und zu landen.",
-    "it": "Quando cade dal cielo appare in cima allo schermo, cade a motore spento e lo accende al massimo all’ultimo momento per frenare e posarsi.",
-    "pt": "Ao cair do céu, aparece no topo da tela, cai com o motor desligado e o liga no máximo no último instante para frear e pousar."
+    "es": "Ahora enseña en el catálogo lo que sabe hacer: clips de sus entradas, salidas, estados, reacciones y animaciones.",
+    "en": "It now shows what it can do in the catalog: clips of its entrances, exits, states, reactions and animations.",
+    "fr": "Il montre maintenant ce qu’il sait faire dans le catalogue : des clips de ses entrées, sorties, états, réactions et animations.",
+    "de": "Zeigt jetzt im Katalog, was er kann: Clips seiner Auftritte, Abgänge, Zustände, Reaktionen und Animationen.",
+    "it": "Ora mostra nel catalogo cosa sa fare: clip delle sue entrate, uscite, stati, reazioni e animazioni.",
+    "pt": "Agora mostra no catálogo o que sabe fazer: clipes das suas entradas, saídas, estados, reações e animações."
   },
-  "sdk": "1.18",
+  "sdk": "1.21",
   "common": ["size", "volume", "liveliness", "dragging"],
   "entry": "lib/Lander.Assistant.dll!Lander.Assistant.LanderAssistant",
   "icon": "icon.png",
@@ -68,6 +68,284 @@
       "id": "lander.race.abandon",
       "name": { "es": "Abandonar la carrera", "en": "Abandon the race", "fr": "Abandonner la course", "de": "Rennen abbrechen", "it": "Abbandona la gara", "pt": "Abandonar a corrida" },
       "icon": "kd:DismissCircle"
+    }
+  ],
+  "showcase": [
+    {
+      "item": "enter.startup",
+      "clip": "showcase/enter.startup.webp"
+    },
+    {
+      "item": "enter.summoned",
+      "clip": "showcase/enter.summoned.webp"
+    },
+    {
+      "item": "exit.dismissed",
+      "clip": "showcase/exit.dismissed.webp"
+    },
+    {
+      "item": "exit.uninstalling",
+      "clip": "showcase/exit.uninstalling.webp"
+    },
+    {
+      "item": "state.listening",
+      "clip": "showcase/state.listening.webp"
+    },
+    {
+      "item": "state.thinking",
+      "clip": "showcase/state.thinking.webp"
+    },
+    {
+      "item": "state.thinkingHard",
+      "clip": "showcase/state.thinkingHard.webp"
+    },
+    {
+      "item": "state.loadingBrain",
+      "clip": "showcase/state.loadingBrain.webp"
+    },
+    {
+      "item": "state.busy",
+      "clip": "showcase/state.busy.webp"
+    },
+    {
+      "item": "state.awaitingConfirmation",
+      "clip": "showcase/state.awaitingConfirmation.webp"
+    },
+    {
+      "item": "state.speaking",
+      "clip": "showcase/state.speaking.webp"
+    },
+    {
+      "item": "state.noBrain",
+      "clip": "showcase/state.noBrain.webp"
+    },
+    {
+      "item": "state.sleeping",
+      "clip": "showcase/state.sleeping.webp"
+    },
+    {
+      "item": "react.success",
+      "clip": "showcase/react.success.webp"
+    },
+    {
+      "item": "react.celebration",
+      "clip": "showcase/react.celebration.webp"
+    },
+    {
+      "item": "react.warning",
+      "clip": "showcase/react.warning.webp"
+    },
+    {
+      "item": "react.failure",
+      "clip": "showcase/react.failure.webp"
+    },
+    {
+      "item": "gesture.announce",
+      "clip": "showcase/gesture.announce.webp"
+    },
+    {
+      "item": "gesture.communicate",
+      "clip": "showcase/gesture.communicate.webp"
+    },
+    {
+      "item": "gesture.mark",
+      "clip": "showcase/gesture.mark.webp"
+    },
+    {
+      "item": "gesture.pointAt",
+      "clip": "showcase/gesture.pointAt.webp"
+    },
+    {
+      "item": "gesture.goTo",
+      "clip": "showcase/gesture.goTo.webp"
+    },
+    {
+      "item": "gesture.scan",
+      "clip": "showcase/gesture.scan.webp"
+    },
+    {
+      "item": "gesture.typing",
+      "clip": "showcase/gesture.typing.webp"
+    },
+    {
+      "item": "window.minimize",
+      "clip": "showcase/window.minimize.webp"
+    },
+    {
+      "item": "window.maximize",
+      "clip": "showcase/window.maximize.webp"
+    },
+    {
+      "item": "window.close",
+      "clip": "showcase/window.close.webp"
+    },
+    {
+      "item": "window.move",
+      "clip": "showcase/window.move.webp"
+    },
+    {
+      "item": "window.activate",
+      "clip": "showcase/window.activate.webp"
+    },
+    {
+      "item": "window.open",
+      "clip": "showcase/window.open.webp"
+    },
+    {
+      "item": "lander.wave",
+      "clip": "showcase/lander.wave.webp",
+      "name": {
+        "es": "Saludar",
+        "en": "Wave",
+        "fr": "Saluer",
+        "de": "Winken",
+        "it": "Salutare",
+        "pt": "Acenar"
+      },
+      "group": "idle"
+    },
+    {
+      "item": "lander.yawn",
+      "clip": "showcase/lander.yawn.webp",
+      "name": {
+        "es": "Bostezar",
+        "en": "Yawn",
+        "fr": "Bâiller",
+        "de": "Gähnen",
+        "it": "Sbadigliare",
+        "pt": "Bocejar"
+      },
+      "group": "idle"
+    },
+    {
+      "item": "lander.stretch",
+      "clip": "showcase/lander.stretch.webp",
+      "name": {
+        "es": "Estirarse",
+        "en": "Stretch",
+        "fr": "S’étirer",
+        "de": "Sich strecken",
+        "it": "Stiracchiarsi",
+        "pt": "Espreguiçar"
+      },
+      "group": "idle"
+    },
+    {
+      "item": "lander.nap",
+      "clip": "showcase/lander.nap.webp",
+      "name": {
+        "es": "Echar una siesta",
+        "en": "Take a nap",
+        "fr": "Faire la sieste",
+        "de": "Ein Nickerchen",
+        "it": "Fare un pisolino",
+        "pt": "Tirar um cochilo"
+      },
+      "group": "idle"
+    },
+    {
+      "item": "lander.hop",
+      "clip": "showcase/lander.hop.webp",
+      "name": {
+        "es": "Un saltito",
+        "en": "A little hop",
+        "fr": "Un petit saut",
+        "de": "Ein Hüpfer",
+        "it": "Un saltello",
+        "pt": "Um pulinho"
+      },
+      "group": "moving"
+    },
+    {
+      "item": "lander.sightsee",
+      "clip": "showcase/lander.sightsee.webp",
+      "name": {
+        "es": "Vuelo panorámico",
+        "en": "Sightseeing flight",
+        "fr": "Vol panoramique",
+        "de": "Rundflug",
+        "it": "Volo panoramico",
+        "pt": "Voo panorâmico"
+      },
+      "group": "moving"
+    },
+    {
+      "item": "lander.loop",
+      "clip": "showcase/lander.loop.webp",
+      "name": {
+        "es": "Voltereta",
+        "en": "Loop",
+        "fr": "Looping",
+        "de": "Looping",
+        "it": "Giro della morte",
+        "pt": "Cambalhota"
+      },
+      "group": "tricks"
+    },
+    {
+      "item": "lander.stall",
+      "clip": "showcase/lander.stall.webp",
+      "name": {
+        "es": "Fallo de motor",
+        "en": "Engine stall",
+        "fr": "Panne de moteur",
+        "de": "Motoraussetzer",
+        "it": "Motore in stallo",
+        "pt": "Falha no motor"
+      },
+      "group": "tricks"
+    },
+    {
+      "item": "lander.confetti",
+      "clip": "showcase/lander.confetti.webp",
+      "name": {
+        "es": "Confeti",
+        "en": "Confetti",
+        "fr": "Confettis",
+        "de": "Konfetti",
+        "it": "Coriandoli",
+        "pt": "Confete"
+      },
+      "group": "tricks"
+    },
+    {
+      "item": "lander.love",
+      "clip": "showcase/lander.love.webp",
+      "name": {
+        "es": "Enamorado",
+        "en": "In love",
+        "fr": "Amoureux",
+        "de": "Verliebt",
+        "it": "Innamorato",
+        "pt": "Apaixonado"
+      },
+      "group": "feelings"
+    },
+    {
+      "item": "lander.curious",
+      "clip": "showcase/lander.curious.webp",
+      "name": {
+        "es": "Curioso",
+        "en": "Curious",
+        "fr": "Curieux",
+        "de": "Neugierig",
+        "it": "Curioso",
+        "pt": "Curioso"
+      },
+      "group": "feelings"
+    },
+    {
+      "item": "lander.scared",
+      "clip": "showcase/lander.scared.webp",
+      "name": {
+        "es": "Asustado",
+        "en": "Scared",
+        "fr": "Effrayé",
+        "de": "Erschrocken",
+        "it": "Spaventato",
+        "pt": "Assustado"
+      },
+      "group": "feelings"
     }
   ]
 }

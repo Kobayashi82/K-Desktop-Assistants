@@ -2,7 +2,7 @@
   "$schema": "../../../../../docs/assistant/schemas/assistant.schema.json",
   "id": "kobii",
   "name": "Kobii",
-  "version": "0.12.0",
+  "version": "0.13.0",
   "author": "Kobayashi82",
   "description": {
     "es": "Una criatura blandita que pasea por tu barra de tareas y por encima de tus ventanas.",
@@ -13,16 +13,16 @@
     "pt": "Uma criaturinha fofinha que passeia pela sua barra de tarefas e por cima das suas janelas."
   },
   "changes": {
-    "es": "Más variado: entra andando, cayendo desde arriba, jugando al cucú-tras o de un salto con los brazos arriba; si lo pones tú, aparece junto al cursor y te saluda, y al recargarse vuelve donde estaba. Se despide de varias maneras (saludo, beso, reverencia) y al quitarlo suspira. Sus reacciones cambian cada vez y según el contexto (un «gracias», la tercera seguida, la primera del día). Mientras hace algo para ti enseña qué (lee un libro, se tapa con la hoja, canturrea…), con las gafas al pensar a fondo y frotándose los ojos mientras carga su cerebro. Antes de avisarte se acerca al cursor y te saluda. Y casi treinta animaciones suyas en la pestaña «Probar».",
-    "en": "More varied: it walks in, drops from above, plays peekaboo or pops in with its arms up; when you put it there it appears by the cursor and waves, and when reloaded it comes back where it was. It says goodbye in several ways (a wave, a kiss, a bow) and sighs when removed. Its reactions change every time and with the context (a «thanks», the third in a row, the first of the day). While it does something for you it shows what (reads a book, holds up its leaf, hums…), puts on its glasses when thinking hard and rubs its eyes while its brain loads. Before telling you something it comes to the cursor and waves. And nearly thirty of its animations in the «Try» tab.",
-    "fr": "Plus varié : il entre en marchant, tombe d’en haut, joue à coucou ou surgit les bras en l’air ; si c’est vous qui le placez, il apparaît près du curseur et vous salue, et rechargé il revient où il était. Il dit au revoir de plusieurs façons (salut, bisou, révérence) et soupire quand on le retire. Ses réactions changent à chaque fois et selon le contexte (un « merci », la troisième d’affilée, la première du jour). Quand il fait quelque chose pour vous, il montre quoi (lit un livre, s’abrite sous sa feuille, fredonne…), met ses lunettes pour réfléchir à fond et se frotte les yeux pendant que son cerveau se charge. Avant de vous prévenir, il s’approche du curseur et vous salue. Et presque trente de ses animations dans l’onglet « Essayer ».",
-    "de": "Abwechslungsreicher: Er kommt hereinspaziert, fällt von oben, spielt Kuckuck oder springt mit erhobenen Armen herein; wenn du ihn holst, erscheint er beim Mauszeiger und winkt, und neu geladen kehrt er an seinen Platz zurück. Er verabschiedet sich auf verschiedene Weise (Winken, Kusshand, Verbeugung) und seufzt, wenn er entfernt wird. Seine Reaktionen ändern sich jedes Mal und je nach Anlass (ein „Danke“, die dritte in Folge, die erste des Tages). Wenn er etwas für dich tut, zeigt er was (liest ein Buch, hält sein Blatt hoch, summt…), setzt beim gründlichen Nachdenken die Brille auf und reibt sich die Augen, während sein Gehirn lädt. Bevor er dir etwas sagt, kommt er zum Mauszeiger und winkt. Und fast dreißig seiner Animationen im Tab „Ausprobieren“.",
-    "it": "Più vario: entra camminando, cade dall’alto, gioca a cucù o salta dentro a braccia alzate; se lo metti tu, appare vicino al cursore e ti saluta, e quando si ricarica torna dov’era. Si congeda in vari modi (saluto, bacio, inchino) e sospira quando lo rimuovi. Le sue reazioni cambiano ogni volta e secondo il contesto (un «grazie», la terza di fila, la prima del giorno). Mentre fa qualcosa per te mostra cosa (legge un libro, si ripara con la foglia, canticchia…), mette gli occhiali quando pensa a fondo e si stropiccia gli occhi mentre il cervello si carica. Prima di avvisarti si avvicina al cursore e ti saluta. E quasi trenta sue animazioni nella scheda «Prova».",
-    "pt": "Mais variado: entra andando, cai de cima, brinca de esconde-esconde ou aparece de um pulo com os braços para cima; se você o colocar, aparece perto do cursor e acena, e ao recarregar volta para onde estava. Despede-se de vários jeitos (aceno, beijo, reverência) e suspira quando é removido. As reações mudam a cada vez e conforme o contexto (um «obrigado», a terceira seguida, a primeira do dia). Enquanto faz algo para você, mostra o quê (lê um livro, se cobre com a folha, cantarola…), põe os óculos ao pensar a fundo e esfrega os olhos enquanto o cérebro carrega. Antes de avisar, vem até o cursor e acena. E quase trinta animações dele na aba «Testar»."
+    "es": "Ahora enseña en el catálogo lo que sabe hacer: clips de sus entradas, salidas, estados, reacciones y animaciones.",
+    "en": "It now shows what it can do in the catalog: clips of its entrances, exits, states, reactions and animations.",
+    "fr": "Il montre maintenant ce qu’il sait faire dans le catalogue : des clips de ses entrées, sorties, états, réactions et animations.",
+    "de": "Zeigt jetzt im Katalog, was er kann: Clips seiner Auftritte, Abgänge, Zustände, Reaktionen und Animationen.",
+    "it": "Ora mostra nel catalogo cosa sa fare: clip delle sue entrate, uscite, stati, reazioni e animazioni.",
+    "pt": "Agora mostra no catálogo o que sabe fazer: clipes das suas entradas, saídas, estados, reações e animações."
   },
   "homepage": "https://github.com/Kobayashi82/K-Desktop-Assistants",
   "license": "MIT",
-  "sdk": "1.18",
+  "sdk": "1.21",
   "common": ["size", "volume", "liveliness", "dragging"],
   "entry": "lib/Kobii.Assistant.dll!Kobii.Assistant.KobiiAssistant",
   "icon": "icon.png",
@@ -169,6 +169,479 @@
         "pt": "Guardar a escova"
       },
       "icon": "kd:PaintBrush"
+    }
+  ],
+  "showcase": [
+    {
+      "item": "enter.startup",
+      "clip": "showcase/enter.startup.webp"
+    },
+    {
+      "item": "enter.summoned",
+      "clip": "showcase/enter.summoned.webp"
+    },
+    {
+      "item": "exit.dismissed",
+      "clip": "showcase/exit.dismissed.webp"
+    },
+    {
+      "item": "exit.uninstalling",
+      "clip": "showcase/exit.uninstalling.webp"
+    },
+    {
+      "item": "state.listening",
+      "clip": "showcase/state.listening.webp"
+    },
+    {
+      "item": "state.thinking",
+      "clip": "showcase/state.thinking.webp"
+    },
+    {
+      "item": "state.thinkingHard",
+      "clip": "showcase/state.thinkingHard.webp"
+    },
+    {
+      "item": "state.loadingBrain",
+      "clip": "showcase/state.loadingBrain.webp"
+    },
+    {
+      "item": "state.busy",
+      "clip": "showcase/state.busy.webp"
+    },
+    {
+      "item": "state.awaitingConfirmation",
+      "clip": "showcase/state.awaitingConfirmation.webp"
+    },
+    {
+      "item": "state.speaking",
+      "clip": "showcase/state.speaking.webp"
+    },
+    {
+      "item": "state.noBrain",
+      "clip": "showcase/state.noBrain.webp"
+    },
+    {
+      "item": "state.sleeping",
+      "clip": "showcase/state.sleeping.webp"
+    },
+    {
+      "item": "react.success",
+      "clip": "showcase/react.success.webp"
+    },
+    {
+      "item": "react.celebration",
+      "clip": "showcase/react.celebration.webp"
+    },
+    {
+      "item": "react.warning",
+      "clip": "showcase/react.warning.webp"
+    },
+    {
+      "item": "react.failure",
+      "clip": "showcase/react.failure.webp"
+    },
+    {
+      "item": "gesture.announce",
+      "clip": "showcase/gesture.announce.webp"
+    },
+    {
+      "item": "gesture.communicate",
+      "clip": "showcase/gesture.communicate.webp"
+    },
+    {
+      "item": "gesture.mark",
+      "clip": "showcase/gesture.mark.webp"
+    },
+    {
+      "item": "gesture.pointAt",
+      "clip": "showcase/gesture.pointAt.webp"
+    },
+    {
+      "item": "gesture.goTo",
+      "clip": "showcase/gesture.goTo.webp"
+    },
+    {
+      "item": "gesture.scan",
+      "clip": "showcase/gesture.scan.webp"
+    },
+    {
+      "item": "gesture.typing",
+      "clip": "showcase/gesture.typing.webp"
+    },
+    {
+      "item": "window.minimize",
+      "clip": "showcase/window.minimize.webp"
+    },
+    {
+      "item": "window.maximize",
+      "clip": "showcase/window.maximize.webp"
+    },
+    {
+      "item": "window.close",
+      "clip": "showcase/window.close.webp"
+    },
+    {
+      "item": "window.move",
+      "clip": "showcase/window.move.webp"
+    },
+    {
+      "item": "window.activate",
+      "clip": "showcase/window.activate.webp"
+    },
+    {
+      "item": "window.open",
+      "clip": "showcase/window.open.webp"
+    },
+    {
+      "item": "kobii.stretch",
+      "clip": "showcase/kobii.stretch.webp",
+      "name": {
+        "es": "Estirarse",
+        "en": "Stretch",
+        "fr": "S’étirer",
+        "de": "Sich strecken",
+        "it": "Stiracchiarsi",
+        "pt": "Espreguiçar"
+      },
+      "group": "idle"
+    },
+    {
+      "item": "kobii.yawn",
+      "clip": "showcase/kobii.yawn.webp",
+      "name": {
+        "es": "Bostezar",
+        "en": "Yawn",
+        "fr": "Bâiller",
+        "de": "Gähnen",
+        "it": "Sbadigliare",
+        "pt": "Bocejar"
+      },
+      "group": "idle"
+    },
+    {
+      "item": "kobii.rubeyes",
+      "clip": "showcase/kobii.rubeyes.webp",
+      "name": {
+        "es": "Frotarse los ojos",
+        "en": "Rub its eyes",
+        "fr": "Se frotter les yeux",
+        "de": "Augen reiben",
+        "it": "Stropicciarsi gli occhi",
+        "pt": "Esfregar os olhos"
+      },
+      "group": "idle"
+    },
+    {
+      "item": "kobii.lookaround",
+      "clip": "showcase/kobii.lookaround.webp",
+      "name": {
+        "es": "Sentarse a mirar",
+        "en": "Sit and look around",
+        "fr": "S’asseoir et regarder",
+        "de": "Sitzen und schauen",
+        "it": "Sedersi a guardare",
+        "pt": "Sentar e olhar"
+      },
+      "group": "idle"
+    },
+    {
+      "item": "kobii.bubbles",
+      "clip": "showcase/kobii.bubbles.webp",
+      "name": {
+        "es": "Hacer pompas",
+        "en": "Blow bubbles",
+        "fr": "Faire des bulles",
+        "de": "Seifenblasen",
+        "it": "Fare le bolle",
+        "pt": "Fazer bolhas"
+      },
+      "group": "idle"
+    },
+    {
+      "item": "kobii.tea",
+      "clip": "showcase/kobii.tea.webp",
+      "name": {
+        "es": "Tomar un té",
+        "en": "Have a cup of tea",
+        "fr": "Prendre un thé",
+        "de": "Tee trinken",
+        "it": "Bere un tè",
+        "pt": "Tomar um chá"
+      },
+      "group": "idle"
+    },
+    {
+      "item": "kobii.read",
+      "clip": "showcase/kobii.read.webp",
+      "name": {
+        "es": "Leer con gafas",
+        "en": "Read with glasses",
+        "fr": "Lire avec des lunettes",
+        "de": "Mit Brille lesen",
+        "it": "Leggere con gli occhiali",
+        "pt": "Ler de óculos"
+      },
+      "group": "idle"
+    },
+    {
+      "item": "kobii.flower",
+      "clip": "showcase/kobii.flower.webp",
+      "name": {
+        "es": "Oler una flor",
+        "en": "Smell a flower",
+        "fr": "Sentir une fleur",
+        "de": "An einer Blume riechen",
+        "it": "Annusare un fiore",
+        "pt": "Cheirar uma flor"
+      },
+      "group": "idle"
+    },
+    {
+      "item": "kobii.doze",
+      "clip": "showcase/kobii.doze.webp",
+      "name": {
+        "es": "Dar cabezadas",
+        "en": "Nod off",
+        "fr": "Somnoler",
+        "de": "Einnicken",
+        "it": "Appisolarsi",
+        "pt": "Cochilar"
+      },
+      "group": "idle"
+    },
+    {
+      "item": "kobii.hops",
+      "clip": "showcase/kobii.hops.webp",
+      "name": {
+        "es": "Saltitos",
+        "en": "Little hops",
+        "fr": "Petits sauts",
+        "de": "Hüpfer",
+        "it": "Saltelli",
+        "pt": "Pulinhos"
+      },
+      "group": "moving"
+    },
+    {
+      "item": "kobii.roll",
+      "clip": "showcase/kobii.roll.webp",
+      "name": {
+        "es": "Rodar",
+        "en": "Roll",
+        "fr": "Rouler",
+        "de": "Rollen",
+        "it": "Rotolare",
+        "pt": "Rolar"
+      },
+      "group": "moving"
+    },
+    {
+      "item": "kobii.ball",
+      "clip": "showcase/kobii.ball.webp",
+      "name": {
+        "es": "Jugar con la pelota",
+        "en": "Play with the ball",
+        "fr": "Jouer avec la balle",
+        "de": "Mit dem Ball spielen",
+        "it": "Giocare con la palla",
+        "pt": "Brincar com a bola"
+      },
+      "group": "playing"
+    },
+    {
+      "item": "kobii.butterfly",
+      "clip": "showcase/kobii.butterfly.webp",
+      "name": {
+        "es": "Perseguir una mariposa",
+        "en": "Chase a butterfly",
+        "fr": "Chasser un papillon",
+        "de": "Einen Schmetterling jagen",
+        "it": "Inseguire una farfalla",
+        "pt": "Correr atrás de uma borboleta"
+      },
+      "group": "playing"
+    },
+    {
+      "item": "kobii.balloon",
+      "clip": "showcase/kobii.balloon.webp",
+      "name": {
+        "es": "Pasear el globo",
+        "en": "Walk the balloon",
+        "fr": "Promener le ballon",
+        "de": "Mit dem Luftballon",
+        "it": "Passeggiare col palloncino",
+        "pt": "Passear com o balão"
+      },
+      "group": "playing"
+    },
+    {
+      "item": "kobii.peekaboo",
+      "clip": "showcase/kobii.peekaboo.webp",
+      "name": {
+        "es": "Cucú-tras",
+        "en": "Peekaboo",
+        "fr": "Coucou",
+        "de": "Kuckuck",
+        "it": "Cucù",
+        "pt": "Esconde-esconde"
+      },
+      "group": "playing"
+    },
+    {
+      "item": "kobii.eat",
+      "clip": "showcase/kobii.eat.webp",
+      "name": {
+        "es": "Merendar",
+        "en": "Have a snack",
+        "fr": "Goûter",
+        "de": "Etwas naschen",
+        "it": "Fare merenda",
+        "pt": "Lanchar"
+      },
+      "group": "playing"
+    },
+    {
+      "item": "kobii.drink",
+      "clip": "showcase/kobii.drink.webp",
+      "name": {
+        "es": "Beber zumo",
+        "en": "Drink some juice",
+        "fr": "Boire du jus",
+        "de": "Saft trinken",
+        "it": "Bere un succo",
+        "pt": "Tomar suco"
+      },
+      "group": "playing"
+    },
+    {
+      "item": "kobii.flip",
+      "clip": "showcase/kobii.flip.webp",
+      "name": {
+        "es": "Voltereta",
+        "en": "Somersault",
+        "fr": "Galipette",
+        "de": "Purzelbaum",
+        "it": "Capriola",
+        "pt": "Cambalhota"
+      },
+      "group": "tricks"
+    },
+    {
+      "item": "kobii.dance",
+      "clip": "showcase/kobii.dance.webp",
+      "name": {
+        "es": "Bailar",
+        "en": "Dance",
+        "fr": "Danser",
+        "de": "Tanzen",
+        "it": "Ballare",
+        "pt": "Dançar"
+      },
+      "group": "tricks"
+    },
+    {
+      "item": "kobii.sing",
+      "clip": "showcase/kobii.sing.webp",
+      "name": {
+        "es": "Cantar",
+        "en": "Sing",
+        "fr": "Chanter",
+        "de": "Singen",
+        "it": "Cantare",
+        "pt": "Cantar"
+      },
+      "group": "tricks"
+    },
+    {
+      "item": "kobii.wiggle",
+      "clip": "showcase/kobii.wiggle.webp",
+      "name": {
+        "es": "Menear el culete",
+        "en": "Wiggle its bottom",
+        "fr": "Remuer les fesses",
+        "de": "Mit dem Po wackeln",
+        "it": "Muovere il sederino",
+        "pt": "Rebolar"
+      },
+      "group": "tricks"
+    },
+    {
+      "item": "kobii.bow",
+      "clip": "showcase/kobii.bow.webp",
+      "name": {
+        "es": "Reverencia",
+        "en": "Bow",
+        "fr": "Révérence",
+        "de": "Verbeugung",
+        "it": "Inchino",
+        "pt": "Reverência"
+      },
+      "group": "tricks"
+    },
+    {
+      "item": "kobii.kiss",
+      "clip": "showcase/kobii.kiss.webp",
+      "name": {
+        "es": "Lanzar un beso",
+        "en": "Blow a kiss",
+        "fr": "Envoyer un bisou",
+        "de": "Kusshand",
+        "it": "Mandare un bacio",
+        "pt": "Mandar um beijo"
+      },
+      "group": "feelings"
+    },
+    {
+      "item": "kobii.wink",
+      "clip": "showcase/kobii.wink.webp",
+      "name": {
+        "es": "Guiño",
+        "en": "Wink",
+        "fr": "Clin d’œil",
+        "de": "Zwinkern",
+        "it": "Occhiolino",
+        "pt": "Piscadinha"
+      },
+      "group": "feelings"
+    },
+    {
+      "item": "kobii.sulk",
+      "clip": "showcase/kobii.sulk.webp",
+      "name": {
+        "es": "Enfurruñarse",
+        "en": "Sulk",
+        "fr": "Bouder",
+        "de": "Schmollen",
+        "it": "Tenere il broncio",
+        "pt": "Emburrar"
+      },
+      "group": "feelings"
+    },
+    {
+      "item": "kobii.sigh",
+      "clip": "showcase/kobii.sigh.webp",
+      "name": {
+        "es": "Suspirar",
+        "en": "Sigh",
+        "fr": "Soupirer",
+        "de": "Seufzen",
+        "it": "Sospirare",
+        "pt": "Suspirar"
+      },
+      "group": "feelings"
+    },
+    {
+      "item": "kobii.scare",
+      "clip": "showcase/kobii.scare.webp",
+      "name": {
+        "es": "Un susto",
+        "en": "A fright",
+        "fr": "Une frayeur",
+        "de": "Ein Schreck",
+        "it": "Uno spavento",
+        "pt": "Um susto"
+      },
+      "group": "feelings"
     }
   ]
 }
