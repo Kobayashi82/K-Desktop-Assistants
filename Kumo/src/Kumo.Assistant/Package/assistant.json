@@ -2,7 +2,7 @@
   "$schema": "../../../../../docs/assistant/schemas/assistant.schema.json",
   "id": "kumo",
   "name": "Kumo",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": "Kobayashi82",
   "description": {
     "es": "Una nube ámbar que flota sobre tus ventanas, cambia de forma sin parar y te habla en su propia nube.",
@@ -14,7 +14,15 @@
   },
   "homepage": "https://github.com/Kobayashi82/K-Desktop-Assistants",
   "license": "MIT",
-  "sdk": "1.21",
+  "changes": {
+    "es": "Preparado para el SDK 1.0 de los asistentes: necesita K-Desktop 5.0.197 o posterior.",
+    "en": "Ready for the assistant SDK 1.0: it needs K-Desktop 5.0.197 or later.",
+    "fr": "Prêt pour le SDK 1.0 des assistants : il faut K-Desktop 5.0.197 ou plus récent.",
+    "de": "Bereit für das Assistenten-SDK 1.0: braucht K-Desktop 5.0.197 oder neuer.",
+    "it": "Pronto per l’SDK 1.0 degli assistenti: serve K-Desktop 5.0.197 o successivo.",
+    "pt": "Pronto para o SDK 1.0 dos assistentes: precisa do K-Desktop 5.0.197 ou mais recente."
+  },
+  "sdk": "1.0",
   "updates": "https://github.com/Kobayashi82/K-Desktop/releases/download/assistants/kumo.kai",
   "common": ["size", "volume", "liveliness", "dragging"],
   "entry": "lib/Kumo.Assistant.dll!Kumo.Assistant.KumoAssistant",

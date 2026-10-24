@@ -497,7 +497,7 @@ public sealed partial class KobiiAssistant
         }
 
         var found = _host.World.Current.Windows.FirstOrDefault(w => !awaited.Before.Contains(w.Handle)
-            && (awaited.Process is null || string.Equals(w.AppId, awaited.Process, StringComparison.OrdinalIgnoreCase)));
+            && (awaited.Process is null || string.Equals(w.Process, awaited.Process, StringComparison.OrdinalIgnoreCase)));
         if (found is null || found.Bounds.IsEmpty || OnFullscreen(new SdkGesture.ActivateWindow(found)))
         {
             return;
@@ -735,7 +735,6 @@ public sealed partial class KobiiAssistant
             Place.OfWindow w => w.Window.Bounds.Center,
             Place.AtPoint p => p.Point,
             Place.Area a => a.Rect.Center,
-            Place.Monitor m => world.Monitors.FirstOrDefault(x => x.Index == m.Index)?.Bounds.Center,
             Place.Tray => TrayPoint(clock: false) is { } t ? new System.Windows.Point(t.X, t.Y) : null,
             Place.Clock => TrayPoint(clock: true) is { } c ? new System.Windows.Point(c.X, c.Y) : null,
             _ => null,

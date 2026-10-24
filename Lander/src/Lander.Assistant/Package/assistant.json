@@ -2,7 +2,7 @@
   "$schema": "../../../../../docs/assistant/schemas/assistant.schema.json",
   "id": "lander",
   "name": "Lander",
-  "version": "0.17.0",
+  "version": "0.18.0",
   "author": "Kobayashi82",
   "description": {
     "es": "Un pequeño módulo lunar que vuela por tus ventanas y aterriza en ellas. Incluye su juego.",
@@ -15,14 +15,14 @@
   "homepage": "https://github.com/Kobayashi82/K-Desktop-Assistants",
   "license": "MIT",
   "changes": {
-    "es": "Ahora enseña en el catálogo lo que sabe hacer: clips de sus entradas, salidas, estados, reacciones y animaciones.",
-    "en": "It now shows what it can do in the catalog: clips of its entrances, exits, states, reactions and animations.",
-    "fr": "Il montre maintenant ce qu’il sait faire dans le catalogue : des clips de ses entrées, sorties, états, réactions et animations.",
-    "de": "Zeigt jetzt im Katalog, was er kann: Clips seiner Auftritte, Abgänge, Zustände, Reaktionen und Animationen.",
-    "it": "Ora mostra nel catalogo cosa sa fare: clip delle sue entrate, uscite, stati, reazioni e animazioni.",
-    "pt": "Agora mostra no catálogo o que sabe fazer: clipes das suas entradas, saídas, estados, reações e animações."
+    "es": "Preparado para el SDK 1.0 de los asistentes: necesita K-Desktop 5.0.197 o posterior.",
+    "en": "Ready for the assistant SDK 1.0: it needs K-Desktop 5.0.197 or later.",
+    "fr": "Prêt pour le SDK 1.0 des assistants : il faut K-Desktop 5.0.197 ou plus récent.",
+    "de": "Bereit für das Assistenten-SDK 1.0: braucht K-Desktop 5.0.197 oder neuer.",
+    "it": "Pronto per l’SDK 1.0 degli assistenti: serve K-Desktop 5.0.197 o successivo.",
+    "pt": "Pronto para o SDK 1.0 dos assistentes: precisa do K-Desktop 5.0.197 ou mais recente."
   },
-  "sdk": "1.21",
+  "sdk": "1.0",
   "updates": "https://github.com/Kobayashi82/K-Desktop/releases/download/assistants/lander.kai",
   "common": ["size", "volume", "liveliness", "dragging"],
   "entry": "lib/Lander.Assistant.dll!Lander.Assistant.LanderAssistant",

@@ -76,7 +76,7 @@ public sealed partial class LanderAssistant
         {
             _windowHandles.Add(window.Handle);
             _titles[window.Handle] = window.Title;
-            _windows.Add(new CoreWindow(window.Handle, ToCore(window.Bounds), window.IsMaximized, window.AppId));
+            _windows.Add(new CoreWindow(window.Handle, ToCore(window.Bounds), window.IsMaximized, window.Process));
         }
 
         RebuildTerrain();

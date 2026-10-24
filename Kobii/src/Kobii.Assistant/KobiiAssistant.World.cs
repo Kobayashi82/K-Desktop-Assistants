@@ -69,7 +69,7 @@ public sealed partial class KobiiAssistant
         }
 
         _snapshot = snapshot;
-        _windows = snapshot.Windows.Select(w => new CoreWindow(w.Handle, ToCore(w.Bounds), w.IsMaximized, w.AppId)).ToList();
+        _windows = snapshot.Windows.Select(w => new CoreWindow(w.Handle, ToCore(w.Bounds), w.IsMaximized, w.Process)).ToList();
         Carried(snapshot);
         _world = TerrainBuilder.Build(_monitors, _windows, new TerrainOptions { CreatureHeightDip = Species.HeightDip * _settings.Size }, _now);
         _terrainDirty = false;
