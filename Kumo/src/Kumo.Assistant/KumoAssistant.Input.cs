@@ -11,6 +11,12 @@ namespace Kumo.Assistant;
 /// </summary>
 public sealed partial class KumoAssistant
 {
+    /// <summary>Lo que sigue tras lanzarlo: la velocidad con la que lo sueltas durante este tiempo…</summary>
+    private const double FlingSeconds = 0.35;
+
+    /// <summary>…y como mucho tantas unidades.</summary>
+    private const double FlingUnits = 12;
+
     private bool _pressed;
     private bool _dragging;
     private Vec2 _grabOffset;
@@ -18,6 +24,11 @@ public sealed partial class KumoAssistant
     public void OnPointer(PointerEvent e)
     {
         if (!_started || _hidden || _exitStart is not null)
+        {
+            return;
+        }
+
+        if (OnFiles(e))
         {
             return;
         }
@@ -45,6 +56,13 @@ public sealed partial class KumoAssistant
                 EndPress();
                 break;
 
+            case PointerEventKind.Click when _asleep:
+                // Un clic lo despierta de la siesta.
+                _pressed = false;
+                _napUntil = double.NaN;
+                WakeUp(quiet: false);
+                break;
+
             case PointerEventKind.Click:
                 _pressed = false;
                 Act(CloudPose.Tickle, 1.1);
@@ -69,8 +87,16 @@ public sealed partial class KumoAssistant
     {
         if (_dragging)
         {
-            // Se queda donde lo sueltas (KeepOnScreen lo mete en la pantalla).
-            _cloud.Hover(_cloud.Home);
+            // Si lo lanzas, sigue con el impulso y se queda por donde le lleva (no vuelve al ratón); si no, donde lo sueltas.
+            // KeepOnScreen lo mete en la pantalla.
+            var fling = _cloud.Velocity * FlingSeconds;
+            var most = _unit * FlingUnits;
+            if (fling.Length > most)
+            {
+                fling *= most / fling.Length;
+            }
+
+            _cloud.Hover(_cloud.Position + fling);
             _savedSpot = _cloud.Home;
             _hit.Cursor = PointerCursor.Hand;
         }

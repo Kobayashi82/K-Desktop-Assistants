@@ -20,7 +20,7 @@ public sealed partial class KumoAssistant
     private CloudPose? _action;
     private double _actionUntil;
     private double _greetAt = double.NaN;
-    private double _nextDrop = double.NaN;
+    private double _nextWhim = double.NaN;
     private double _nextTrip = double.NaN;
     private bool _asleep;
 
@@ -86,7 +86,7 @@ public sealed partial class KumoAssistant
     {
         var lively = _settings.Liveliness;
         var idle = _host.World.System.UserIdleSeconds;
-        if (idle > SleepAfter)
+        if (idle > SleepAfter || Napping)
         {
             if (!_asleep)
             {
@@ -115,15 +115,15 @@ public sealed partial class KumoAssistant
             return;
         }
 
-        // La gota, a ratos.
-        if (double.IsNaN(_nextDrop))
+        // Lo suyo, a ratos (la gota, nubecitas, un saludo, a veces llovizna o un arcoíris). Bailando con la música, no.
+        if (double.IsNaN(_nextWhim))
         {
-            _nextDrop = _now + Random(18, 40) / lively;
+            _nextWhim = _now + Random(14, 30) / lively;
         }
-        else if (_now >= _nextDrop)
+        else if (_now >= _nextWhim && _cloud.DanceBeat is null)
         {
-            _nextDrop = _now + Random(25, 60) / lively;
-            Act(CloudPose.Drop, Random(2.4, 3.6));
+            _nextWhim = _now + Random(20, 45) / lively;
+            DoWhim();
             return;
         }
 
@@ -150,6 +150,7 @@ public sealed partial class KumoAssistant
         }
 
         _asleep = false;
+        _napUntil = double.NaN;
         _basePose = CloudPose.Idle;
         if (!quiet)
         {

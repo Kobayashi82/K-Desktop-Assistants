@@ -31,6 +31,10 @@ public sealed class CloudField
     private int[] _second = [];
     private bool[] _visited = [];
     private readonly List<Vec2> _points = [];
+    private readonly List<Vec2> _raw = [];
+
+    /// <summary>Los puntos que lleva como poco un bucle (si sus cortes con la rejilla dan para ello).</summary>
+    private const int MinLoopPoints = 12;
 
     /// <summary>Esquina de arriba a la izquierda de la rejilla (unidades).</summary>
     public Vec2 Origin { get; private set; }
@@ -234,7 +238,6 @@ public sealed class CloudField
             }
         }
 
-        var spacing2 = spacing * spacing;
         for (var start = 0; start < keys; start++)
         {
             if (_first[start] < 0 || _visited[start])
@@ -242,21 +245,35 @@ public sealed class CloudField
                 continue;
             }
 
-            _points.Clear();
+            _raw.Clear();
             var previous = -1;
             var current = start;
+            var perimeter = 0.0;
             while (current >= 0 && !_visited[current])
             {
                 _visited[current] = true;
                 var p = PointOf(current, lv);
+                if (_raw.Count > 0)
+                {
+                    perimeter += (p - _raw[^1]).Length;
+                }
+
+                _raw.Add(p);
+                var next = _first[current] != previous ? _first[current] : _second[current];
+                previous = current;
+                current = next;
+            }
+
+            // Un bucle pequeño (un jirón que se separa) con pocos puntos sale en rombo o en triángulo: siempre unos cuantos.
+            var gap = Math.Min(spacing, perimeter / MinLoopPoints);
+            var spacing2 = gap * gap;
+            _points.Clear();
+            foreach (var p in _raw)
+            {
                 if (_points.Count == 0 || (p - _points[^1]).LengthSquared >= spacing2)
                 {
                     _points.Add(p);
                 }
-
-                var next = _first[current] != previous ? _first[current] : _second[current];
-                previous = current;
-                current = next;
             }
 
             // El último punto, si quedó pegado al primero, sobra.

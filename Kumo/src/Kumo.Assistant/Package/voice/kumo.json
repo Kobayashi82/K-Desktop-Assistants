@@ -1,0 +1,40 @@
+{
+  "$schema": "../../../../../../docs/assistant/schemas/voice.schema.json",
+  "name": "Kumo",
+  "engine": {
+    "type": "kokoro",
+    "voice": "default"
+  },
+  "chain": [
+    {
+      "fx": "pitch",
+      "semitones": 2
+    },
+    {
+      "fx": "chorus",
+      "rate": 0.5,
+      "depth": 0.35,
+      "mix": 0.16
+    },
+    {
+      "fx": "echo",
+      "ms": 85,
+      "feedback": 0.12,
+      "mix": 0.08
+    }
+  ],
+  "moods": {
+    "happy": [
+      {
+        "fx": "pitch",
+        "semitones": 1.5
+      }
+    ],
+    "error": [
+      {
+        "fx": "pitch",
+        "semitones": -1.5
+      }
+    ]
+  }
+}

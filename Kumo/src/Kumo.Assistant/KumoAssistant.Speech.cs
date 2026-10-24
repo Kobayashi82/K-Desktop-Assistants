@@ -162,6 +162,4 @@ public sealed partial class KumoAssistant
         brush.Freeze();
         return brush;
     }
-
-    public Task OnExtraAsync(string extraId, CancellationToken ct) => Task.CompletedTask;
 }

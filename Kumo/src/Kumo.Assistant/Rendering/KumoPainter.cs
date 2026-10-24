@@ -12,8 +12,8 @@ namespace Kumo.Assistant.Rendering;
 /// </summary>
 /// <remarks>
 /// Orden: la sombra; los anillos del borde blando (el mismo degradado cada vez más opaco) y el cuerpo, liso por dentro (los bultos
-/// se ven en la silueta: sombreados, sus círculos rodeaban la cara como un disco o unos mofletes); recortado al cuerpo, el borde
-/// iluminado por arriba y oscuro por abajo; el brillo de gota; la cara.
+/// se ven en la silueta: sombreados, sus círculos rodeaban la cara como un disco o unos mofletes); una banda junto al borde
+/// iluminada por arriba y oscura por abajo; recortado al cuerpo, el brillo de gota; la cara.
 /// </remarks>
 internal sealed class KumoPainter
 {
@@ -33,7 +33,7 @@ internal sealed class KumoPainter
 
     private readonly Dictionary<int, Brush> _bodyBrushes = [];
     private readonly Dictionary<int, Brush> _ringBrushes = [];
-    private readonly Dictionary<int, Pen> _rimPens = [];
+    private readonly Dictionary<int, Brush> _rimBrushes = [];
     private readonly Dictionary<int, Brush> _glossBrushes = [];
     private readonly Dictionary<int, Brush> _cheekBrushes = [];
     private static readonly Brush ShadowBrush = Frozen(Radial([(0, Color.FromArgb(28, 8, 6, 20)), (1, Color.FromArgb(0, 8, 6, 20))]));
@@ -79,15 +79,17 @@ internal sealed class KumoPainter
         if (body is not null)
         {
             dc.DrawGeometry(BodyBrush(tint), null, body);
-            dc.PushClip(body);
-            dc.DrawGeometry(null, RimPen(tint), body);
+            // El borde: la banda entre el cuerpo y el mismo encogido (pares e impares: lo de dentro queda fuera). Un trazo
+            // recortado al cuerpo daba lo mismo, pero al host le cuesta una capa y ensanchar el trazo en cada fotograma.
+            dc.DrawGeometry(RimBrush(tint), null, Outline([.. frame.Core, .. frame.Inset], FillRule.EvenOdd));
+
             var gloss = (int)Math.Round(frame.Smooth * 10);
             if (gloss > 0)
             {
+                dc.PushClip(body);
                 DrawGloss(dc, frame, gloss);
+                dc.Pop();
             }
-
-            dc.Pop();
         }
 
         if (frame.ShowFace)
@@ -221,14 +223,14 @@ internal sealed class KumoPainter
     // ---------- geometrías ----------
 
     /// <summary>Los bucles como una sola geometría con curvas suaves (Catmull-Rom); null si no hay ninguno.</summary>
-    public static Geometry? Outline(List<Vec2[]> loops)
+    public static Geometry? Outline(List<Vec2[]> loops, FillRule rule = FillRule.Nonzero)
     {
         if (loops.Count == 0)
         {
             return null;
         }
 
-        var geometry = new StreamGeometry { FillRule = FillRule.Nonzero };
+        var geometry = new StreamGeometry { FillRule = rule };
         using (var g = geometry.Open())
         {
             foreach (var points in loops)
@@ -237,13 +239,8 @@ internal sealed class KumoPainter
                 g.BeginFigure(P(points[0]), true, true);
                 for (var i = 0; i < n; i++)
                 {
-                    var p0 = points[(i - 1 + n) % n];
-                    var p1 = points[i];
-                    var p2 = points[(i + 1) % n];
-                    var p3 = points[(i + 2) % n];
-                    var c1 = new Point(p1.X + (p2.X - p0.X) / 6, p1.Y + (p2.Y - p0.Y) / 6);
-                    var c2 = new Point(p2.X - (p3.X - p1.X) / 6, p2.Y - (p3.Y - p1.Y) / 6);
-                    g.BezierTo(c1, c2, P(p2), true, true);
+                    var (c1, c2) = Centripetal(points[(i - 1 + n) % n], points[i], points[(i + 1) % n], points[(i + 2) % n]);
+                    g.BezierTo(c1, c2, P(points[(i + 1) % n]), true, true);
                 }
             }
         }
@@ -253,6 +250,25 @@ internal sealed class KumoPainter
     }
 
     private static Point P(Vec2 v) => new(v.X, v.Y);
+
+    /// <summary>
+    /// Los puntos de control del tramo p1→p2 de una Catmull-Rom centrípeta: con puntos a distancias muy distintas (un jirón que
+    /// se separa) la uniforme se pasa de largo y hace picos y lazos; esta nunca.
+    /// </summary>
+    private static (Point, Point) Centripetal(Vec2 p0, Vec2 p1, Vec2 p2, Vec2 p3)
+    {
+        var d1 = Math.Sqrt((p1 - p0).Length);
+        var d2 = Math.Sqrt((p2 - p1).Length);
+        var d3 = Math.Sqrt((p3 - p2).Length);
+        if (d1 < 1e-6 || d2 < 1e-6 || d3 < 1e-6)
+        {
+            return (P(p1 + (p2 - p0) / 6), P(p2 - (p3 - p1) / 6));
+        }
+
+        var c1 = (p2 * (d1 * d1) - p0 * (d2 * d2) + p1 * (2 * d1 * d1 + 3 * d1 * d2 + d2 * d2)) / (3 * d1 * (d1 + d2));
+        var c2 = (p1 * (d3 * d3) - p3 * (d2 * d2) + p2 * (2 * d3 * d3 + 3 * d3 * d2 + d2 * d2)) / (3 * d3 * (d3 + d2));
+        return (P(c1), P(c2));
+    }
 
     /// <summary>Un arco de circunferencia entre dos ángulos (radianes, en el sentido de las agujas con la y hacia abajo).</summary>
     private static Geometry Arc(Point center, double radius, double from, double to)
@@ -328,12 +344,12 @@ internal sealed class KumoPainter
         Opacity = opacity,
     };
 
-    /// <summary>El borde: iluminado por arriba (el sol le da) y oscuro por debajo; solo se ve la mitad de dentro.</summary>
-    private Pen RimPen(int tint) => CachedPen(_rimPens, tint, () =>
+    /// <summary>El borde: iluminado por arriba (el sol le da) y oscuro por debajo.</summary>
+    private Brush RimBrush(int tint) => Cached(_rimBrushes, tint, () =>
     {
         var light = Color.FromRgb(255, 250, 226);
         var dark = Mix(Shade(2, tint), Shade(3, tint), 0.4);
-        var brush = new LinearGradientBrush(
+        return new LinearGradientBrush(
             [
                 new GradientStop(WithAlpha(light, 0.6), 0),
                 new GradientStop(WithAlpha(light, 0), 0.42),
@@ -341,7 +357,6 @@ internal sealed class KumoPainter
                 new GradientStop(WithAlpha(dark, 0.5), 1),
             ], new Point(0, GradientTop), new Point(0, GradientBottom))
         { MappingMode = BrushMappingMode.Absolute };
-        return new Pen(brush, 0.12) { LineJoin = PenLineJoin.Round };
     });
 
     private Brush GlossBrush(int level) => Cached(_glossBrushes, level, () =>
@@ -364,18 +379,6 @@ internal sealed class KumoPainter
         }
 
         return brush;
-    }
-
-    private static Pen CachedPen(Dictionary<int, Pen> cache, int key, Func<Pen> create)
-    {
-        if (!cache.TryGetValue(key, out var pen))
-        {
-            pen = create();
-            pen.Freeze();
-            cache[key] = pen;
-        }
-
-        return pen;
     }
 
     private static T Frozen<T>(T freezable)

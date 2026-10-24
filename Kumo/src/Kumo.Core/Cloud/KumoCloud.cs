@@ -111,6 +111,14 @@ public sealed class KumoCloud
     /// <summary>Adónde va (o donde flota).</summary>
     public Vec2 Home { get; set; }
 
+    /// <summary>Bailando: el golpe de la música en el que va (crece con el ritmo); null si no baila.</summary>
+    public double? DanceBeat { get; set; }
+
+    /// <summary>Llueve un poco de él (la llovizna; la de cuando algo sale mal va con <see cref="CloudPose.Error"/>).</summary>
+    public bool Raining { get; set; }
+
+    private double _lastBar = double.NaN;
+
     public Motion Motion { get; private set; } = Motion.Hover;
 
     /// <summary>Velocidad máxima al volar (píxeles por segundo).</summary>
@@ -195,7 +203,7 @@ public sealed class KumoCloud
 
     /// <summary>Hay algo moviéndose de forma visible: hace falta dibujar a cada fotograma.</summary>
     public bool IsLively =>
-        Motion is Motion.Fly or Motion.Follow || Speed > 0.15 || HasFastPuffs || PoseTime < 0.6
+        Motion is Motion.Fly or Motion.Follow || Speed > 0.15 || HasFastPuffs || PoseTime < 0.6 || DanceBeat is not null
         || Pose is CloudPose.Bubble or CloudPose.Talk or CloudPose.Listen or CloudPose.Point or CloudPose.Press or CloudPose.Wave
             or CloudPose.Happy or CloudPose.Surprise or CloudPose.Dissolve or CloudPose.Tickle or CloudPose.Hug or CloudPose.Gather;
 
@@ -333,7 +341,9 @@ public sealed class KumoCloud
         {
             Motion.Fly => (28.0, 0.72),
             Motion.Hold => (40.0, 0.95),
-            Motion.Follow => (90.0, 0.8),
+            // Lo llevas tú: un muelle muy rígido sin rebote (unos 30 ms), que va con el ratón (con 90 iba detrás) pero suaviza
+            // los saltos con los que llega; pegado del todo, la velocidad daba tirones y las bolas de atrás hacían picos.
+            Motion.Follow => (900.0, 1.0),
             _ => (8.0, 0.9),
         };
         var target = Home;
@@ -371,13 +381,21 @@ public sealed class KumoCloud
         }
 
         Bob = pose == CloudPose.Happy ? -Math.Abs(Math.Sin(PoseTime * 9)) * 0.24 * u * Math.Max(0, 1 - PoseTime / 2.1) : 0;
+
+        // Bailando: un botecito en cada golpe (abajo justo en él) y se mece de un lado al otro cada dos.
+        var sway = 0.0;
+        if (DanceBeat is { } beat)
+        {
+            Bob -= Math.Abs(Math.Sin(Math.PI * beat)) * 0.14 * u;
+            sway = Math.Sin(Math.PI * beat) * 0.16;
+        }
         Smooth = MathUtil.Lerp(Smooth, SmoothOf(pose), Math.Min(1, dt * 2.4));
 
         var shape = Shape(pose, out var face, out var faceScale, out var eyes, out var mouth, out var look);
         var speed = Speed;
 
         // Se inclina hacia donde va y se estira a lo largo del movimiento.
-        Tilt = MathUtil.Lerp(Tilt, Math.Clamp(Velocity.X / u * 0.035, -0.28, 0.28), Math.Min(1, dt * 6));
+        Tilt = MathUtil.Lerp(Tilt, Math.Clamp(Velocity.X / u * 0.035 + sway, -0.28, 0.28), Math.Min(1, dt * 6));
         var ct = Math.Cos(Tilt);
         var st = Math.Sin(Tilt);
         var stretch = speed > 0.25 ? Math.Min(0.45, speed * 0.04) : 0;
@@ -983,6 +1001,31 @@ public sealed class KumoCloud
         if (pose == CloudPose.Sleep && Count("z", 0.75, dt) > 0)
         {
             Particles.Add(new Particle { Kind = ParticleKind.Z, X = at.X + 0.45 * u, Y = at.Y - 0.2 * u, VX = 0.15 * u, VY = -0.45 * u, Life = 2.2, Size = 0.24 * u });
+        }
+
+        // Corcheas al bailar, una cada dos golpes.
+        if (DanceBeat is { } beat)
+        {
+            var bar = Math.Floor(beat / 2);
+            if (bar != _lastBar && !double.IsNaN(_lastBar))
+            {
+                Burst(ParticleKind.Note, new Vec2(at.X + _random.Range(-0.6, 0.6) * u, at.Y - 0.7 * u));
+            }
+
+            _lastBar = bar;
+        }
+        else
+        {
+            _lastBar = double.NaN;
+        }
+
+        // Llovizna (de las suyas: ámbar, sin ponerse gris).
+        if (Raining && pose != CloudPose.Error)
+        {
+            for (var n = Count("drizzle", 9, dt); n > 0; n--)
+            {
+                Particles.Add(new Particle { Kind = ParticleKind.Rain, X = at.X + (_random.NextDouble() - 0.5) * 1.6 * u, Y = at.Y + 0.5 * u, VY = _random.Range(2.0, 2.8) * u, Life = 0.7, Size = 0.11 * u });
+            }
         }
 
         if (pose == CloudPose.Error)

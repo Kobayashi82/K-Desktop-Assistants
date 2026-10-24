@@ -59,10 +59,39 @@ public sealed partial class KumoAssistant
             height = Math.Clamp(bottom - top, 1, 4096);
         }
 
+        // El arcoíris, la almohada y la imagen de los archivos, cuando los hay.
+        if (ExtrasBounds() is { } extra)
+        {
+            var right = Math.Max(left + width, (int)Math.Ceiling(extra.Right) + 2);
+            var bottom = Math.Max(top + height, (int)Math.Ceiling(extra.Bottom) + 2);
+            left = Math.Min(left, (int)Math.Floor(extra.Left) - 2);
+            top = Math.Min(top, (int)Math.Floor(extra.Top) - 2);
+            width = Math.Clamp(right - left, 1, 4096);
+            height = Math.Clamp(bottom - top, 1, 4096);
+        }
+
+        var rainbow = RainbowLook();
+        var picture = CarriedPicture();
         _surface.Present(SdkRect.FromSize(left, top, width, height), dc =>
         {
             var drawClock = System.Diagnostics.Stopwatch.GetTimestamp();
+            var fade = _frame.Opacity;
+            if (rainbow is var (grown, shown))
+            {
+                ExtrasPainter.DrawRainbow(dc, _cloud.RenderPosition, _cloud.Unit, grown, shown * fade);
+            }
+
+            if (_pillow > 0.01)
+            {
+                ExtrasPainter.DrawPillow(dc, PillowAt(), _cloud.Unit, _pillow * fade);
+            }
+
             _painter.Draw(dc, _frame);
+            if (picture is var (image, rect, opacity))
+            {
+                ExtrasPainter.DrawPicture(dc, image, rect, opacity * fade);
+            }
+
             if (badge is var (c, f))
             {
                 _badge.Draw(dc, c, f, _cloud.Unit, _now, _frame.Dark, _frame.Opacity);

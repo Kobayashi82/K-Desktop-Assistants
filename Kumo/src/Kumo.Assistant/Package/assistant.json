@@ -20,6 +20,35 @@
   "icon": "icon.png",
   "wakeWord": "Kumo",
   "speech": "own",
+  "voice": "voice/kumo.json",
+  "persona": "persona/{lang}.json",
+  "extras": [
+    {
+      "id": "kumo.rainbow",
+      "name": {"es":"Hacer un arcoíris","en":"Make a rainbow","fr":"Faire un arc-en-ciel","de":"Einen Regenbogen machen","it":"Fare un arcobaleno","pt":"Fazer um arco-íris"},
+      "icon": "kd:WeatherSunny"
+    },
+    {
+      "id": "kumo.drizzle",
+      "name": {"es":"Llovizna","en":"Drizzle","fr":"Bruine","de":"Nieselregen","it":"Pioggerellina","pt":"Garoa"},
+      "icon": "kd:WeatherDrizzle"
+    },
+    {
+      "id": "kumo.drop",
+      "name": {"es":"Hacerse gota","en":"Turn into a drop","fr":"Devenir une goutte","de":"Zum Tropfen werden","it":"Diventare una goccia","pt":"Virar uma gota"},
+      "icon": "kd:Drop"
+    },
+    {
+      "id": "kumo.nap",
+      "name": {"es":"Echarse la siesta","en":"Take a nap","fr":"Faire la sieste","de":"Ein Nickerchen machen","it":"Fare un pisolino","pt":"Tirar uma soneca"},
+      "icon": "kd:Bed"
+    },
+    {
+      "id": "kumo.dance",
+      "name": {"es":"Bailar","en":"Dance","fr":"Danser","de":"Tanzen","it":"Ballare","pt":"Dançar"},
+      "icon": "kd:MusicNote2"
+    }
+  ],
   "traits": {
     "travel": "fly",
     "travelSpeed": 520,

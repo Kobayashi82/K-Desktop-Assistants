@@ -16,6 +16,12 @@ internal sealed class KumoFrame
     /// <summary>Distancia mínima entre dos puntos de un contorno (unidades).</summary>
     public const double Spacing = 0.07;
 
+    /// <summary>Distancia mínima entre puntos del contorno del cuerpo en pantalla (píxeles): con menos no se ve diferencia.</summary>
+    public const double CorePixels = 5;
+
+    /// <summary>Lo mismo en los anillos del borde blando (borrosos: aguantan más).</summary>
+    public const double RingPixels = 7;
+
     /// <summary>
     /// Dónde va cada anillo del borde entre lo que ya no se ve (0) y el cuerpo (1), y lo opaco que es: juntos dan un borde que
     /// se difumina como el del boceto (smoothstep), sin bruma.
@@ -31,6 +37,16 @@ internal sealed class KumoFrame
 
     /// <summary>El cuerpo (lo opaco): uno o varios bucles (las nubecitas que ya se han separado).</summary>
     public List<Vec2[]> Core { get; } = [];
+
+    /// <summary>
+    /// El cuerpo encogido <see cref="RimWidth"/> hacia dentro: entre él y el cuerpo va el borde iluminado (una banda rellena;
+    /// antes era un trazo recortado al cuerpo, que en el host cuesta una capa y ensanchar el trazo en cada fotograma). Los trozos
+    /// demasiado pequeños no tienen: son borde enteros.
+    /// </summary>
+    public List<Vec2[]> Inset { get; } = [];
+
+    /// <summary>Lo ancho que se ve el borde iluminado (unidades).</summary>
+    public const double RimWidth = 0.06;
 
     /// <summary>Los anillos del borde blando, de fuera adentro.</summary>
     public List<Vec2[]>[] Rings { get; } = [[], [], []];
@@ -98,12 +114,24 @@ internal sealed class KumoFrame
         var soft = cloud.Soft;
         var e0 = Math.Max(0.04, 1 - soft);
         var e1 = 1 + soft * 1.1 + 0.02;
+        // Los puntos, por píxeles y no por unidades: las curvas pasan suaves por ellos, y cada uno cuesta al dibujar.
+        var coreSpacing = Math.Max(Spacing, CorePixels / Unit);
+        var ringSpacing = Math.Max(Spacing, RingPixels / Unit);
         Core.Clear();
-        _field.Contours(e1, Spacing, Core);
+        _field.Contours(e1, coreSpacing, Core);
+        Inset.Clear();
+        foreach (var loop in Core)
+        {
+            if (Offset(loop, e1, RimWidth) is { } inner)
+            {
+                Inset.Add(inner);
+            }
+        }
+
         for (var i = 0; i < Rings.Length; i++)
         {
             Rings[i].Clear();
-            _field.Contours(e0 + RingLevels[i].Level * (e1 - e0), Spacing, Rings[i]);
+            _field.Contours(e0 + RingLevels[i].Level * (e1 - e0), ringSpacing, Rings[i]);
         }
 
         // El campo y la sombra de debajo (la de KumoPainter.Draw).
@@ -112,6 +140,48 @@ internal sealed class KumoFrame
         var r = Math.Max(_field.Origin.X + _field.Columns * Cell, Center.X + 0.1 + Extent * 1.15);
         var b = Math.Max(_field.Origin.Y + _field.Rows * Cell, Center.Y + 0.38 + Extent * 0.8);
         Bounds = (l, t, r, b);
+    }
+
+    /// <summary>
+    /// El bucle desplazado <paramref name="distance"/> hacia su interior (lo que queda por encima de <paramref name="level"/>),
+    /// cada punto por la normal de su tramo; null si es tan pequeño que se daría la vuelta.
+    /// </summary>
+    private Vec2[]? Offset(Vec2[] loop, double level, double distance)
+    {
+        var n = loop.Length;
+        if (n < 6 || Math.Abs(CloudField.Area(loop)) < distance * distance * 5)
+        {
+            return null;
+        }
+
+        static Vec2 Normal(Vec2[] points, int i)
+        {
+            var n = points.Length;
+            var d = points[(i + 1) % n] - points[(i - 1 + n) % n];
+            var length = Math.Sqrt(d.X * d.X + d.Y * d.Y);
+            return length < 1e-9 ? new Vec2(0, 0) : new Vec2(-d.Y / length, d.X / length);
+        }
+
+        // De qué lado queda el interior: el mismo en todo el bucle (sale de marching squares, siempre con el mismo sentido).
+        var probe = Normal(loop, 0) * (distance * 0.5);
+        var side = _field.ValueAt(loop[0] + probe) >= _field.ValueAt(loop[0] - probe) ? distance : -distance;
+        // Nunca más allá de la mitad de lo que tiene de cuerpo delante: en un puente fino (una nubecita que se separa, la punta
+        // del dedo) los dos lados se cruzarían y la banda saldría por fuera como triángulos.
+        var step = distance / 4;
+        var inner = new Vec2[n];
+        for (var i = 0; i < n; i++)
+        {
+            var normal = Normal(loop, i) * Math.Sign(side);
+            var depth = step;
+            while (depth < distance * 2 && _field.ValueAt(loop[i] + normal * depth) >= level)
+            {
+                depth += step;
+            }
+
+            inner[i] = loop[i] + normal * Math.Min(distance, (depth - step) / 2);
+        }
+
+        return inner;
     }
 
     /// <summary>Lo que ocupa en pantalla (píxeles), redondeado hacia fuera.</summary>

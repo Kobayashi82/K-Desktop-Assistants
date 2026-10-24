@@ -51,6 +51,7 @@ public sealed partial class KumoAssistant
     {
         var system = _host.World.System;
         _cloud.Cursor = _settings.FollowCursor && system.Cursor is { } c ? new Vec2(c.X, c.Y) : null;
+        UpdateMusic();
     }
 
     /// <summary>Píxeles por unidad donde está ahora (sigue al escalado del monitor y al tamaño elegido).</summary>

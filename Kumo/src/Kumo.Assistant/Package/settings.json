@@ -1,0 +1,52 @@
+{
+  "$schema": "../../../../../docs/assistant/schemas/settings.schema.json",
+  "pages": [
+    {
+      "title": { "es": "General", "en": "General", "fr": "Général", "de": "Allgemein", "it": "Generale", "pt": "Geral" },
+      "icon": "kd:Settings",
+      "sections": [
+        {
+          "title": { "es": "Comportamiento", "en": "Behaviour", "fr": "Comportement", "de": "Verhalten", "it": "Comportamento", "pt": "Comportamento" },
+          "items": [
+            {
+              "type": "toggle", "key": "followCursor", "default": true,
+              "label": { "es": "Te sigue con la mirada", "en": "Follows you with its eyes", "fr": "Te suit du regard", "de": "Folgt dir mit den Augen", "it": "Ti segue con lo sguardo", "pt": "Segue você com o olhar" },
+              "description": {
+                "es": "Mira el cursor cuando pasa cerca.",
+                "en": "It looks at the cursor when it passes nearby.",
+                "fr": "Il regarde le curseur quand il passe tout près.",
+                "de": "Sie schaut auf den Mauszeiger, wenn er in der Nähe vorbeikommt.",
+                "it": "Guarda il cursore quando passa vicino.",
+                "pt": "Olha para o cursor quando ele passa por perto."
+              }
+            },
+            {
+              "type": "toggle", "key": "watchNotifications", "default": true,
+              "label": { "es": "Se asoma a los avisos", "en": "Peeks at notifications", "fr": "Jette un œil aux notifications", "de": "Schaut bei Benachrichtigungen vorbei", "it": "Sbircia le notifiche", "pt": "Espia as notificações" },
+              "description": {
+                "es": "Cuando sale un aviso de Windows, se acerca un poco a verlo.",
+                "en": "When a Windows notification shows up, it drifts over a little to see it.",
+                "fr": "Quand une notification Windows apparaît, il s’approche un peu pour la voir.",
+                "de": "Erscheint eine Windows-Benachrichtigung, schwebt sie ein Stück hin, um sie zu sehen.",
+                "it": "Quando compare una notifica di Windows, si avvicina un po’ a guardarla.",
+                "pt": "Quando aparece uma notificação do Windows, chega um pouco mais perto para ver."
+              }
+            },
+            {
+              "type": "toggle", "key": "dance", "default": true,
+              "label": { "es": "Baila con la música", "en": "Dances to music", "fr": "Danse sur la musique", "de": "Tanzt zur Musik", "it": "Balla con la musica", "pt": "Dança com a música" },
+              "description": {
+                "es": "Si suena música en el PC, se mece al ritmo.",
+                "en": "If music is playing on the PC, it sways to the beat.",
+                "fr": "Si de la musique joue sur le PC, il se balance au rythme.",
+                "de": "Läuft Musik auf dem PC, wiegt sie sich im Takt.",
+                "it": "Se sul PC suona musica, ondeggia a ritmo.",
+                "pt": "Se estiver tocando música no PC, balança no ritmo."
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -136,6 +136,7 @@ public sealed partial class KumoAssistant : IAssistant
 
         UpdateManoeuvres();
         Behave(tick.Elapsed);
+        UpdateExtras(tick.Elapsed);
         _unit = UnitHere();
         _cloud.Unit = _unit * SproutScale();
         _cloud.Step(tick.Elapsed);
@@ -166,7 +167,7 @@ public sealed partial class KumoAssistant : IAssistant
 
     /// <summary>Hay algo que se ve moverse: a cada fotograma.</summary>
     private bool IsActive() =>
-        _cloud.IsLively || _badge.IsAnimating(_now) || _dragging || _pressed || ManoeuvreActive || _cloud.Lid > 0 || _now - _fadeStart < FadeInDuration || !double.IsNaN(_fadeOutStart);
+        _cloud.IsLively || _badge.IsAnimating(_now) || ExtrasMoving || _dragging || _pressed || ManoeuvreActive || _cloud.Lid > 0 || _now - _fadeStart < FadeInDuration || !double.IsNaN(_fadeOutStart);
 
     /// <summary>Lo pone en su sitio en cuanto hay monitores (al cargarlo el mundo puede estar aún vacío) y hace su entrada.</summary>
     private bool TryStart()
