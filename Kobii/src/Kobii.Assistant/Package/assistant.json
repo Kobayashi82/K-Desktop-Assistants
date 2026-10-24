@@ -23,6 +23,7 @@
   "homepage": "https://github.com/Kobayashi82/K-Desktop-Assistants",
   "license": "MIT",
   "sdk": "1.21",
+  "updates": "https://github.com/Kobayashi82/K-Desktop/releases/download/assistants/kobii.kai",
   "common": ["size", "volume", "liveliness", "dragging"],
   "entry": "lib/Kobii.Assistant.dll!Kobii.Assistant.KobiiAssistant",
   "icon": "icon.png",

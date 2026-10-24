@@ -23,6 +23,7 @@
     "pt": "Agora mostra no catálogo o que sabe fazer: clipes das suas entradas, saídas, estados, reações e animações."
   },
   "sdk": "1.21",
+  "updates": "https://github.com/Kobayashi82/K-Desktop/releases/download/assistants/lander.kai",
   "common": ["size", "volume", "liveliness", "dragging"],
   "entry": "lib/Lander.Assistant.dll!Lander.Assistant.LanderAssistant",
   "icon": "icon.png",

@@ -24,6 +24,8 @@
     <KDesktopRoot>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..'))\</KDesktopRoot>
     <AssistantSdkProject>$(KDesktopRoot)src\KDesktop.Assistant.Sdk\KDesktop.Assistant.Sdk.csproj</AssistantSdkProject>
     <AssistantSdkTargets>$(KDesktopRoot)src\KDesktop.Assistant.Sdk\build\KDesktop.Assistant.Sdk.targets</AssistantSdkTargets>
+    <!-- El firmador, también desde el código de K-Desktop: cada .kai sale firmado si este usuario tiene clave. -->
+    <KaiSignProject>$(KDesktopRoot)tools\KaiSign\KaiSign.csproj</KaiSignProject>
   </PropertyGroup>
 
 </Project>
