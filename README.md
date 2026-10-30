@@ -53,7 +53,7 @@ KDesktop.exe --assistant-dev "Lander\src\Lander.Assistant" --data "<a test data 
 ```
 
 It loads the package just built and reloads it on every rebuild. The guide to make a new one is
-[`docs/assistant/creating-an-assistant.md`](https://github.com/Kobayashi82/K-Desktop/blob/main/docs/assistant/creating-an-assistant.md)
+[Making assistants](https://kobayashi82.github.io/K-Desktop/en/sdk/index.html)
 in K-Desktop.
 
 ## License

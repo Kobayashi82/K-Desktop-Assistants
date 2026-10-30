@@ -53,7 +53,7 @@ KDesktop.exe --assistant-dev "Lander\src\Lander.Assistant" --data "<carpeta de d
 ```
 
 Carga el paquete recién compilado y lo recarga en cada compilación. La guía para hacer uno nuevo es
-[`docs/assistant/creating-an-assistant.md`](https://github.com/Kobayashi82/K-Desktop/blob/main/docs/assistant/creating-an-assistant.md)
+[Crear asistentes](https://kobayashi82.github.io/K-Desktop/es/sdk/index.html)
 en K-Desktop.
 
 ## Licencia
